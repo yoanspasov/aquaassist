@@ -214,6 +214,9 @@
         .aqua-toast.bg-emerald-600\/95 { background-color: rgba(5,150,105,0.95); }
         .aqua-toast.border-emerald-400\/40 { border-color: rgba(52,211,153,0.4); }
     </style>
+    <!-- Firebase (само за облачна синхронизация с код, без регистрация) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 </head>
 <body id="body" class="bg-slate-900 text-slate-100 min-h-screen transition-colors duration-300 pb-6">
 
@@ -915,6 +918,39 @@
                 <p class="text-[11px] text-slate-500 text-center max-w-xs"><span data-i18n>Само основните настройки на текущия аквариум (обем, форма, тип и списък с обитатели) —</span> <strong data-i18n>без</strong> <span data-i18n>снимки и история, защото не се събират в QR код. Сканирай с друг твой телефон и отвори AquaAssist там, за да ги въведеш ръчно.</span></p>
             </div>
             <p class="text-[11px] text-slate-500" data-i18n>Данните се пазят само в този браузър. Снимките заемат най-много място — ако лентата се запълва, направи експорт и изтрий стари снимки.</p>
+
+            <div class="bg-slate-900/60 border border-slate-700 rounded-xl p-4 space-y-3">
+                <h3 class="text-sm font-semibold flex items-center gap-2"><i class="fa-solid fa-cloud text-cyan-400"></i> <span data-i18n>Синхронизация между устройства</span></h3>
+                <p class="text-[11px] text-slate-500" data-i18n>Незадължително. Без имейл и парола — само код, който пазиш сам.</p>
+
+                <div id="syncNoCode" class="space-y-2">
+                    <div class="flex gap-2">
+                        <input type="text" id="syncNickname" placeholder="само латиница, напр. yoan" data-i18n-placeholder oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')" pattern="[a-zA-Z0-9]+" class="flex-1 bg-slate-700 border border-slate-600 rounded-lg p-2 text-xs">
+                        <button onclick="generateSyncCode()" class="bg-cyan-700 hover:bg-cyan-600 text-xs px-3 py-2 rounded-lg font-medium text-white shrink-0" data-i18n>Създай код</button>
+                    </div>
+                    <button onclick="showSyncLoginForm()" class="text-[11px] text-cyan-400 hover:text-cyan-300 underline" data-i18n>Вече имам код от друго устройство</button>
+                </div>
+
+                <div id="syncLoginForm" class="hidden space-y-2">
+                    <div class="flex gap-2">
+                        <input type="text" id="syncCodeInput" placeholder="напр. yoan-4f2a9c" class="flex-1 bg-slate-700 border border-slate-600 rounded-lg p-2 text-xs">
+                        <button onclick="downloadFromCloud()" class="bg-cyan-700 hover:bg-cyan-600 text-xs px-3 py-2 rounded-lg font-medium text-white shrink-0" data-i18n>Изтегли</button>
+                    </div>
+                    <button onclick="hideSyncLoginForm()" class="text-[11px] text-slate-500 hover:text-slate-400 underline" data-i18n>Назад</button>
+                </div>
+
+                <div id="syncHasCode" class="hidden space-y-2">
+                    <div class="flex items-center justify-between bg-slate-800 border border-cyan-700/40 rounded-lg p-2.5">
+                        <code id="syncCodeDisplay" class="text-cyan-300 text-sm font-mono"></code>
+                        <button onclick="copySyncCode()" title="Копирай" data-i18n-title aria-label="Копирай кода" class="text-slate-400 hover:text-cyan-300"><i class="fa-solid fa-copy"></i></button>
+                    </div>
+                    <p class="text-[11px] text-amber-400"><i class="fa-solid fa-triangle-exclamation mr-1"></i><span data-i18n>Запиши си този код някъде — ще ти трябва за другите устройства.</span></p>
+                    <button onclick="uploadToCloud()" class="w-full bg-cyan-700 hover:bg-cyan-600 text-xs px-3 py-2 rounded-lg font-medium text-white" data-i18n>Качи в облака</button>
+                    <p id="syncLastUpload" class="text-[11px] text-slate-500"></p>
+                    <button onclick="forgetSyncCode()" class="text-[11px] text-red-400 hover:text-red-300 underline" data-i18n>Забрави този код на това устройство</button>
+                </div>
+            </div>
+
             <a href="privacy-policy.html" target="_blank" class="text-[11px] text-cyan-400 hover:text-cyan-300 underline inline-flex items-center gap-1"><i class="fa-solid fa-shield-halved"></i><span data-i18n>Политика за поверителност</span></a>
         </section>
 
@@ -1066,7 +1102,7 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "2.7.0";
+        const APP_VERSION = "2.9.0";
         let waterDue = Date.now() + 5 * DAY_MS;
         let waterChangedToday = false;
 
@@ -2861,6 +2897,35 @@
             "Промени, ако отчиташ със закъснение": "Change if logging late",
             "Изключи това напомняне": "Turn off this reminder",
             "Включи това напомняне": "Turn on this reminder",
+            "Синхронизация между устройства": "Sync across devices",
+            "Незадължително. Без имейл и парола — само код, който пазиш сам.": "Optional. No email or password — just a code you keep yourself.",
+            "Избери си псевдоним...": "Choose a nickname...",
+            "само латиница, напр. yoan": "Latin letters only, e.g. yoan",
+            "Моля, използвай само латински букви и цифри.": "Please use only Latin letters and digits.",
+            "Създай код": "Create code",
+            "Вече имам код от друго устройство": "I already have a code from another device",
+            "напр. yoan-4f2a9c": "e.g. yoan-4f2a9c",
+            "Изтегли": "Download",
+            "Назад": "Back",
+            "Копирай": "Copy",
+            "Запиши си този код някъде — ще ти трябва за другите устройства.": "Write this code down somewhere — you will need it on other devices.",
+            "Качи в облака": "Upload to cloud",
+            "Забрави този код на това устройство": "Forget this code on this device",
+            "Въведи псевдоним първо.": "Enter a nickname first.",
+            "Кодът е създаден. Запиши го някъде.": "Code created. Write it down somewhere.",
+            "Кодът е копиран.": "Code copied.",
+            "Сигурен ли си? Ще трябва да го въведеш ръчно, за да го ползваш пак на това устройство.": "Are you sure? You will need to enter it manually to use it again on this device.",
+            "Няма код още.": "No code yet.",
+            "Синхронизацията не е настроена още.": "Sync is not set up yet.",
+            "Качване...": "Uploading...",
+            "Последно качване:": "Last upload:",
+            "Качено успешно!": "Uploaded successfully!",
+            "Грешка при качване.": "Upload error.",
+            "Въведи код първо.": "Enter a code first.",
+            "Изтегляне...": "Downloading...",
+            "Няма данни с този код.": "No data found for this code.",
+            "Това ще замести текущите данни на това устройство с тези от облака. Продължи?": "This will replace the current data on this device with the data from the cloud. Continue?",
+            "Грешка при изтегляне.": "Download error.",
             "или": "or",
             "Въведи директно колко литра си сменил": "Enter directly how many liters you changed",
             "Акваскейп (растителен)": "Aquascape (planted)",
@@ -3246,8 +3311,8 @@
             if (label) label.textContent = currentLang === 'en' ? 'Language' : 'Език';
             const b = "flex-1 text-[11px] py-1.5 rounded-lg border transition-all duration-200 ";
             box.innerHTML = `
-                <button onclick="setLanguage('bg')" class="${b}${currentLang === 'bg' ? 'bg-cyan-700 border-cyan-600 text-white' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}">BG</button>
-                <button onclick="setLanguage('en')" class="${b}${currentLang === 'en' ? 'bg-cyan-700 border-cyan-600 text-white' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}">EN</button>`;
+                <button onclick="setLanguage('bg')" class="${b}${currentLang === 'bg' ? 'bg-cyan-700 border-cyan-600 text-white' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}">🇧🇬 BG</button>
+                <button onclick="setLanguage('en')" class="${b}${currentLang === 'en' ? 'bg-cyan-700 border-cyan-600 text-white' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}">🇬🇧 EN</button>`;
         }
 
         let currentTheme = "ocean";
@@ -3506,6 +3571,114 @@
         function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
         function snoozeBackup() { lsSet(SNOOZE_KEY, String(Date.now() + 7 * DAY_MS)); renderBackup(); showToast(`${tr('Ще ти напомня след')} 7 ${dayWord(7)}`); }
+
+        // ╔══════════════════════════════════════════════════════════════════════╗
+        // ║  FIREBASE — ПОСТАВИ ТУК СВОИТЕ ДАННИ ОТ FIREBASE CONSOLE               ║
+        // ║  (Project settings → General → Your apps → ⚙ Config)                  ║
+        // ╚══════════════════════════════════════════════════════════════════════╝
+        const firebaseConfig = {
+            apiKey: "ПОСТАВИ_ТУК",
+            authDomain: "ПОСТАВИ_ТУК",
+            projectId: "ПОСТАВИ_ТУК",
+            storageBucket: "ПОСТАВИ_ТУК",
+            messagingSenderId: "ПОСТАВИ_ТУК",
+            appId: "ПОСТАВИ_ТУК"
+        };
+        let fbReady = false;
+        try {
+            if (firebaseConfig.apiKey !== "ПОСТАВИ_ТУК" && typeof firebase !== 'undefined') {
+                firebase.initializeApp(firebaseConfig);
+                fbReady = true;
+            }
+        } catch (e) { fbReady = false; }
+
+        // ---------- Облачна синхронизация (без регистрация — само код, който пазиш сам) ----------
+        const SYNC_CODE_KEY = 'aquaAssistSyncCode';
+        let mySyncCode = lsGet(SYNC_CODE_KEY) || '';
+
+        function initSyncUI() {
+            const has = !!mySyncCode;
+            const noCodeBox = document.getElementById('syncNoCode');
+            const hasCodeBox = document.getElementById('syncHasCode');
+            if (!noCodeBox || !hasCodeBox) return;
+            noCodeBox.classList.toggle('hidden', has);
+            document.getElementById('syncLoginForm').classList.add('hidden');
+            hasCodeBox.classList.toggle('hidden', !has);
+            if (has) document.getElementById('syncCodeDisplay').textContent = mySyncCode;
+        }
+
+        function showSyncLoginForm() {
+            document.getElementById('syncNoCode').classList.add('hidden');
+            document.getElementById('syncLoginForm').classList.remove('hidden');
+        }
+        function hideSyncLoginForm() {
+            document.getElementById('syncLoginForm').classList.add('hidden');
+            document.getElementById('syncNoCode').classList.remove('hidden');
+        }
+
+        function generateSyncCode() {
+            const raw = (document.getElementById('syncNickname').value || '').trim();
+            if (!raw) { showToast(tr('Въведи псевдоним първо.'), 'warn'); return; }
+            const nick = raw.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20);
+            if (!nick) { showToast(tr('Моля, използвай само латински букви и цифри.'), 'warn'); return; }
+            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            let suffix = '';
+            for (let i = 0; i < 6; i++) suffix += chars[Math.floor(Math.random() * chars.length)];
+            mySyncCode = `${nick}-${suffix}`;
+            lsSet(SYNC_CODE_KEY, mySyncCode);
+            initSyncUI();
+            showToast(tr('Кодът е създаден. Запиши го някъде.'));
+        }
+
+        function copySyncCode() {
+            if (!mySyncCode) return;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(mySyncCode).then(() => showToast(tr('Кодът е копиран.')));
+            }
+        }
+
+        function forgetSyncCode() {
+            if (!confirm(tr('Сигурен ли си? Ще трябва да го въведеш ръчно, за да го ползваш пак на това устройство.'))) return;
+            mySyncCode = '';
+            try { localStorage.removeItem(SYNC_CODE_KEY); } catch (e) {}
+            initSyncUI();
+        }
+
+        async function uploadToCloud() {
+            if (!mySyncCode) { showToast(tr('Няма код още.'), 'warn'); return; }
+            if (!fbReady) { showToast(tr('Синхронизацията не е настроена още.'), 'warn'); return; }
+            try {
+                showToast(tr('Качване...'));
+                const payload = { tanks: store.tanks, active: store.active, updatedAt: Date.now() };
+                await firebase.firestore().collection('syncCodes').doc(mySyncCode).set(payload);
+                const el = document.getElementById('syncLastUpload');
+                if (el) el.textContent = `${tr('Последно качване:')} ${new Date().toLocaleString(locale())}`;
+                showToast(tr('Качено успешно!'));
+            } catch (e) {
+                showToast(tr('Грешка при качване.'), 'warn');
+            }
+        }
+
+        async function downloadFromCloud() {
+            const code = (document.getElementById('syncCodeInput').value || '').trim().toLowerCase();
+            if (!code) { showToast(tr('Въведи код първо.'), 'warn'); return; }
+            if (!fbReady) { showToast(tr('Синхронизацията не е настроена още.'), 'warn'); return; }
+            try {
+                showToast(tr('Изтегляне...'));
+                const doc = await firebase.firestore().collection('syncCodes').doc(code).get();
+                if (!doc.exists) { showToast(tr('Няма данни с този код.'), 'warn'); return; }
+                if (!confirm(tr('Това ще замести текущите данни на това устройство с тези от облака. Продължи?'))) return;
+                const data = doc.data();
+                store.tanks = data.tanks || store.tanks;
+                store.active = data.active || 0;
+                mySyncCode = code;
+                lsSet(SYNC_CODE_KEY, mySyncCode);
+                saveData();
+                location.reload();
+            } catch (e) {
+                showToast(tr('Грешка при изтегляне.'), 'warn');
+            }
+        }
 
         function renderBackup() {
             if (!lsGet(FIRSTUSE_KEY)) lsSet(FIRSTUSE_KEY, String(Date.now()));
@@ -4073,7 +4246,17 @@
             }
         }
 
-        try { const savedLang = localStorage.getItem(LANG_KEY); if (savedLang === 'en') currentLang = 'en'; } catch (e) {}
+        try {
+            const savedLang = localStorage.getItem(LANG_KEY);
+            if (savedLang === 'en' || savedLang === 'bg') {
+                currentLang = savedLang;
+            } else {
+                // Няма запазен избор (съвсем първо отваряне) — разпознаваме по езика на браузъра.
+                // Български браузър → български; всичко друго → английски (единствените 2 опции, които имаме).
+                const browserLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+                currentLang = browserLang.startsWith('bg') ? 'bg' : 'en';
+            }
+        } catch (e) {}
         initSelectOptions();
         switchTab('home');
         const fv = document.getElementById('footerVersion'); if (fv) fv.textContent = APP_VERSION;
@@ -4081,6 +4264,7 @@
         applyStoredBackground();
         applyTranslations();
         renderLangSwitch();
+        initSyncUI();
 
         // ---------- Скриване на горната лента при скрол надолу, показване при скрол нагоре ----------
         (function setupScrollHide() {
