@@ -368,9 +368,10 @@
                 </div>
                 <div class="flex items-center flex-wrap gap-2">
                     <label for="waterChangePct" class="text-xs text-cyan-300/80" data-i18n>% сменена:</label>
-                    <input type="number" id="waterChangePct" value="30" min="1" max="100" oninput="updateCapacity()" class="w-16 bg-slate-900/60 border border-cyan-800/50 rounded p-1.5 text-xs text-center">
+                    <input type="number" id="waterChangePct" value="" placeholder="0" min="1" max="100" oninput="updateCapacity()" class="w-16 bg-slate-900/60 border border-cyan-800/50 rounded p-1.5 text-xs text-center">
                     <span class="text-[11px] text-cyan-400/60" data-i18n>или</span>
                     <input type="number" id="waterChangeLiters" placeholder="л" min="0" step="0.5" oninput="updateFromLitersInput()" class="w-16 bg-slate-900/60 border border-cyan-800/50 rounded p-1.5 text-xs text-center" title="Въведи директно колко литра си сменил" data-i18n-title aria-label="Литри сменени">
+                    <input type="date" id="waterChangeDate" title="Дата (ако отчиташ със закъснение)" data-i18n-title aria-label="Дата на смяната" class="bg-slate-900/60 border border-cyan-800/50 rounded p-1.5 text-xs text-slate-300">
                     <button onclick="resetWaterTimer()" class="bg-cyan-600 hover:bg-cyan-500 text-xs px-3 py-1.5 rounded font-medium transition shadow" data-i18n>Отчети сменена вода</button>
                 </div>
             </div>
@@ -420,7 +421,7 @@
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1" data-i18n>Обем (Литри):</label>
-                    <input type="number" id="aqLiters" value="60" min="1" oninput="updateCapacity(); saveData();" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-cyan-400">
+                    <input type="number" id="aqLiters" value="0" min="1" oninput="updateCapacity(); saveData();" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-cyan-400">
                 </div>
             </div>
 
@@ -467,62 +468,62 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                 <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
                     <span class="text-xs text-slate-400" data-i18n>Температура</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help" title="Температура на водата. Оптимално: 24–26 °C" data-i18n-title></i>
-                    <p class="text-xl font-bold text-cyan-300 mt-1"><span id="valTemp">25.5</span> °C</p>
+                    <p class="text-xl font-bold text-cyan-300 mt-1"><span id="valTemp">—</span> °C</p>
                 </div>
                 <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
                     <span class="text-xs text-slate-400" data-i18n>pH ниво</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help" title="pH — киселинност на водата. Оптимално: 6.5 – 7.5" data-i18n-title></i>
-                    <p class="text-xl font-bold text-green-300 mt-1" id="valPH">7.2</p>
+                    <p class="text-xl font-bold text-green-300 mt-1"><span id="valPH">—</span> <span class="text-xs font-normal text-slate-400">pH</span></p>
                 </div>
                 <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
                     <span class="text-xs text-slate-400" data-i18n>Амоняк (NH3)</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help" title="NH3/NH4 — токсичен отпадък от рибите. Оптимално: 0 mg/l" data-i18n-title></i>
-                    <p class="text-xl font-bold text-emerald-300 mt-1"><span id="valNH3">0</span> mg/l</p>
+                    <p class="text-xl font-bold text-emerald-300 mt-1"><span id="valNH3">—</span> mg/l</p>
                 </div>
                 <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
                     <span class="text-xs text-slate-400" data-i18n>Нитрити (NO2)</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help" title="NO2 — междинен токсичен продукт от азотния цикъл. Оптимално: 0 mg/l" data-i18n-title></i>
-                    <p class="text-xl font-bold text-red-300 mt-1"><span id="valNO2">0</span> mg/l</p>
+                    <p class="text-xl font-bold text-red-300 mt-1"><span id="valNO2">—</span> mg/l</p>
                 </div>
                 <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
                     <span class="text-xs text-slate-400" data-i18n>Нитрати (NO3)</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help" title="NO3 — краен продукт от азотния цикъл. Оптимално: 10–25 mg/l" data-i18n-title></i>
-                    <p class="text-xl font-bold text-yellow-300 mt-1"><span id="valNO3">10</span> mg/l</p>
+                    <p class="text-xl font-bold text-yellow-300 mt-1"><span id="valNO3">—</span> mg/l</p>
                 </div>
                 <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
                     <span class="text-xs text-slate-400" data-i18n>Обща твърдост (GH)</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help" title="GH — обща твърдост на водата. Ориентировъчно оптимално: 4–12 dGH" data-i18n-title></i>
-                    <p class="text-xl font-bold text-blue-300 mt-1"><span id="valGH">8</span> dGH</p>
+                    <p class="text-xl font-bold text-blue-300 mt-1"><span id="valGH">—</span> dGH</p>
                 </div>
                 <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
                     <span class="text-xs text-slate-400" data-i18n>Карбонатна твърдост (KH)</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help" title="KH — карбонатна твърдост, буферира pH. Ориентировъчно оптимално: 3–8 dKH" data-i18n-title></i>
-                    <p class="text-xl font-bold text-indigo-300 mt-1"><span id="valKH">5</span> dKH</p>
+                    <p class="text-xl font-bold text-indigo-300 mt-1"><span id="valKH">—</span> dKH</p>
                 </div>
             </div>
 
             <div id="paramEditForm" class="hidden bg-slate-900/60 p-4 rounded-xl border border-slate-700 grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
                 <div>
                     <label class="block text-slate-400 mb-1" data-i18n>Temp (°C):</label>
-                    <input type="number" step="0.1" id="inTemp" value="25.5" class="w-full bg-slate-700 p-2 rounded border border-slate-600">
+                    <input type="number" step="0.1" id="inTemp" value="" class="w-full bg-slate-700 p-2 rounded border border-slate-600">
                 </div>
                 <div>
                     <label class="block text-slate-400 mb-1" data-i18n>pH:</label>
-                    <input type="number" step="0.1" id="inPH" value="7.2" class="w-full bg-slate-700 p-2 rounded border border-slate-600">
+                    <input type="number" step="0.1" id="inPH" value="" class="w-full bg-slate-700 p-2 rounded border border-slate-600">
                 </div>
                 <div>
                     <label class="block text-slate-400 mb-1" data-i18n>NH3 (mg/l):</label>
-                    <input type="number" step="0.1" id="inNH3" value="0" class="w-full bg-slate-700 p-2 rounded border border-slate-600">
+                    <input type="number" step="0.1" id="inNH3" value="" class="w-full bg-slate-700 p-2 rounded border border-slate-600">
                 </div>
                 <div>
                     <label class="block text-slate-400 mb-1" data-i18n>NO2 (mg/l):</label>
-                    <input type="number" step="0.1" id="inNO2" value="0" class="w-full bg-slate-700 p-2 rounded border border-slate-600">
+                    <input type="number" step="0.1" id="inNO2" value="" class="w-full bg-slate-700 p-2 rounded border border-slate-600">
                 </div>
                 <div>
                     <label class="block text-slate-400 mb-1" data-i18n>NO3 (mg/l):</label>
-                    <input type="number" step="1" id="inNO3" value="10" class="w-full bg-slate-700 p-2 rounded border border-slate-600">
+                    <input type="number" step="1" id="inNO3" value="" class="w-full bg-slate-700 p-2 rounded border border-slate-600">
                 </div>
                 <div>
                     <label class="block text-slate-400 mb-1" data-i18n>GH (dGH):</label>
-                    <input type="number" step="1" id="inGH" value="8" class="w-full bg-slate-700 p-2 rounded border border-slate-600">
+                    <input type="number" step="1" id="inGH" value="" class="w-full bg-slate-700 p-2 rounded border border-slate-600">
                 </div>
                 <div>
                     <label class="block text-slate-400 mb-1" data-i18n>KH (dKH):</label>
-                    <input type="number" step="1" id="inKH" value="5" class="w-full bg-slate-700 p-2 rounded border border-slate-600">
+                    <input type="number" step="1" id="inKH" value="" class="w-full bg-slate-700 p-2 rounded border border-slate-600">
                 </div>
                 <div class="col-span-2 md:col-span-4 flex justify-end">
                     <button onclick="saveParams()" class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-1.5 rounded font-medium transition" data-i18n>Запази стойностите</button>
@@ -699,7 +700,11 @@
 
         <!-- 5. Рутинна поддръжка -->
         <section id="secMaintenance" data-tab="more" class="tab-panel bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-md">
-            <h2 class="text-lg font-semibold mb-3 flex items-center"><i class="fa-solid fa-list-check mr-2 text-cyan-400"></i> <span data-i18n>Рутинна поддръжка</span></h2>
+            <h2 class="text-lg font-semibold mb-1 flex items-center"><i class="fa-solid fa-list-check mr-2 text-cyan-400"></i> <span data-i18n>Рутинна поддръжка</span></h2>
+            <div class="flex items-center gap-2 mb-3">
+                <label for="maintenanceDate" class="text-[11px] text-slate-400" data-i18n>Дата на отчитане:</label>
+                <input type="date" id="maintenanceDate" title="Промени, ако отчиташ със закъснение" data-i18n-title class="bg-slate-900/60 border border-slate-600 rounded p-1.5 text-xs text-slate-300">
+            </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                 <div class="bg-slate-700/40 p-2.5 rounded-lg border border-slate-600/60 space-y-2">
                     <label class="flex items-center space-x-2 cursor-pointer">
@@ -1061,7 +1066,7 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "2.4.0";
+        const APP_VERSION = "2.7.0";
         let waterDue = Date.now() + 5 * DAY_MS;
         let waterChangedToday = false;
 
@@ -1542,7 +1547,8 @@
                 bar.className = "bg-cyan-500 h-full transition-all duration-500";
             }
 
-            const enteredPct = Math.min(Math.max(parseFloat(document.getElementById('waterChangePct').value) || 30, 1), 100) / 100;
+            const rawPct = document.getElementById('waterChangePct').value;
+            const enteredPct = rawPct ? Math.min(Math.max(parseFloat(rawPct) || 0, 1), 100) / 100 : 0;
             const waterToChange = Math.round(totalLiters * enteredPct);
             document.getElementById('calcLiters').innerText = `${waterToChange} ${tr('л')}`;
             document.getElementById('calcDechlor').innerText = `${(waterToChange * 0.2).toFixed(1)} ${tr('мл')}`;
@@ -1785,16 +1791,29 @@
 
         function resetWaterTimer() {
             const pct = Math.min(Math.max(parseFloat(document.getElementById('waterChangePct').value) || 30, 1), 100);
+            const dateInput = document.getElementById('waterChangeDate');
+            const dateStr = (dateInput && dateInput.value) || todayDateStr();
+            // Взимаме избраната дата, но часа "сега" (за по-разумна сортировка в историята, ако е днес)
+            const now = new Date();
+            const [y, m, d] = dateStr.split('-').map(Number);
+            const chosen = new Date(y, m - 1, d, now.getHours(), now.getMinutes(), now.getSeconds());
+            const loggedAt = chosen.getTime();
+            const isToday = dateStr === todayDateStr();
+
             const t = store.tanks[store.active];
             if (t) {
                 if (!Array.isArray(t.waterChangeLog)) t.waterChangeLog = [];
-                t.waterChangeLog.push({ t: Date.now(), percent: pct });
+                t.waterChangeLog.push({ t: loggedAt, percent: pct });
+                t.waterChangeLog.sort((a, b) => a.t - b.t);
                 if (t.waterChangeLog.length > 30) t.waterChangeLog = t.waterChangeLog.slice(-30);
             }
-            waterDue = Date.now() + 7 * DAY_MS;
-            waterChangedToday = Date.now();
+            waterDue = loggedAt + 7 * DAY_MS;
+            waterChangedToday = isToday ? Date.now() : waterChangedToday;
+            if (dateInput) dateInput.value = todayDateStr();
             vibrate(20);
-            showToast(`${tr('Записана смяна на')} ${pct}% ${tr('вода.')}`);
+            showToast(isToday
+                ? `${tr('Записана смяна на')} ${pct}% ${tr('вода.')}`
+                : `${tr('Записана смяна на')} ${pct}% ${tr('вода от')} ${chosen.toLocaleDateString(locale())}.`);
             renderWaterAlert();
             renderWaterChangeLog(); renderInsights();
             saveData();
@@ -2186,17 +2205,29 @@
         }
 
         function toggleParamEdit() {
-            document.getElementById('paramEditForm').classList.toggle('hidden');
+            const form = document.getElementById('paramEditForm');
+            const opening = form.classList.contains('hidden');
+            if (opening) {
+                const t = store.tanks[store.active];
+                document.getElementById('inTemp').value = t.temp || '';
+                document.getElementById('inPH').value = t.ph || '';
+                document.getElementById('inNH3').value = t.nh3 || '';
+                document.getElementById('inNO2').value = t.no2 || '';
+                document.getElementById('inNO3').value = t.no3 || '';
+                document.getElementById('inGH').value = t.gh || '';
+                document.getElementById('inKH').value = t.kh || '';
+            }
+            form.classList.toggle('hidden');
         }
 
         function saveParams() {
-            document.getElementById('valTemp').innerText = document.getElementById('inTemp').value;
-            document.getElementById('valPH').innerText = document.getElementById('inPH').value;
-            document.getElementById('valNH3').innerText = document.getElementById('inNH3').value;
-            document.getElementById('valNO2').innerText = document.getElementById('inNO2').value;
-            document.getElementById('valNO3').innerText = document.getElementById('inNO3').value;
-            document.getElementById('valGH').innerText = document.getElementById('inGH').value;
-            document.getElementById('valKH').innerText = document.getElementById('inKH').value;
+            document.getElementById('valTemp').innerText = document.getElementById('inTemp').value || '—';
+            document.getElementById('valPH').innerText = document.getElementById('inPH').value || '—';
+            document.getElementById('valNH3').innerText = document.getElementById('inNH3').value || '—';
+            document.getElementById('valNO2').innerText = document.getElementById('inNO2').value || '—';
+            document.getElementById('valNO3').innerText = document.getElementById('inNO3').value || '—';
+            document.getElementById('valGH').innerText = document.getElementById('inGH').value || '—';
+            document.getElementById('valKH').innerText = document.getElementById('inKH').value || '—';
             toggleParamEdit();
             recordHistory();
             updateCapacity();
@@ -2379,14 +2410,24 @@
         function confirmTask(id, label) {
             const t = store.tanks[store.active];
             if (!t) return;
+            const dateInput = document.getElementById('maintenanceDate');
+            const dateStr = (dateInput && dateInput.value) || todayDateStr();
+            const now = new Date();
+            const [y, m, d] = dateStr.split('-').map(Number);
+            const loggedAt = new Date(y, m - 1, d, now.getHours(), now.getMinutes(), now.getSeconds()).getTime();
+            const isToday = dateStr === todayDateStr();
+
             if (!Array.isArray(t.maintenanceLog)) t.maintenanceLog = [];
-            t.maintenanceLog.push({ id, label, t: Date.now() });
+            t.maintenanceLog.push({ id, label, t: loggedAt });
+            t.maintenanceLog.sort((a, b) => a.t - b.t);
             if (t.maintenanceLog.length > 20) t.maintenanceLog = t.maintenanceLog.slice(-20);
             document.getElementById(id).checked = false;
             document.getElementById(id + 'Confirm').classList.add('hidden');
             vibrate(20);
             renderMaintenance(); renderInsights();
-            showToast(`${tr('Записано:')} ${tr(label)}`);
+            showToast(isToday
+                ? `${tr('Записано:')} ${tr(label)}`
+                : `${tr('Записано:')} ${tr(label)} (${new Date(loggedAt).toLocaleDateString(locale())})`);
             saveData();
         }
 
@@ -2813,6 +2854,13 @@
             "Общ аквариум (Community)": "Community aquarium",
             "Общ аквариум": "Community aquarium",
             "Растителен аквариум": "Planted aquarium",
+            "Дата (ако отчиташ със закъснение)": "Date (if logging late)",
+            "Дата на смяната": "Date of the change",
+            "вода от": "water from",
+            "Дата на отчитане:": "Log date:",
+            "Промени, ако отчиташ със закъснение": "Change if logging late",
+            "Изключи това напомняне": "Turn off this reminder",
+            "Включи това напомняне": "Turn on this reminder",
             "или": "or",
             "Въведи директно колко литра си сменил": "Enter directly how many liters you changed",
             "Акваскейп (растителен)": "Aquascape (planted)",
@@ -3208,8 +3256,8 @@
         function newTank(name) {
             return {
                 name, aqType: "Общ аквариум (Community)", aqShape: "Правоъгълен",
-                aqLiters: "60", aqLength: "", aqWidth: "", aqHeight: "",
-                temp: "25.5", ph: "7.2", nh3: "0", no2: "0", no3: "10", gh: "8", kh: "5",
+                aqLiters: "0", aqLength: "", aqWidth: "", aqHeight: "",
+                temp: "", ph: "", nh3: "", no2: "", no3: "", gh: "", kh: "",
                 taskFilter: false, taskPlants: false, taskGlass: false, taskFertilize: false,
                 waterDue: Date.now() + 5 * DAY_MS, waterChangedToday: false,
                 fish: [], history: [], maintenanceLog: [], waterChangeLog: [],
@@ -3373,10 +3421,24 @@
             return { interval, last, diff, status: diff < 0 ? 'over' : diff <= 1 ? 'soon' : 'ok' };
         }
 
+        function isReminderEnabled(t, id) {
+            return !(t.remindersOff && t.remindersOff.includes(id));
+        }
+
+        function toggleReminderEnabled(id) {
+            const t = store.tanks[store.active];
+            if (!t) return;
+            if (!Array.isArray(t.remindersOff)) t.remindersOff = [];
+            const idx = t.remindersOff.indexOf(id);
+            if (idx === -1) t.remindersOff.push(id); else t.remindersOff.splice(idx, 1);
+            saveData();
+            renderReminders(t);
+        }
+
         function overdueLabels() {
             const t = store.tanks[store.active];
             if (!t) return [];
-            return REMINDERS.filter(r => reminderState(t, r).status === 'over').map(r => r.label);
+            return REMINDERS.filter(r => isReminderEnabled(t, r.id) && reminderState(t, r).status === 'over').map(r => r.label);
         }
 
         function setReminderInterval(id, val) {
@@ -3401,6 +3463,7 @@
         function renderReminders(t) {
             const list = document.getElementById('remList');
             list.innerHTML = REMINDERS.map(r => {
+                const enabled = isReminderEnabled(t, r.id);
                 const st = reminderState(t, r);
                 const chip = st.status === 'none' ? ['bg-slate-700 text-slate-300', tr('Няма запис')]
                     : st.status === 'over' ? ['bg-red-900 text-red-200', `${tr('просрочено с')} ${Math.abs(st.diff)} ${dayWord(Math.abs(st.diff))}`]
@@ -3408,17 +3471,22 @@
                     : ['bg-green-900 text-green-200', `${tr('след')} ${st.diff} ${dayWord(st.diff)}`];
                 const btn = r.id === 'waterChange' ? tr('Към смяната') : tr('Отбележи');
                 return `
-                <div class="bg-slate-900/60 border border-slate-700 rounded-xl p-3 flex flex-wrap items-center justify-between gap-2">
-                    <div class="min-w-[9rem]">
-                        <p class="text-sm"><i class="fa-solid ${r.icon} text-cyan-400 mr-2"></i>${tr(r.label)}</p>
-                        <p class="text-[10px] text-slate-500">${st.last ? tr('Последно:') + ' ' + new Date(st.last).toLocaleString(locale()) : tr('Още няма потвърден запис')}</p>
+                <div class="bg-slate-900/60 border border-slate-700 rounded-xl p-3 flex flex-wrap items-center justify-between gap-2 ${enabled ? '' : 'opacity-50'}">
+                    <div class="min-w-[9rem] flex items-center gap-2">
+                        <button onclick="toggleReminderEnabled('${r.id}')" title="${enabled ? tr('Изключи това напомняне') : tr('Включи това напомняне')}" aria-label="${enabled ? tr('Изключи това напомняне') : tr('Включи това напомняне')}" class="shrink-0 w-8 h-5 rounded-full relative transition-colors ${enabled ? 'bg-cyan-600' : 'bg-slate-600'}">
+                            <span class="absolute top-0.5 ${enabled ? 'left-3.5' : 'left-0.5'} w-4 h-4 bg-white rounded-full transition-all"></span>
+                        </button>
+                        <div>
+                            <p class="text-sm"><i class="fa-solid ${r.icon} text-cyan-400 mr-2"></i>${tr(r.label)}</p>
+                            <p class="text-[10px] text-slate-500">${st.last ? tr('Последно:') + ' ' + new Date(st.last).toLocaleString(locale()) : tr('Още няма потвърден запис')}</p>
+                        </div>
                     </div>
                     <div class="flex items-center gap-2">
                         <label class="text-[10px] text-slate-500">${tr('на всеки')}</label>
-                        <input type="number" min="1" max="365" value="${st.interval}" onchange="setReminderInterval('${r.id}', this.value)" class="w-14 bg-slate-700 border border-slate-600 rounded-lg p-1 text-xs text-center">
+                        <input type="number" min="1" max="365" value="${st.interval}" onchange="setReminderInterval('${r.id}', this.value)" ${enabled ? '' : 'disabled'} class="w-14 bg-slate-700 border border-slate-600 rounded-lg p-1 text-xs text-center disabled:opacity-50">
                         <span class="text-[10px] text-slate-500">${dayWord(st.interval)}</span>
-                        <span class="text-[11px] px-2 py-0.5 rounded-full ${chip[0]}">${chip[1]}</span>
-                        <button onclick="quickDone('${r.id}')" class="text-[11px] px-2.5 py-1 rounded-lg border bg-slate-700 hover:bg-slate-600 border-slate-600 text-cyan-300 transition-all duration-200">${btn}</button>
+                        ${enabled ? `<span class="text-[11px] px-2 py-0.5 rounded-full ${chip[0]}">${chip[1]}</span>` : `<span class="text-[11px] px-2 py-0.5 rounded-full bg-slate-700 text-slate-400">${tr('Изключено')}</span>`}
+                        <button onclick="quickDone('${r.id}')" ${enabled ? '' : 'disabled'} class="text-[11px] px-2.5 py-1 rounded-lg border bg-slate-700 hover:bg-slate-600 border-slate-600 text-cyan-300 transition-all duration-200 disabled:opacity-40 disabled:pointer-events-none">${btn}</button>
                     </div>
                 </div>`;
             }).join('');
@@ -3690,13 +3758,14 @@
             t.aqLength = document.getElementById('aqLength').value;
             t.aqWidth = document.getElementById('aqWidth').value;
             t.aqHeight = document.getElementById('aqHeight').value;
-            t.temp = document.getElementById('valTemp').innerText;
-            t.ph = document.getElementById('valPH').innerText;
-            t.nh3 = document.getElementById('valNH3').innerText;
-            t.no2 = document.getElementById('valNO2').innerText;
-            t.no3 = document.getElementById('valNO3').innerText;
-            t.gh = document.getElementById('valGH').innerText;
-            t.kh = document.getElementById('valKH').innerText;
+            const clean = v => v === '—' ? '' : v;
+            t.temp = clean(document.getElementById('valTemp').innerText);
+            t.ph = clean(document.getElementById('valPH').innerText);
+            t.nh3 = clean(document.getElementById('valNH3').innerText);
+            t.no2 = clean(document.getElementById('valNO2').innerText);
+            t.no3 = clean(document.getElementById('valNO3').innerText);
+            t.gh = clean(document.getElementById('valGH').innerText);
+            t.kh = clean(document.getElementById('valKH').innerText);
             t.taskFilter = document.getElementById('taskFilter').checked;
             t.taskPlants = document.getElementById('taskPlants').checked;
             t.taskGlass = document.getElementById('taskGlass').checked;
@@ -3706,21 +3775,32 @@
             t.fish = myFishList.map(f => ({ name: f.name, count: f.count, note: f.note || "", noteAt: f.noteAt || 0, addedAt: f.addedAt || 0, updatedAt: f.updatedAt || 0 }));
         }
 
+        // Днешна дата във формат YYYY-MM-DD, по локално време (не UTC, за да няма изместване с 1 ден)
+        function todayDateStr() {
+            const d = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+        }
+
         function applyTank() {
             const t = store.tanks[store.active];
+            const wcd = document.getElementById('waterChangeDate');
+            if (wcd && !wcd.value) wcd.value = todayDateStr();
+            const mcd = document.getElementById('maintenanceDate');
+            if (mcd && !mcd.value) mcd.value = todayDateStr();
             document.getElementById('aqType').value = t.aqType;
             document.getElementById('aqShape').value = t.aqShape;
             document.getElementById('aqLiters').value = t.aqLiters;
             document.getElementById('aqLength').value = t.aqLength;
             document.getElementById('aqWidth').value = t.aqWidth;
             document.getElementById('aqHeight').value = t.aqHeight;
-            document.getElementById('valTemp').innerText = t.temp;
-            document.getElementById('valPH').innerText = t.ph;
-            document.getElementById('valNH3').innerText = t.nh3;
-            document.getElementById('valNO2').innerText = t.no2;
-            document.getElementById('valNO3').innerText = t.no3;
-            document.getElementById('valGH').innerText = t.gh;
-            document.getElementById('valKH').innerText = t.kh;
+            document.getElementById('valTemp').innerText = t.temp || '—';
+            document.getElementById('valPH').innerText = t.ph || '—';
+            document.getElementById('valNH3').innerText = t.nh3 || '—';
+            document.getElementById('valNO2').innerText = t.no2 || '—';
+            document.getElementById('valNO3').innerText = t.no3 || '—';
+            document.getElementById('valGH').innerText = t.gh || '—';
+            document.getElementById('valKH').innerText = t.kh || '—';
             document.getElementById('taskFilter').checked = false;
             document.getElementById('taskPlants').checked = false;
             document.getElementById('taskGlass').checked = false;
