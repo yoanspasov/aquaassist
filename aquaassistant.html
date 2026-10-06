@@ -1102,7 +1102,7 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.0.0";
+        const APP_VERSION = "3.0.1";
         let waterDue = Date.now() + 5 * DAY_MS;
         let waterChangedToday = false;
 
@@ -3311,8 +3311,14 @@
             if (label) label.textContent = currentLang === 'en' ? 'Language' : 'Език';
             const b = "flex-1 text-[11px] py-1.5 rounded-lg border transition-all duration-200 ";
             box.innerHTML = `
-                <button onclick="setLanguage('bg')" class="${b}${currentLang === 'bg' ? 'bg-cyan-700 border-cyan-600 text-white' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}">🇧🇬 BG</button>
-                <button onclick="setLanguage('en')" class="${b}${currentLang === 'en' ? 'bg-cyan-700 border-cyan-600 text-white' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}">🇬🇧 EN</button>`;
+                <button onclick="setLanguage('bg')" class="${b}${currentLang === 'bg' ? 'bg-cyan-700 border-cyan-600 text-white' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'} inline-flex items-center justify-center gap-1.5">
+                    <svg width="16" height="12" viewBox="0 0 16 12" class="shrink-0 rounded-sm"><rect width="16" height="4" y="0" fill="#ffffff"/><rect width="16" height="4" y="4" fill="#00966E"/><rect width="16" height="4" y="8" fill="#D62612"/></svg>
+                    BG
+                </button>
+                <button onclick="setLanguage('en')" class="${b}${currentLang === 'en' ? 'bg-cyan-700 border-cyan-600 text-white' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'} inline-flex items-center justify-center gap-1.5">
+                    <svg width="16" height="12" viewBox="0 0 16 12" class="shrink-0 rounded-sm"><rect width="16" height="12" fill="#00247D"/><path d="M0 0L16 12M16 0L0 12" stroke="#ffffff" stroke-width="2.2"/><path d="M0 0L16 12M16 0L0 12" stroke="#CF142B" stroke-width="1"/><path d="M8 0V12M0 6H16" stroke="#ffffff" stroke-width="3.5"/><path d="M8 0V12M0 6H16" stroke="#CF142B" stroke-width="2"/></svg>
+                    EN
+                </button>`;
         }
 
         let currentTheme = "ocean";
