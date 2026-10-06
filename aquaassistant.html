@@ -915,7 +915,7 @@
             </div>
             <div id="qrBox" class="hidden bg-slate-900/60 border border-slate-700 rounded-xl p-4 flex flex-col items-center gap-2">
                 <div id="qrCanvas" class="bg-white p-2 rounded-lg"></div>
-                <p class="text-[11px] text-slate-500 text-center max-w-xs" data-i18n>QR кодът носи твоя код за синхронизация — сканирай го с камерата на друг телефон, за да изтеглиш там всичките си аквариуми от облака автоматично. Изисква да си качил данните в облака поне веднъж.</p>
+                <p class="text-[11px] text-slate-500 text-center max-w-xs" data-i18n>QR кодът носи твоя код за синхронизация — сканирай го с камерата на друг телефон, за да изтеглиш там всичките си аквариуми от облака автоматично (без снимките — те остават само на устройството, на което са качени). Изисква да си качил данните в облака поне веднъж.</p>
             </div>
             <p class="text-[11px] text-slate-500" data-i18n>Данните се пазят само в този браузър. Снимките заемат най-много място — ако лентата се запълва, направи експорт и изтрий стари снимки.</p>
 
@@ -1102,7 +1102,7 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.3.0";
+        const APP_VERSION = "3.4.1";
         let waterDue = Date.now() + 5 * DAY_MS;
         let waterChangedToday = false;
 
@@ -2939,6 +2939,7 @@
             "Да изтегля ли всички аквариуми, запазени под код": "Download all aquariums saved under code",
             "Това ще замести текущите данни на това устройство.": "This will replace the current data on this device.",
             "QR кодът носи твоя код за синхронизация — сканирай го с камерата на друг телефон, за да изтеглиш там всичките си аквариуми от облака автоматично. Изисква да си качил данните в облака поне веднъж.": "The QR code carries your sync code — scan it with another phone's camera to automatically download all your aquariums from the cloud there. Requires that you have uploaded your data to the cloud at least once.",
+            "QR кодът носи твоя код за синхронизация — сканирай го с камерата на друг телефон, за да изтеглиш там всичките си аквариуми от облака автоматично (без снимките — те остават само на устройството, на което са качени). Изисква да си качил данните в облака поне веднъж.": "The QR code carries your sync code — scan it with another phone's camera to automatically download all your aquariums from the cloud there (excluding photos — they stay only on the device where they were added). Requires that you have uploaded your data to the cloud at least once.",
             "Основните настройки на ВСИЧКИ твои аквариуми (обем, форма, тип и списък с обитатели) —": "The basic settings of ALL your aquariums (volume, shape, type and inhabitant list) —",
             "с": "with",
             "вида обитатели. Да се добави ли като нов аквариум?": "species of inhabitants. Add it as a new aquarium?",
@@ -3704,7 +3705,10 @@
             try {
                 showToast(tr('Качване...'));
                 captureTank(); // улавя най-актуалните стойности от екрана в store.tanks, преди да качим
-                const payload = { tanks: store.tanks, active: store.active, updatedAt: Date.now() };
+                const payload = {
+                    tanks: store.tanks, active: store.active, updatedAt: Date.now(),
+                    settings: { theme: currentTheme, lang: currentLang, notify: notifyEnabled }
+                };
                 await firebase.firestore().collection('syncCodes').doc(mySyncCode).set(payload);
                 const el = document.getElementById('syncLastUpload');
                 if (el) el.textContent = `${tr('Последно качване:')} ${new Date().toLocaleString(locale())}`;
@@ -3740,7 +3744,10 @@
                 lsSet(SYNC_CODE_KEY, mySyncCode);
                 // Пишем директно в localStorage, БЕЗ saveData()/captureTank() —
                 // те биха презаписали новите изтеглени данни със старите, все още показани на екрана.
-                localStorage.setItem(STORAGE_V2, JSON.stringify({ theme: currentTheme, active: newActive, tanks: newTanks }));
+                const st = data.settings || {};
+                localStorage.setItem(STORAGE_V2, JSON.stringify({ theme: st.theme || currentTheme, active: newActive, tanks: newTanks }));
+                if (st.lang === 'en' || st.lang === 'bg') { try { localStorage.setItem(LANG_KEY, st.lang); } catch (e) {} }
+                if (typeof st.notify === 'boolean') { try { localStorage.setItem(NOTIFY_KEY, st.notify ? "1" : "0"); } catch (e) {} }
                 alert(tr('Данните са заменени успешно. Приложението ще се презареди сега.'));
                 location.reload();
             } catch (e) {
