@@ -1102,7 +1102,7 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.0.1";
+        const APP_VERSION = "3.0.2";
         let waterDue = Date.now() + 5 * DAY_MS;
         let waterChangedToday = false;
 
@@ -2901,6 +2901,11 @@
             "Незадължително. Без имейл и парола — само код, който пазиш сам.": "Optional. No email or password — just a code you keep yourself.",
             "Избери си псевдоним...": "Choose a nickname...",
             "само латиница, напр. yoan": "Latin letters only, e.g. yoan",
+            "Данните в облака изглеждат невалидни или празни. Нищо не е приложено.": "The data in the cloud looks invalid or empty. Nothing was applied.",
+            "Данните са заменени успешно. Приложението ще се презареди сега.": "The data was replaced successfully. The app will reload now.",
+            "Грешка при изтегляне:": "Download error:",
+            "Няма аквариуми за качване.": "No aquariums to upload.",
+            "Грешка при качване:": "Upload error:",
             "Моля, използвай само латински букви и цифри.": "Please use only Latin letters and digits.",
             "Създай код": "Create code",
             "Вече имам код от друго устройство": "I already have a code from another device",
@@ -3653,15 +3658,17 @@
         async function uploadToCloud() {
             if (!mySyncCode) { showToast(tr('Няма код още.'), 'warn'); return; }
             if (!fbReady) { showToast(tr('Синхронизацията не е настроена още.'), 'warn'); return; }
+            if (!store.tanks || !store.tanks.length) { alert(tr('Няма аквариуми за качване.')); return; }
             try {
                 showToast(tr('Качване...'));
+                captureTank(); // улавя най-актуалните стойности от екрана в store.tanks, преди да качим
                 const payload = { tanks: store.tanks, active: store.active, updatedAt: Date.now() };
                 await firebase.firestore().collection('syncCodes').doc(mySyncCode).set(payload);
                 const el = document.getElementById('syncLastUpload');
                 if (el) el.textContent = `${tr('Последно качване:')} ${new Date().toLocaleString(locale())}`;
                 showToast(tr('Качено успешно!'));
             } catch (e) {
-                showToast(tr('Грешка при качване.'), 'warn');
+                alert(`${tr('Грешка при качване:')} ${e && e.message ? e.message : e}`);
             }
         }
 
@@ -3675,14 +3682,21 @@
                 if (!doc.exists) { showToast(tr('Няма данни с този код.'), 'warn'); return; }
                 if (!confirm(tr('Това ще замести текущите данни на това устройство с тези от облака. Продължи?'))) return;
                 const data = doc.data();
-                store.tanks = data.tanks || store.tanks;
-                store.active = data.active || 0;
+                if (!data || !Array.isArray(data.tanks) || !data.tanks.length) {
+                    alert(tr('Данните в облака изглеждат невалидни или празни. Нищо не е приложено.'));
+                    return;
+                }
+                const newTanks = data.tanks;
+                const newActive = data.active || 0;
                 mySyncCode = code;
                 lsSet(SYNC_CODE_KEY, mySyncCode);
-                saveData();
+                // Пишем директно в localStorage, БЕЗ saveData()/captureTank() —
+                // те биха презаписали новите изтеглени данни със старите, все още показани на екрана.
+                localStorage.setItem(STORAGE_V2, JSON.stringify({ theme: currentTheme, active: newActive, tanks: newTanks }));
+                alert(tr('Данните са заменени успешно. Приложението ще се презареди сега.'));
                 location.reload();
             } catch (e) {
-                showToast(tr('Грешка при изтегляне.'), 'warn');
+                alert(`${tr('Грешка при изтегляне:')} ${e && e.message ? e.message : e}`);
             }
         }
 
