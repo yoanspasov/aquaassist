@@ -215,8 +215,8 @@
         .aqua-toast.border-emerald-400\/40 { border-color: rgba(52,211,153,0.4); }
     </style>
     <!-- Firebase (само за облачна синхронизация с код, без регистрация) -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-compat.js"></script>
 </head>
 <body id="body" class="bg-slate-900 text-slate-100 min-h-screen transition-colors duration-300 pb-6">
 
@@ -1102,7 +1102,7 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "2.9.0";
+        const APP_VERSION = "3.0.0";
         let waterDue = Date.now() + 5 * DAY_MS;
         let waterChangedToday = false;
 
@@ -3577,12 +3577,12 @@
         // ║  (Project settings → General → Your apps → ⚙ Config)                  ║
         // ╚══════════════════════════════════════════════════════════════════════╝
         const firebaseConfig = {
-            apiKey: "ПОСТАВИ_ТУК",
-            authDomain: "ПОСТАВИ_ТУК",
-            projectId: "ПОСТАВИ_ТУК",
-            storageBucket: "ПОСТАВИ_ТУК",
-            messagingSenderId: "ПОСТАВИ_ТУК",
-            appId: "ПОСТАВИ_ТУК"
+            apiKey: "AIzaSyCJV_avyK5C3SfXEu2LXXvf25HWBe3nJl4",
+            authDomain: "aquaassist-4cbf4.firebaseapp.com",
+            projectId: "aquaassist-4cbf4",
+            storageBucket: "aquaassist-4cbf4.firebasestorage.app",
+            messagingSenderId: "608519817079",
+            appId: "1:608519817079:web:4dab2f5393c03299ad4372"
         };
         let fbReady = false;
         try {
