@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Политика за поверителност — AquaAssist</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-slate-950 text-slate-200 min-h-screen">
+    <main class="max-w-2xl mx-auto p-6 space-y-6">
+        <header class="flex items-center gap-3 pb-4 border-b border-slate-800">
+            <i class="fa-solid fa-fish text-cyan-400 text-2xl"></i>
+            <div>
+                <h1 class="text-xl font-bold">AquaAssist</h1>
+                <p class="text-xs text-slate-500">Политика за поверителност</p>
+            </div>
+        </header>
+
+        <p class="text-sm text-slate-400">Последна актуализация: <span id="today"></span></p>
+
+        <section class="space-y-2">
+            <h2 class="text-lg font-semibold text-cyan-300">Накратко</h2>
+            <p class="text-sm leading-relaxed">AquaAssist не изисква регистрация, не изпраща данни към сървър и няма достъп до личната ти информация. Всичко, което въвеждаш — параметри на водата, обитатели, снимки, бележки и разходи — се пази <strong>само на твоето устройство</strong>, в браузъра, в който отваряш приложението.</p>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-lg font-semibold text-cyan-300">Какви данни се съхраняват</h2>
+            <ul class="text-sm leading-relaxed list-disc list-inside space-y-1 text-slate-300">
+                <li>Настройки на аквариума (обем, форма, тип, параметри на водата)</li>
+                <li>Списък с добавени риби, безгръбначни и растения, заедно с бележки към тях</li>
+                <li>История на измерванията и смените на водата</li>
+                <li>Снимки и бележки от визуалния дневник</li>
+                <li>Записи за оборудване и разходи</li>
+                <li>Избрана тема и настройки на приложението</li>
+            </ul>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-lg font-semibold text-cyan-300">Къде се пазят</h2>
+            <p class="text-sm leading-relaxed">Текстовите данни се пазят в <strong>LocalStorage</strong> на браузъра ти. Снимките се пазят отделно в <strong>IndexedDB</strong> на същия браузър. И двете технологии са стандартна част от всеки браузър и не изпращат нищо извън устройството ти.</p>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-lg font-semibold text-cyan-300">Какво НЕ правим</h2>
+            <ul class="text-sm leading-relaxed list-disc list-inside space-y-1 text-slate-300">
+                <li>Не изпращаме данни към сървър — приложението няма собствен сървър</li>
+                <li>Не използваме бисквитки за проследяване и не показваме реклами</li>
+                <li>Не събираме имейл, име или друга лична информация</li>
+                <li>Не споделяме и не продаваме данни на трети страни</li>
+            </ul>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-lg font-semibold text-cyan-300">Известия</h2>
+            <p class="text-sm leading-relaxed">Ако включиш известия в браузъра, те се обработват изцяло локално — приложението само проверява данните, които вече си въвел, и решава дали да ти напомни (например за смяна на вода). Никаква информация не напуска устройството ти заради това.</p>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-lg font-semibold text-cyan-300">Загуба на данни</h2>
+            <p class="text-sm leading-relaxed">Тъй като всичко се пази само локално, изчистването на данните на браузъра, преинсталирането на приложението или смяната на устройство ще изтрият записаната информация. Приложението предлага функция за <strong>експорт в JSON</strong> — препоръчваме редовно да я използваш като резервно копие.</p>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-lg font-semibold text-cyan-300">Външни услуги (шрифтове и икони)</h2>
+            <p class="text-sm leading-relaxed">Приложението зарежда стилове и шрифтове от Tailwind CSS, Font Awesome и Google Fonts през техните CDN мрежи. Това са стандартни доставчици на статично съдържание — те могат да видят технически данни като IP адрес при зареждане на файловете, както при отваряне на всеки сайт, но AquaAssist не им изпраща данни от самото приложение.</p>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-lg font-semibold text-cyan-300">Контакт</h2>
+            <p class="text-sm leading-relaxed">Ако имаш въпроси относно тази политика или приложението, пиши на <a href="mailto:ioancho93@gmail.com" class="text-cyan-400 hover:text-cyan-300 underline">ioancho93@gmail.com</a>.</p>
+        </section>
+
+        <a href="javascript:history.back()" class="inline-flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 pt-4"><i class="fa-solid fa-arrow-left"></i>Обратно към приложението</a>
+    </main>
+    <script>document.getElementById('today').textContent = new Date().toLocaleDateString('bg-BG');</script>
+</body>
+</html>
