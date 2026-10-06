@@ -15,7 +15,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -916,7 +915,7 @@
             </div>
             <div id="qrBox" class="hidden bg-slate-900/60 border border-slate-700 rounded-xl p-4 flex flex-col items-center gap-2">
                 <div id="qrCanvas" class="bg-white p-2 rounded-lg"></div>
-                <p class="text-[11px] text-slate-500 text-center max-w-xs"><span data-i18n>Основните настройки на ВСИЧКИ твои аквариуми (обем, форма, тип и списък с обитатели) —</span> <strong data-i18n>без</strong> <span data-i18n>снимки и история. Сканирай с камерата на друг телефон — директно ще отвори AquaAssist там и ще предложи да ги добави автоматично.</span></p>
+                <p class="text-[11px] text-slate-500 text-center max-w-xs" data-i18n>QR кодът носи твоя код за синхронизация — сканирай го с камерата на друг телефон, за да изтеглиш там всичките си аквариуми от облака автоматично. Изисква да си качил данните в облака поне веднъж.</p>
             </div>
             <p class="text-[11px] text-slate-500" data-i18n>Данните се пазят само в този браузър. Снимките заемат най-много място — ако лентата се запълва, направи експорт и изтрий стари снимки.</p>
 
@@ -1103,7 +1102,7 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.2.1";
+        const APP_VERSION = "3.3.0";
         let waterDue = Date.now() + 5 * DAY_MS;
         let waterChangedToday = false;
 
@@ -2385,19 +2384,11 @@
                 holder.innerHTML = `<p class="text-xs text-red-300 p-3">${msg}</p>`;
             };
             if (typeof QRCode === 'undefined') { showMessage(tr('QR библиотеката не се зареди (провери интернет връзката).')); return; }
-            if (typeof LZString === 'undefined') { showMessage(tr('Библиотеката за компресиране не се зареди (провери интернет връзката).')); return; }
-            // Пренасяме ВСИЧКИ аквариуми наведнъж (не само текущия активен) — лек формат на запис (без история/снимки),
-            // за да се събере разумно в един QR код дори с няколко аквариума.
-            const payload = {
-                tanks: store.tanks.map(t => ({
-                    n: t.name, ty: t.aqType, l: t.aqLiters, sh: t.aqShape,
-                    f: (t.fish || []).map(f => [f.name, f.count])
-                }))
-            };
-            const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(payload));
-            // Пазим GitHub Pages base path-а (всичко преди aquaassistant.html), за да работи линкът откъдето и да е хостнат
+            if (!mySyncCode) { showMessage(tr('Първо си направи код за синхронизация в "Още → Данни → Синхронизация" и качи данните в облака.')); return; }
+            // QR кодът носи само твоя код за синхронизация — при сканиране другото устройство
+            // автоматично изтегля ВСИЧКИТЕ ти аквариуми от облака под този код (винаги актуални).
             const baseUrl = location.href.split('?')[0].split('#')[0];
-            const url = `${baseUrl}?import=${compressed}`;
+            const url = `${baseUrl}?synccode=${encodeURIComponent(mySyncCode)}`;
             try {
                 holder.classList.remove('bg-slate-900/60', 'border', 'border-red-800/50');
                 holder.classList.add('bg-white');
@@ -2408,42 +2399,14 @@
         }
 
         // ---------- Внасяне на данни от линк, сканиран чрез QR (виж renderQR) ----------
-        function checkImportFromUrl() {
-            try {
-                const params = new URLSearchParams(location.search);
-                const compressed = params.get('import');
-                if (!compressed) return;
-                // Чистим адреса веднага, за да не се пита пак при презареждане/споделяне на линка
-                history.replaceState({}, '', location.pathname);
-                const json = LZString.decompressFromEncodedURIComponent(compressed);
-                if (!json) { alert(tr('Невалидни данни в линка.')); return; }
-                const payload = JSON.parse(json);
-                const tanksToImport = Array.isArray(payload.tanks) ? payload.tanks : [payload]; // съвместимост и със стари QR (единичен аквариум)
-                const totalFish = tanksToImport.reduce((sum, t) => sum + ((t.f || []).length), 0);
-                const msg = `${tr('Внасяне на')} ${tanksToImport.length} ${tr('аквариум(и) с общо')} ${totalFish} ${tr('вида обитатели. Да се добавят ли?')}`;
-                if (!confirm(msg)) return;
-                const beforeCount = store.tanks.length;
-                tanksToImport.forEach(tData => {
-                    const nt = newTank(tData.n || tr('Внесен аквариум'));
-                    nt.aqType = tData.ty || nt.aqType;
-                    nt.aqLiters = tData.l || nt.aqLiters;
-                    nt.aqShape = tData.sh || nt.aqShape;
-                    nt.fish = (tData.f || []).map(([name, count]) => {
-                        const species = animalsDB.find(a => a.name === name);
-                        return species ? { ...species, count: count || 1 } : null;
-                    }).filter(Boolean);
-                    store.tanks.push(nt);
-                });
-                store.active = store.tanks.length - tanksToImport.length; // показваме първия от новодобавените
-                alert(`${tr('Добавени в паметта:')} ${store.tanks.length - beforeCount} / ${tanksToImport.length}. ${tr('Общо аквариуми сега:')} ${store.tanks.length}. ${tr('Активен индекс:')} ${store.active}.`);
-                applyTank();
-                saveData();
-                refreshAfterTankChange();
-                alert(tr('Готово — презареждам страницата, за да видиш новите аквариуми.'));
-                location.reload();
-            } catch (e) {
-                alert(`${tr('Грешка при внасяне на данните:')} ${e && e.message ? e.message : e}`);
-            }
+        async function checkImportFromUrl() {
+            const params = new URLSearchParams(location.search);
+            const syncCodeFromQr = params.get('synccode');
+            if (!syncCodeFromQr) return;
+            // Чистим адреса веднага, за да не се пита пак при презареждане/споделяне на линка
+            history.replaceState({}, '', location.pathname);
+            if (!confirm(`${tr('Да изтегля ли всички аквариуми, запазени под код')} "${syncCodeFromQr}"? ${tr('Това ще замести текущите данни на това устройство.')}`)) return;
+            await downloadByCode(syncCodeFromQr, false);
         }
 
         function renderHistoryCharts() {
@@ -2972,6 +2935,10 @@
             "Активен индекс:": "Active index:",
             "Готово — презареждам страницата, за да видиш новите аквариуми.": "Done — reloading the page so you can see the new aquariums.",
             "Грешка при внасяне на данните:": "Error importing the data:",
+            "Първо си направи код за синхронизация в \"Още → Данни → Синхронизация\" и качи данните в облака.": "First create a sync code under \"More → Data → Sync\" and upload your data to the cloud.",
+            "Да изтегля ли всички аквариуми, запазени под код": "Download all aquariums saved under code",
+            "Това ще замести текущите данни на това устройство.": "This will replace the current data on this device.",
+            "QR кодът носи твоя код за синхронизация — сканирай го с камерата на друг телефон, за да изтеглиш там всичките си аквариуми от облака автоматично. Изисква да си качил данните в облака поне веднъж.": "The QR code carries your sync code — scan it with another phone's camera to automatically download all your aquariums from the cloud there. Requires that you have uploaded your data to the cloud at least once.",
             "Основните настройки на ВСИЧКИ твои аквариуми (обем, форма, тип и списък с обитатели) —": "The basic settings of ALL your aquariums (volume, shape, type and inhabitant list) —",
             "с": "with",
             "вида обитатели. Да се добави ли като нов аквариум?": "species of inhabitants. Add it as a new aquarium?",
@@ -3750,12 +3717,18 @@
         async function downloadFromCloud() {
             const code = (document.getElementById('syncCodeInput').value || '').trim().toLowerCase();
             if (!code) { showToast(tr('Въведи код първо.'), 'warn'); return; }
-            if (!fbReady) { showToast(tr('Синхронизацията не е настроена още.'), 'warn'); return; }
+            await downloadByCode(code, true);
+        }
+
+        // Споделена логика за изтегляне по код — ползва се и от ръчния бутон, и от автоматичното сканиране на QR.
+        // askConfirm=true показва диалог "сигурен ли си"; false е за случаи, където вече сме питали с друго съобщение.
+        async function downloadByCode(code, askConfirm) {
+            if (!fbReady) { alert(tr('Синхронизацията не е настроена още.')); return; }
             try {
                 showToast(tr('Изтегляне...'));
                 const doc = await firebase.firestore().collection('syncCodes').doc(code).get();
-                if (!doc.exists) { showToast(tr('Няма данни с този код.'), 'warn'); return; }
-                if (!confirm(tr('Това ще замести текущите данни на това устройство с тези от облака. Продължи?'))) return;
+                if (!doc.exists) { alert(tr('Няма данни с този код.')); return; }
+                if (askConfirm && !confirm(tr('Това ще замести текущите данни на това устройство с тези от облака. Продължи?'))) return;
                 const data = doc.data();
                 if (!data || !Array.isArray(data.tanks) || !data.tanks.length) {
                     alert(tr('Данните в облака изглеждат невалидни или празни. Нищо не е приложено.'));
