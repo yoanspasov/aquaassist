@@ -15,6 +15,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -915,7 +916,7 @@
             </div>
             <div id="qrBox" class="hidden bg-slate-900/60 border border-slate-700 rounded-xl p-4 flex flex-col items-center gap-2">
                 <div id="qrCanvas" class="bg-white p-2 rounded-lg"></div>
-                <p class="text-[11px] text-slate-500 text-center max-w-xs"><span data-i18n>Само основните настройки на текущия аквариум (обем, форма, тип и списък с обитатели) —</span> <strong data-i18n>без</strong> <span data-i18n>снимки и история, защото не се събират в QR код. Сканирай с друг твой телефон и отвори AquaAssist там, за да ги въведеш ръчно.</span></p>
+                <p class="text-[11px] text-slate-500 text-center max-w-xs"><span data-i18n>Основните настройки на ВСИЧКИ твои аквариуми (обем, форма, тип и списък с обитатели) —</span> <strong data-i18n>без</strong> <span data-i18n>снимки и история. Сканирай с камерата на друг телефон — директно ще отвори AquaAssist там и ще предложи да ги добави автоматично.</span></p>
             </div>
             <p class="text-[11px] text-slate-500" data-i18n>Данните се пазят само в този браузър. Снимките заемат най-много място — ако лентата се запълва, направи експорт и изтрий стари снимки.</p>
 
@@ -1102,7 +1103,7 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.0.2";
+        const APP_VERSION = "3.2.0";
         let waterDue = Date.now() + 5 * DAY_MS;
         let waterChangedToday = false;
 
@@ -2378,17 +2379,67 @@
         function renderQR() {
             const holder = document.getElementById('qrCanvas');
             holder.innerHTML = '';
-            if (typeof QRCode === 'undefined') { holder.innerHTML = '<p class="text-xs text-red-500 p-2">QR библиотеката не се зареди (провери интернет връзката).</p>'; return; }
-            const t = store.tanks[store.active];
-            const payload = {
-                n: t.name, ty: t.aqType, l: t.aqLiters, sh: t.aqShape,
-                f: (t.fish || []).map(f => [f.name, f.count])
+            const showMessage = (msg) => {
+                holder.classList.remove('bg-white');
+                holder.classList.add('bg-slate-900/60', 'border', 'border-red-800/50');
+                holder.innerHTML = `<p class="text-xs text-red-300 p-3">${msg}</p>`;
             };
-            const text = JSON.stringify(payload);
+            if (typeof QRCode === 'undefined') { showMessage(tr('QR библиотеката не се зареди (провери интернет връзката).')); return; }
+            if (typeof LZString === 'undefined') { showMessage(tr('Библиотеката за компресиране не се зареди (провери интернет връзката).')); return; }
+            // Пренасяме ВСИЧКИ аквариуми наведнъж (не само текущия активен) — лек формат на запис (без история/снимки),
+            // за да се събере разумно в един QR код дори с няколко аквариума.
+            const payload = {
+                tanks: store.tanks.map(t => ({
+                    n: t.name, ty: t.aqType, l: t.aqLiters, sh: t.aqShape,
+                    f: (t.fish || []).map(f => [f.name, f.count])
+                }))
+            };
+            const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(payload));
+            // Пазим GitHub Pages base path-а (всичко преди aquaassistant.html), за да работи линкът откъдето и да е хостнат
+            const baseUrl = location.href.split('?')[0].split('#')[0];
+            const url = `${baseUrl}?import=${compressed}`;
             try {
-                new QRCode(holder, { text, width: 200, height: 200, colorDark: '#0f172a', colorLight: '#ffffff' });
+                holder.classList.remove('bg-slate-900/60', 'border', 'border-red-800/50');
+                holder.classList.add('bg-white');
+                new QRCode(holder, { text: url, width: 200, height: 200, colorDark: '#0f172a', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.L });
             } catch (e) {
-                holder.innerHTML = '<p class="text-xs text-red-500 p-2">Твърде много обитатели за един QR код — използвай експорт в JSON вместо това.</p>';
+                showMessage(tr('Твърде много обитатели за един QR код — използвай експорт в JSON вместо това.'));
+            }
+        }
+
+        // ---------- Внасяне на данни от линк, сканиран чрез QR (виж renderQR) ----------
+        function checkImportFromUrl() {
+            try {
+                const params = new URLSearchParams(location.search);
+                const compressed = params.get('import');
+                if (!compressed) return;
+                // Чистим адреса веднага, за да не се пита пак при презареждане/споделяне на линка
+                history.replaceState({}, '', location.pathname);
+                const json = LZString.decompressFromEncodedURIComponent(compressed);
+                if (!json) { showToast(tr('Невалидни данни в линка.'), 'warn'); return; }
+                const payload = JSON.parse(json);
+                const tanksToImport = Array.isArray(payload.tanks) ? payload.tanks : [payload]; // съвместимост и със стари QR (единичен аквариум)
+                const totalFish = tanksToImport.reduce((sum, t) => sum + ((t.f || []).length), 0);
+                const msg = `${tr('Внасяне на')} ${tanksToImport.length} ${tr('аквариум(и) с общо')} ${totalFish} ${tr('вида обитатели. Да се добавят ли?')}`;
+                if (!confirm(msg)) return;
+                tanksToImport.forEach(tData => {
+                    const nt = newTank(tData.n || tr('Внесен аквариум'));
+                    nt.aqType = tData.ty || nt.aqType;
+                    nt.aqLiters = tData.l || nt.aqLiters;
+                    nt.aqShape = tData.sh || nt.aqShape;
+                    nt.fish = (tData.f || []).map(([name, count]) => {
+                        const species = animalsDB.find(a => a.name === name);
+                        return species ? { ...species, count: count || 1 } : null;
+                    }).filter(Boolean);
+                    store.tanks.push(nt);
+                });
+                store.active = store.tanks.length - tanksToImport.length; // показваме първия от новодобавените
+                applyTank();
+                saveData();
+                refreshAfterTankChange();
+                showToast(`${tanksToImport.length} ${tr('аквариум(и) внесени успешно!')}`);
+            } catch (e) {
+                showToast(tr('Грешка при внасяне на данните.'), 'warn');
             }
         }
 
@@ -2906,6 +2957,22 @@
             "Грешка при изтегляне:": "Download error:",
             "Няма аквариуми за качване.": "No aquariums to upload.",
             "Грешка при качване:": "Upload error:",
+            "Библиотеката за компресиране не се зареди (провери интернет връзката).": "The compression library failed to load (check your internet connection).",
+            "Невалидни данни в линка.": "Invalid data in the link.",
+            "Внасяне на аквариум": "Import aquarium",
+            "Внасяне на": "Importing",
+            "аквариум(и) с общо": "aquarium(s) with a total of",
+            "вида обитатели. Да се добавят ли?": "species of inhabitants. Add them?",
+            "аквариум(и) внесени успешно!": "aquarium(s) imported successfully!",
+            "Основните настройки на ВСИЧКИ твои аквариуми (обем, форма, тип и списък с обитатели) —": "The basic settings of ALL your aquariums (volume, shape, type and inhabitant list) —",
+            "с": "with",
+            "вида обитатели. Да се добави ли като нов аквариум?": "species of inhabitants. Add it as a new aquarium?",
+            "Внесен аквариум": "Imported aquarium",
+            "Аквариумът е внесен успешно!": "Aquarium imported successfully!",
+            "Грешка при внасяне на данните.": "Error importing the data.",
+            "снимки и история. Сканирай с камерата на друг телефон — директно ще отвори AquaAssist там и ще предложи да ги добави автоматично.": "photos and history. Scan it with another phone's camera — it will open AquaAssist there directly and offer to add them automatically.",
+            "QR библиотеката не се зареди (провери интернет връзката).": "The QR library failed to load (check your internet connection).",
+            "Твърде много обитатели за един QR код — използвай експорт в JSON вместо това.": "Too many inhabitants for a single QR code — use JSON export instead.",
             "Моля, използвай само латински букви и цифри.": "Please use only Latin letters and digits.",
             "Създай код": "Create code",
             "Вече имам код от друго устройство": "I already have a code from another device",
@@ -4285,6 +4352,7 @@
         applyTranslations();
         renderLangSwitch();
         initSyncUI();
+        checkImportFromUrl();
 
         // ---------- Скриване на горната лента при скрол надолу, показване при скрол нагоре ----------
         (function setupScrollHide() {
