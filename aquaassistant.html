@@ -1103,7 +1103,7 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.2.0";
+        const APP_VERSION = "3.2.1";
         let waterDue = Date.now() + 5 * DAY_MS;
         let waterChangedToday = false;
 
@@ -2416,12 +2416,13 @@
                 // Чистим адреса веднага, за да не се пита пак при презареждане/споделяне на линка
                 history.replaceState({}, '', location.pathname);
                 const json = LZString.decompressFromEncodedURIComponent(compressed);
-                if (!json) { showToast(tr('Невалидни данни в линка.'), 'warn'); return; }
+                if (!json) { alert(tr('Невалидни данни в линка.')); return; }
                 const payload = JSON.parse(json);
                 const tanksToImport = Array.isArray(payload.tanks) ? payload.tanks : [payload]; // съвместимост и със стари QR (единичен аквариум)
                 const totalFish = tanksToImport.reduce((sum, t) => sum + ((t.f || []).length), 0);
                 const msg = `${tr('Внасяне на')} ${tanksToImport.length} ${tr('аквариум(и) с общо')} ${totalFish} ${tr('вида обитатели. Да се добавят ли?')}`;
                 if (!confirm(msg)) return;
+                const beforeCount = store.tanks.length;
                 tanksToImport.forEach(tData => {
                     const nt = newTank(tData.n || tr('Внесен аквариум'));
                     nt.aqType = tData.ty || nt.aqType;
@@ -2434,12 +2435,14 @@
                     store.tanks.push(nt);
                 });
                 store.active = store.tanks.length - tanksToImport.length; // показваме първия от новодобавените
+                alert(`${tr('Добавени в паметта:')} ${store.tanks.length - beforeCount} / ${tanksToImport.length}. ${tr('Общо аквариуми сега:')} ${store.tanks.length}. ${tr('Активен индекс:')} ${store.active}.`);
                 applyTank();
                 saveData();
                 refreshAfterTankChange();
-                showToast(`${tanksToImport.length} ${tr('аквариум(и) внесени успешно!')}`);
+                alert(tr('Готово — презареждам страницата, за да видиш новите аквариуми.'));
+                location.reload();
             } catch (e) {
-                showToast(tr('Грешка при внасяне на данните.'), 'warn');
+                alert(`${tr('Грешка при внасяне на данните:')} ${e && e.message ? e.message : e}`);
             }
         }
 
@@ -2964,6 +2967,11 @@
             "аквариум(и) с общо": "aquarium(s) with a total of",
             "вида обитатели. Да се добавят ли?": "species of inhabitants. Add them?",
             "аквариум(и) внесени успешно!": "aquarium(s) imported successfully!",
+            "Добавени в паметта:": "Added in memory:",
+            "Общо аквариуми сега:": "Total aquariums now:",
+            "Активен индекс:": "Active index:",
+            "Готово — презареждам страницата, за да видиш новите аквариуми.": "Done — reloading the page so you can see the new aquariums.",
+            "Грешка при внасяне на данните:": "Error importing the data:",
             "Основните настройки на ВСИЧКИ твои аквариуми (обем, форма, тип и списък с обитатели) —": "The basic settings of ALL your aquariums (volume, shape, type and inhabitant list) —",
             "с": "with",
             "вида обитатели. Да се добави ли като нов аквариум?": "species of inhabitants. Add it as a new aquarium?",
