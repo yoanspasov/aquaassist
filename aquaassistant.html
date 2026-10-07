@@ -912,6 +912,7 @@
                 <button onclick="exportData()" class="text-xs bg-cyan-700 hover:bg-cyan-600 px-3 py-2 rounded-lg font-medium text-white"><i class="fa-solid fa-download mr-1.5"></i><span data-i18n>Експорт (JSON, вкл. снимките)</span></button>
                 <button onclick="exportHistoryCSV()" class="text-xs bg-slate-700 hover:bg-slate-600 border border-slate-600 px-3 py-2 rounded-lg text-cyan-300"><i class="fa-solid fa-file-csv mr-1.5"></i><span data-i18n>История като CSV</span></button>
                 <button onclick="toggleQR()" class="text-xs bg-slate-700 hover:bg-slate-600 border border-slate-600 px-3 py-2 rounded-lg text-cyan-300"><i class="fa-solid fa-qrcode mr-1.5"></i><span data-i18n>QR за бърз трансфер</span></button>
+                <button onclick="shareAquariumView()" class="text-xs bg-slate-700 hover:bg-slate-600 border border-slate-600 px-3 py-2 rounded-lg text-emerald-300"><i class="fa-solid fa-share-nodes mr-1.5"></i><span data-i18n>Сподели аквариум (само преглед)</span></button>
             </div>
             <div id="qrBox" class="hidden bg-slate-900/60 border border-slate-700 rounded-xl p-4 flex flex-col items-center gap-2">
                 <div id="qrCanvas" class="bg-white p-2 rounded-lg"></div>
@@ -1102,7 +1103,17 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.4.1";
+        const APP_VERSION = "3.5.0";
+
+        // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
+        const CHANGELOG = [
+            { v: "3.5.0", items: ["Ново: Сподели аквариум само за преглед (линк за приятел, без запис у него)", "Ново: панел \"Какво ново\" (този, който виждаш точно сега)"] },
+            { v: "3.4.0", items: ["Темата, езикът и известията вече се пренасят при облачна синхронизация"] },
+            { v: "3.3.0", items: ["QR кодът вече пренася ВСИЧКИ аквариуми наведнъж чрез кода за синхронизация"] },
+            { v: "3.0.0", items: ["Облачна синхронизация между устройства — псевдоним + код, без регистрация"] },
+            { v: "2.6.0", items: ["Ръчна дата при закъсняло отчитане на смяна на вода и поддръжка"] },
+            { v: "2.2.0", items: ["Предупреждение \"Преди да добавиш\" — проверка за съвместимост преди покупка"] },
+        ];
         let waterDue = Date.now() + 5 * DAY_MS;
         let waterChangedToday = false;
 
@@ -2398,6 +2409,100 @@
             }
         }
 
+        // ---------- "Какво ново" - показва се само на съществуващи потребители след ъпдейт ----------
+        const SEEN_VERSION_KEY = 'aquaAssistSeenVersion';
+
+        function checkWhatsNew() {
+            let seenVersion = null;
+            try { seenVersion = localStorage.getItem(SEEN_VERSION_KEY); } catch (e) {}
+            let hasExistingData = false;
+            try { hasExistingData = !!localStorage.getItem(STORAGE_V2); } catch (e) {}
+
+            try { localStorage.setItem(SEEN_VERSION_KEY, APP_VERSION); } catch (e) {}
+
+            if (!hasExistingData) return; // съвсем нов потребител - не показваме история на промените
+            if (seenVersion === APP_VERSION) return; // вече е видял точно тази версия
+
+            const idx = CHANGELOG.findIndex(entry => entry.v === seenVersion);
+            const entriesToShow = idx === -1 ? CHANGELOG.slice(0, 3) : CHANGELOG.slice(0, idx);
+            if (!entriesToShow.length) return;
+
+            document.getElementById('whatsNewContent').innerHTML = entriesToShow.map(entry => `
+                <div>
+                    <p class="text-cyan-400 font-semibold text-xs mb-1">v${entry.v}</p>
+                    <ul class="list-disc list-inside space-y-0.5 text-slate-300">
+                        ${entry.items.map(i => `<li>${i}</li>`).join('')}
+                    </ul>
+                </div>`).join('');
+            document.getElementById('whatsNewModal').classList.remove('hidden');
+        }
+
+        function closeWhatsNewModal() {
+            document.getElementById('whatsNewModal').classList.add('hidden');
+        }
+
+        // ---------- Споделяне на аквариум само за преглед (не се записва у получателя) ----------
+        function shareAquariumView() {
+            const t = store.tanks[store.active];
+            if (!t) return;
+            captureTank();
+            const payload = {
+                n: t.name, ty: t.aqType, l: t.aqLiters, sh: t.aqShape,
+                temp: t.temp, ph: t.ph, nh3: t.nh3, no2: t.no2, no3: t.no3, gh: t.gh, kh: t.kh,
+                f: (t.fish || []).map(f => [f.name, f.count])
+            };
+            const encoded = encodeURIComponent(JSON.stringify(payload));
+            const baseUrl = location.href.split('?')[0].split('#')[0];
+            const url = `${baseUrl}?view=${encoded}`;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(
+                    () => showToast(tr('Линкът е копиран! Изпрати го на приятел.')),
+                    () => prompt(tr('Копирай този линк:'), url)
+                );
+            } else {
+                prompt(tr('Копирай този линк:'), url);
+            }
+        }
+
+        function checkViewFromUrl() {
+            const params = new URLSearchParams(location.search);
+            const raw = params.get('view');
+            if (!raw) return;
+            history.replaceState({}, '', location.pathname);
+            try {
+                const d = JSON.parse(decodeURIComponent(raw));
+                const row = (label, val, unit) => (val ? `<div class="flex justify-between border-b border-slate-700/50 py-1"><span class="text-slate-400">${label}</span><span class="font-medium">${val}${unit || ''}</span></div>` : '');
+                const fishRows = (d.f || []).map(([name, count]) => {
+                    const species = animalsDB.find(a => a.name === name) || plantsDB.find(a => a.name === name);
+                    const shown = species ? speciesName(species.name) : name;
+                    return `<li>${shown} × ${count}</li>`;
+                }).join('');
+                document.getElementById('viewOnlyContent').innerHTML = `
+                    <h4 class="text-xl font-bold text-white">${d.n || ''}</h4>
+                    ${row(tr('Тип'), aqTypeLabel(d.ty))}
+                    ${row(tr('Форма'), d.sh)}
+                    ${row(tr('Обем'), d.l, ' л')}
+                    ${row('pH', d.ph)}
+                    ${row(tr('Температура'), d.temp, '°C')}
+                    ${row('NH3', d.nh3, ' mg/l')}
+                    ${row('NO2', d.no2, ' mg/l')}
+                    ${row('NO3', d.no3, ' mg/l')}
+                    ${row('GH', d.gh, ' dGH')}
+                    ${row('KH', d.kh, ' dKH')}
+                    <div class="pt-2">
+                        <p class="text-slate-400 mb-1">${tr('Обитатели')}:</p>
+                        <ul class="list-disc list-inside space-y-0.5">${fishRows || '<li class="text-slate-500">' + tr('Няма добавени') + '</li>'}</ul>
+                    </div>`;
+                document.getElementById('viewOnlyModal').classList.remove('hidden');
+            } catch (e) {
+                showToast(tr('Невалиден линк за преглед.'), 'warn');
+            }
+        }
+
+        function closeViewOnlyModal() {
+            document.getElementById('viewOnlyModal').classList.add('hidden');
+        }
+
         // ---------- Внасяне на данни от линк, сканиран чрез QR (виж renderQR) ----------
         async function checkImportFromUrl() {
             const params = new URLSearchParams(location.search);
@@ -2923,6 +3028,18 @@
             "Грешка при изтегляне:": "Download error:",
             "Няма аквариуми за качване.": "No aquariums to upload.",
             "Грешка при качване:": "Upload error:",
+            "Какво ново": "What's new",
+            "Разбрах": "Got it",
+            "Сподели аквариум (само преглед)": "Share aquarium (view only)",
+            "Споделен аквариум (само преглед)": "Shared aquarium (view only)",
+            "Това е само преглед — нищо от тези данни не се запазва на твоето устройство.": "This is just a preview — none of this data is saved on your device.",
+            "Затвори": "Close",
+            "Линкът е копиран! Изпрати го на приятел.": "Link copied! Send it to a friend.",
+            "Копирай този линк:": "Copy this link:",
+            "Невалиден линк за преглед.": "Invalid preview link.",
+            "Тип": "Type",
+            "Форма": "Shape",
+            "Няма добавени": "None added",
             "Библиотеката за компресиране не се зареди (провери интернет връзката).": "The compression library failed to load (check your internet connection).",
             "Невалидни данни в линка.": "Invalid data in the link.",
             "Внасяне на аквариум": "Import aquarium",
@@ -4341,6 +4458,8 @@
         renderLangSwitch();
         initSyncUI();
         checkImportFromUrl();
+        checkViewFromUrl();
+        checkWhatsNew();
 
         // ---------- Скриване на горната лента при скрол надолу, показване при скрол нагоре ----------
         (function setupScrollHide() {
@@ -4381,5 +4500,29 @@
         try { notifyEnabled = localStorage.getItem(NOTIFY_KEY) === "1"; } catch (e) {}
         updateNotifyBtn();
     </script>
+    <!-- "Какво ново" панел -->
+    <div id="whatsNewModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-cyan-700 rounded-2xl p-5 max-w-md w-full max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-bold text-cyan-300"><i class="fa-solid fa-sparkles mr-2"></i><span data-i18n>Какво ново</span></h3>
+                <button onclick="closeWhatsNewModal()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+            </div>
+            <div id="whatsNewContent" class="space-y-3 text-sm"></div>
+            <button onclick="closeWhatsNewModal()" class="mt-4 w-full bg-cyan-700 hover:bg-cyan-600 text-white text-sm py-2 rounded-lg" data-i18n>Разбрах</button>
+        </div>
+    </div>
+
+    <!-- Режим "само преглед" - при отваряне на споделен линк -->
+    <div id="viewOnlyModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-cyan-700 rounded-2xl p-5 max-w-md w-full max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-bold text-cyan-300"><i class="fa-solid fa-eye mr-2"></i><span data-i18n>Споделен аквариум (само преглед)</span></h3>
+                <button onclick="closeViewOnlyModal()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+            </div>
+            <div id="viewOnlyContent" class="space-y-3 text-sm"></div>
+            <p class="text-[11px] text-slate-500 mt-4" data-i18n>Това е само преглед — нищо от тези данни не се запазва на твоето устройство.</p>
+            <button onclick="closeViewOnlyModal()" class="mt-3 w-full bg-cyan-700 hover:bg-cyan-600 text-white text-sm py-2 rounded-lg" data-i18n>Затвори</button>
+        </div>
+    </div>
 </body>
 </html>
