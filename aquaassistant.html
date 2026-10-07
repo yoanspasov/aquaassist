@@ -974,6 +974,14 @@
     </div>
 
     <script>
+        // Абсолютна застраховка: ако нещо, някъде по-долу, хвърли грешка извън контрол и
+        // спре изпълнението на скрипта преди нормалната логика да скрие splash екрана,
+        // този таймер гарантира, че потребителят никога няма да остане заседнал там завинаги.
+        setTimeout(() => {
+            const s = document.getElementById('splashScreen');
+            if (s && s.style.opacity !== '0') { s.style.opacity = '0'; s.style.pointerEvents = 'none'; setTimeout(() => s.remove(), 500); }
+        }, 6000);
+
         // СПРАВОЧНИК 1: РИБИ И БЕЗГРЪБНАЧНИ
         const animalsDB = [
             { name: "Неонов тетра (Neon Tetra)", type: "Риба", temp: "22-26°C", ph: "6.0 - 7.0", minLiters: 38, food: "Люспи, микрогранули", compat: "Миролюбива, стадна (мин. 6 бр.)", litersPerFish: 2, aggressive: false },
@@ -1103,10 +1111,11 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.5.0";
+        const APP_VERSION = "3.5.1";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         const CHANGELOG = [
+            { v: "3.5.1", items: ["Поправка: приложението вече никога не може да заседне на splash екрана при отваряне на споделен линк"] },
             { v: "3.5.0", items: ["Ново: Сподели аквариум само за преглед (линк за приятел, без запис у него)", "Ново: панел \"Какво ново\" (този, който виждаш точно сега)"] },
             { v: "3.4.0", items: ["Темата, езикът и известията вече се пренасят при облачна синхронизация"] },
             { v: "3.3.0", items: ["QR кодът вече пренася ВСИЧКИ аквариуми наведнъж чрез кода за синхронизация"] },
@@ -2470,7 +2479,7 @@
             if (!raw) return;
             history.replaceState({}, '', location.pathname);
             try {
-                const d = JSON.parse(decodeURIComponent(raw));
+                const d = JSON.parse(raw);
                 const row = (label, val, unit) => (val ? `<div class="flex justify-between border-b border-slate-700/50 py-1"><span class="text-slate-400">${label}</span><span class="font-medium">${val}${unit || ''}</span></div>` : '');
                 const fishRows = (d.f || []).map(([name, count]) => {
                     const species = animalsDB.find(a => a.name === name) || plantsDB.find(a => a.name === name);
@@ -4457,9 +4466,11 @@
         applyTranslations();
         renderLangSwitch();
         initSyncUI();
-        checkImportFromUrl();
-        checkViewFromUrl();
-        checkWhatsNew();
+        // Всяка от тези три функции е изолирана поотделно — грешка в едната
+        // никога не бива да може да попречи на другите две или на стартирането на приложението.
+        try { checkImportFromUrl(); } catch (e) { console.error('checkImportFromUrl грешка:', e); }
+        try { checkViewFromUrl(); } catch (e) { console.error('checkViewFromUrl грешка:', e); }
+        try { checkWhatsNew(); } catch (e) { console.error('checkWhatsNew грешка:', e); }
 
         // ---------- Скриване на горната лента при скрол надолу, показване при скрол нагоре ----------
         (function setupScrollHide() {
