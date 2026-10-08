@@ -1111,10 +1111,11 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.5.2";
+        const APP_VERSION = "3.5.3";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         const CHANGELOG = [
+            { v: "3.5.3", items: ["Поправка: споделен линк (само преглед) вече показва напълно заключен екран без каквато и да е възможност за редактиране — вместо затварящ се прозорец над работещото приложение"] },
             { v: "3.5.1", items: ["Поправка: приложението вече никога не може да заседне на splash екрана при отваряне на споделен линк"] },
             { v: "3.5.0", items: ["Ново: Сподели аквариум само за преглед (линк за приятел, без запис у него)", "Ново: панел \"Какво ново\" (този, който виждаш точно сега)"] },
             { v: "3.4.0", items: ["Темата, езикът и известията вече се пренасят при облачна синхронизация"] },
@@ -2473,25 +2474,67 @@
             }
         }
 
+        // Показва заключен, пълноекранен режим "само преглед" — няма бутон "затвори",
+        // няма път назад към редактируемо приложение. Връща true, ако е заключил екрана
+        // (за да спрат останалите init-стъпки да пипат вече скритото нормално приложение).
         function checkViewFromUrl() {
             const params = new URLSearchParams(location.search);
             const raw = params.get('view');
-            if (!raw) return;
+            if (!raw) return false;
             history.replaceState({}, '', location.pathname);
+            let d;
             try {
                 // Устойчиво на двата възможни случая: URLSearchParams вече декодира веднъж,
                 // но ако браузърът на получателя допълнително е кодирал линка при поставяне в адресната лента,
                 // raw може да се нуждае и от второ декодиране — опитваме и двата варианта.
-                let d;
                 try { d = JSON.parse(raw); }
                 catch (e1) { d = JSON.parse(decodeURIComponent(raw)); }
-                const row = (label, val, unit) => (val ? `<div class="flex justify-between border-b border-slate-700/50 py-1"><span class="text-slate-400">${label}</span><span class="font-medium">${val}${unit || ''}</span></div>` : '');
-                const fishRows = (d.f || []).map(([name, count]) => {
-                    const species = animalsDB.find(a => a.name === name) || plantsDB.find(a => a.name === name);
-                    const shown = species ? speciesName(species.name) : name;
-                    return `<li>${shown} × ${count}</li>`;
-                }).join('');
-                document.getElementById('viewOnlyContent').innerHTML = `
+            } catch (e) {
+                renderLockedViewScreen(null);
+                return true;
+            }
+            renderLockedViewScreen(d);
+            return true;
+        }
+
+        // Изгражда напълно заключен цял екран над/вместо нормалното приложение.
+        // Скрива всички останали елементи на body (табове, FAB, настройки и т.н.),
+        // така че да няма абсолютно никакъв път до редактиране.
+        function renderLockedViewScreen(d) {
+            try {
+                Array.from(document.body.children).forEach(el => { el.style.display = 'none'; });
+            } catch (e) {}
+
+            const screen = document.createElement('div');
+            screen.id = 'lockedViewScreen';
+            screen.className = 'fixed inset-0 bg-slate-950 z-[10000] overflow-y-auto flex items-start justify-center p-4';
+
+            if (!d) {
+                screen.innerHTML = `
+                    <div class="bg-slate-800 border border-amber-700 rounded-2xl p-5 max-w-md w-full mt-10 text-sm">
+                        <h3 class="text-lg font-bold text-amber-300 mb-2"><i class="fa-solid fa-triangle-exclamation mr-2"></i>${tr('Невалиден линк за преглед.')}</h3>
+                        <p class="text-slate-300">${tr('Линкът за преглед е невалиден или повреден.')}</p>
+                        <button onclick="location.href = location.href.split('?')[0].split('#')[0]" class="mt-4 w-full bg-cyan-700 hover:bg-cyan-600 text-white text-sm py-2 rounded-lg">${tr('Отвори собствен AquaAssist')}</button>
+                    </div>`;
+                document.body.appendChild(screen);
+                return;
+            }
+
+            const row = (label, val, unit) => (val ? `<div class="flex justify-between border-b border-slate-700/50 py-1"><span class="text-slate-400">${label}</span><span class="font-medium">${val}${unit || ''}</span></div>` : '');
+            const fishRows = (d.f || []).map(([name, count]) => {
+                const species = animalsDB.find(a => a.name === name) || plantsDB.find(a => a.name === name);
+                const shown = species ? speciesName(species.name) : name;
+                return `<li>${shown} × ${count}</li>`;
+            }).join('');
+            const baseUrl = location.href.split('?')[0].split('#')[0];
+
+            screen.innerHTML = `
+                <div class="bg-slate-800 border border-cyan-700 rounded-2xl p-5 max-w-md w-full mt-6 mb-10 text-sm">
+                    <div class="flex items-center gap-2 mb-1 text-cyan-300">
+                        <i class="fa-solid fa-lock"></i>
+                        <h3 class="text-lg font-bold">${tr('Споделен аквариум (само преглед)')}</h3>
+                    </div>
+                    <p class="text-[11px] text-amber-300/90 mb-3"><i class="fa-solid fa-eye mr-1"></i>${tr('Заключен преглед — не може да се редактира')}</p>
                     <h4 class="text-xl font-bold text-white">${d.n || ''}</h4>
                     ${row(tr('Тип'), aqTypeLabel(d.ty))}
                     ${row(tr('Форма'), d.sh)}
@@ -2506,15 +2549,11 @@
                     <div class="pt-2">
                         <p class="text-slate-400 mb-1">${tr('Обитатели')}:</p>
                         <ul class="list-disc list-inside space-y-0.5">${fishRows || '<li class="text-slate-500">' + tr('Няма добавени') + '</li>'}</ul>
-                    </div>`;
-                document.getElementById('viewOnlyModal').classList.remove('hidden');
-            } catch (e) {
-                showToast(tr('Невалиден линк за преглед.'), 'warn');
-            }
-        }
-
-        function closeViewOnlyModal() {
-            document.getElementById('viewOnlyModal').classList.add('hidden');
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-4">${tr('Това е само преглед на споделен аквариум. Нищо тук не може да бъде променено и нищо не се запазва на твоето устройство.')}</p>
+                    <button onclick="location.href = '${baseUrl}'" class="mt-4 w-full bg-cyan-700 hover:bg-cyan-600 text-white text-sm py-2 rounded-lg"><i class="fa-solid fa-arrow-up-right-from-square mr-1.5"></i>${tr('Отвори собствен AquaAssist')}</button>
+                </div>`;
+            document.body.appendChild(screen);
         }
 
         // ---------- Внасяне на данни от линк, сканиран чрез QR (виж renderQR) ----------
@@ -3051,6 +3090,10 @@
             "Линкът е копиран! Изпрати го на приятел.": "Link copied! Send it to a friend.",
             "Копирай този линк:": "Copy this link:",
             "Невалиден линк за преглед.": "Invalid preview link.",
+            "Заключен преглед — не може да се редактира": "Locked preview — cannot be edited",
+            "Това е само преглед на споделен аквариум. Нищо тук не може да бъде променено и нищо не се запазва на твоето устройство.": "This is only a preview of a shared aquarium. Nothing here can be changed, and none of this data is saved on your device.",
+            "Отвори собствен AquaAssist": "Open your own AquaAssist",
+            "Линкът за преглед е невалиден или повреден.": "The preview link is invalid or corrupted.",
             "Тип": "Type",
             "Форма": "Shape",
             "Няма добавени": "None added",
@@ -4471,11 +4514,15 @@
         applyTranslations();
         renderLangSwitch();
         initSyncUI();
-        // Всяка от тези три функции е изолирана поотделно — грешка в едната
-        // никога не бива да може да попречи на другите две или на стартирането на приложението.
-        try { checkImportFromUrl(); } catch (e) { console.error('checkImportFromUrl грешка:', e); }
-        try { checkViewFromUrl(); } catch (e) { console.error('checkViewFromUrl грешка:', e); }
-        try { checkWhatsNew(); } catch (e) { console.error('checkWhatsNew грешка:', e); }
+        // checkViewFromUrl се проверява първо и връща true, ако е заключила екрана
+        // в режим "само преглед" — в такъв случай останалите две не бива да се пипат,
+        // защото нормалното приложение вече е скрито и заключено.
+        let __viewLocked = false;
+        try { __viewLocked = checkViewFromUrl(); } catch (e) { console.error('checkViewFromUrl грешка:', e); }
+        if (!__viewLocked) {
+            try { checkImportFromUrl(); } catch (e) { console.error('checkImportFromUrl грешка:', e); }
+            try { checkWhatsNew(); } catch (e) { console.error('checkWhatsNew грешка:', e); }
+        }
 
         // ---------- Скриване на горната лента при скрол надолу, показване при скрол нагоре ----------
         (function setupScrollHide() {
@@ -4528,17 +4575,8 @@
         </div>
     </div>
 
-    <!-- Режим "само преглед" - при отваряне на споделен линк -->
-    <div id="viewOnlyModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
-        <div class="bg-slate-800 border border-cyan-700 rounded-2xl p-5 max-w-md w-full max-h-[85vh] overflow-y-auto">
-            <div class="flex items-center justify-between mb-3">
-                <h3 class="text-lg font-bold text-cyan-300"><i class="fa-solid fa-eye mr-2"></i><span data-i18n>Споделен аквариум (само преглед)</span></h3>
-                <button onclick="closeViewOnlyModal()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
-            </div>
-            <div id="viewOnlyContent" class="space-y-3 text-sm"></div>
-            <p class="text-[11px] text-slate-500 mt-4" data-i18n>Това е само преглед — нищо от тези данни не се запазва на твоето устройство.</p>
-            <button onclick="closeViewOnlyModal()" class="mt-3 w-full bg-cyan-700 hover:bg-cyan-600 text-white text-sm py-2 rounded-lg" data-i18n>Затвори</button>
-        </div>
-    </div>
+    <!-- Забележка: заключеният режим "само преглед" (?view=...) вече не използва модал
+         над работещото приложение — renderLockedViewScreen() изгражда цял заключен екран
+         изцяло чрез JS и скрива всичко останало, за да няма никакъв път до редактиране. -->
 </body>
 </html>
