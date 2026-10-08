@@ -1005,6 +1005,10 @@
             </div>
             <div class="space-y-3 text-sm">
                 <div>
+                    <label class="block text-xs text-slate-400 mb-1" data-i18n>Твоето име (по желание):</label>
+                    <input id="bugReporterName" type="text" maxlength="40" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-cyan-400" data-i18n-placeholder placeholder="Напр. Иван">
+                </div>
+                <div>
                     <label class="block text-xs text-slate-400 mb-1" data-i18n>В кой раздел е проблемът?</label>
                     <select id="bugTabSelect" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-cyan-400">
                         <option value="Начало" data-i18n>Начало</option>
@@ -1165,10 +1169,11 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.5.9";
+        const APP_VERSION = "3.6.0";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         const CHANGELOG = [
+            { v: "3.6.0", items: ["Ново: формата за доклад за бъг вече има поле за име (по желание) — приложението го запомня на устройството, за да се знае кой е писал"] },
             { v: "3.5.9", items: ["Ново: докладите за бъг вече се изпращат директно в облака (Firestore), не само се копират — стигат веднага, без да минават през имейл клиент; при липса на връзка пада обратно към копиране, за да не се губи докладът"] },
             { v: "3.5.8", items: ["Ново: \"Докладвай бъг\" вече отваря форма — избор на раздел от падащо меню + свободен текст за описание на проблема, после копира готов доклад в клипборда"] },
             { v: "3.5.7", items: ["Поправка: \"Докладвай бъг\" и \"Контакт\" вече само копират имейла и показват известие — премахнат е автоматичният опит за отваряне на mailto:, който в някои браузъри/прегледи показваше грешка \"This content is blocked\""] },
@@ -3162,6 +3167,10 @@
             "Докладът е изпратен — благодарим! Ще го разгледаме възможно най-скоро.": "Report sent — thank you! We'll take a look as soon as possible.",
             "Няма връзка с облака — докладът е копиран вместо това. Постави го в имейл до нас.": "Couldn't reach the cloud — the report was copied instead. Paste it into an email to us.",
             "Друго / не съм сигурен": "Other / not sure",
+            "Твоето име (по желание):": "Your name (optional):",
+            "Напр. Иван": "E.g. John",
+            "От": "From",
+            "(без име)": "(no name)",
             "Напр. при натискане на бутона за смяна на вода нищо не се случва...": "E.g. nothing happens when I tap the water-change button...",
             "Моля, опиши накратко какъв е проблемът.": "Please briefly describe the problem.",
             "Версия": "Version",
@@ -3958,11 +3967,14 @@
         }
 
         // ---------- Доклад за бъг — падащо меню с раздел + свободен текст ----------
+        const BUG_REPORTER_NAME_KEY = 'aquaAssistReporterName';
         function openReportBugModal() {
             const ta = document.getElementById('bugDescription');
             if (ta) ta.value = '';
             const sel = document.getElementById('bugTabSelect');
             if (sel) sel.selectedIndex = 0;
+            const nameInput = document.getElementById('bugReporterName');
+            if (nameInput) { try { nameInput.value = localStorage.getItem(BUG_REPORTER_NAME_KEY) || ''; } catch (e) {} }
             const btn = document.getElementById('submitBugBtn');
             const icon = document.getElementById('submitBugIcon');
             const label = document.getElementById('submitBugLabel');
@@ -3982,10 +3994,16 @@
             // и е на текущия език), вместо value — за да няма разминаване с I18N ключа.
             const tabLabel = tabSelect.selectedOptions[0] ? tabSelect.selectedOptions[0].textContent : tabSelect.value;
             const description = document.getElementById('bugDescription').value.trim();
+            const reporterName = (document.getElementById('bugReporterName').value || '').trim().slice(0, 40);
             if (!description) {
                 showToast(tr('Моля, опиши накратко какъв е проблемът.'), 'warn');
                 return;
             }
+            // Запомняме името на това устройство, за да не се въвежда наново всеки път.
+            try {
+                if (reporterName) localStorage.setItem(BUG_REPORTER_NAME_KEY, reporterName);
+                else localStorage.removeItem(BUG_REPORTER_NAME_KEY);
+            } catch (e) {}
 
             const btn = document.getElementById('submitBugBtn');
             const icon = document.getElementById('submitBugIcon');
@@ -3998,6 +4016,7 @@
             // в Firestore (за четивност там), така и при резервното копиране.
             const reportText = [
                 `AquaAssist — ${tr('Докладвай бъг')}`,
+                `${tr('От')}: ${reporterName || tr('(без име)')}`,
                 `${tr('Версия')}: ${APP_VERSION}`,
                 `${tr('В кой раздел е проблемът?')} ${tabLabel}`,
                 '',
@@ -4015,6 +4034,7 @@
             if (fbReady && typeof firebase !== 'undefined' && navigator.onLine !== false) {
                 try {
                     await firebase.firestore().collection('bugReports').add({
+                        reporterName: reporterName || null,
                         section: tabLabel,
                         description: description,
                         appVersion: APP_VERSION,
