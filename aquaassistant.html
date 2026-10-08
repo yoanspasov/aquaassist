@@ -1021,9 +1021,9 @@
                     <label class="block text-xs text-slate-400 mb-1" data-i18n>Опиши какво се случва:</label>
                     <textarea id="bugDescription" rows="5" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-cyan-400 resize-none" data-i18n-placeholder placeholder="Напр. при натискане на бутона за смяна на вода нищо не се случва..."></textarea>
                 </div>
-                <p class="text-[11px] text-slate-500" data-i18n>Докладът ще се копира в клипборда — постави го в имейл до нас.</p>
+                <p class="text-[11px] text-slate-500" data-i18n>Докладът се изпраща директно към нас заедно с версията на приложението, за да реагираме по-бързо.</p>
             </div>
-            <button onclick="submitBugReport()" class="mt-4 w-full bg-cyan-700 hover:bg-cyan-600 text-white text-sm py-2 rounded-lg font-medium"><i class="fa-solid fa-copy mr-1.5"></i><span data-i18n>Копирай доклада</span></button>
+            <button id="submitBugBtn" onclick="submitBugReport()" class="mt-4 w-full bg-cyan-700 hover:bg-cyan-600 text-white text-sm py-2 rounded-lg font-medium disabled:opacity-60"><i id="submitBugIcon" class="fa-solid fa-paper-plane mr-1.5"></i><span id="submitBugLabel" data-i18n>Изпрати доклада</span></button>
         </div>
     </div>
 
@@ -1165,10 +1165,11 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.5.8";
+        const APP_VERSION = "3.5.9";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         const CHANGELOG = [
+            { v: "3.5.9", items: ["Ново: докладите за бъг вече се изпращат директно в облака (Firestore), не само се копират — стигат веднага, без да минават през имейл клиент; при липса на връзка пада обратно към копиране, за да не се губи докладът"] },
             { v: "3.5.8", items: ["Ново: \"Докладвай бъг\" вече отваря форма — избор на раздел от падащо меню + свободен текст за описание на проблема, после копира готов доклад в клипборда"] },
             { v: "3.5.7", items: ["Поправка: \"Докладвай бъг\" и \"Контакт\" вече само копират имейла и показват известие — премахнат е автоматичният опит за отваряне на mailto:, който в някои браузъри/прегледи показваше грешка \"This content is blocked\""] },
             { v: "3.5.6", items: ["Поправка: линкът \"Политика за поверителност\" долу вече е абсолютен и работи навсякъде; GitHub хранилището вече не е публично линкнато от приложението (за да не кани странични хора в суровите файлове); \"Докладвай бъг\" и \"Контакт\" вече копират имейла и показват известие, вместо да разчитат само на mailto"] },
@@ -3155,12 +3156,14 @@
             "Имейлът е копиран:": "Email copied:",
             "В кой раздел е проблемът?": "Which section is the problem in?",
             "Опиши какво се случва:": "Describe what's happening:",
-            "Докладът ще се копира в клипборда — постави го в имейл до нас.": "The report will be copied to the clipboard — paste it into an email to us.",
-            "Копирай доклада": "Copy report",
+            "Докладът се изпраща директно към нас заедно с версията на приложението, за да реагираме по-бързо.": "The report is sent directly to us along with the app version, so we can respond faster.",
+            "Изпрати доклада": "Send report",
+            "Изпращане...": "Sending...",
+            "Докладът е изпратен — благодарим! Ще го разгледаме възможно най-скоро.": "Report sent — thank you! We'll take a look as soon as possible.",
+            "Няма връзка с облака — докладът е копиран вместо това. Постави го в имейл до нас.": "Couldn't reach the cloud — the report was copied instead. Paste it into an email to us.",
             "Друго / не съм сигурен": "Other / not sure",
             "Напр. при натискане на бутона за смяна на вода нищо не се случва...": "E.g. nothing happens when I tap the water-change button...",
             "Моля, опиши накратко какъв е проблемът.": "Please briefly describe the problem.",
-            "Докладът е копиран — постави го в имейл до нас.": "Report copied — paste it into an email to us.",
             "Версия": "Version",
             "Това е само преглед на споделен аквариум. Нищо тук не може да бъде променено и нищо не се запазва на твоето устройство.": "This is only a preview of a shared aquarium. Nothing here can be changed, and none of this data is saved on your device.",
             "Отвори собствен AquaAssist": "Open your own AquaAssist",
@@ -3960,6 +3963,12 @@
             if (ta) ta.value = '';
             const sel = document.getElementById('bugTabSelect');
             if (sel) sel.selectedIndex = 0;
+            const btn = document.getElementById('submitBugBtn');
+            const icon = document.getElementById('submitBugIcon');
+            const label = document.getElementById('submitBugLabel');
+            if (btn) btn.disabled = false;
+            if (icon) icon.className = 'fa-solid fa-paper-plane mr-1.5';
+            if (label) label.textContent = tr('Изпрати доклада');
             document.getElementById('reportBugModal').classList.remove('hidden');
         }
 
@@ -3967,7 +3976,7 @@
             document.getElementById('reportBugModal').classList.add('hidden');
         }
 
-        function submitBugReport() {
+        async function submitBugReport() {
             const tabSelect = document.getElementById('bugTabSelect');
             // Четем текста на вече избраната опция (той е минал през applyTranslations
             // и е на текущия език), вместо value — за да няма разминаване с I18N ключа.
@@ -3977,21 +3986,63 @@
                 showToast(tr('Моля, опиши накратко какъв е проблемът.'), 'warn');
                 return;
             }
-            const report = [
+
+            const btn = document.getElementById('submitBugBtn');
+            const icon = document.getElementById('submitBugIcon');
+            const label = document.getElementById('submitBugLabel');
+            if (btn) btn.disabled = true;
+            if (icon) icon.className = 'fa-solid fa-spinner fa-spin mr-1.5';
+            if (label) label.textContent = tr('Изпращане...');
+
+            // Текстов вариант на доклада — ползва се както при реално изпращане
+            // в Firestore (за четивност там), така и при резервното копиране.
+            const reportText = [
                 `AquaAssist — ${tr('Докладвай бъг')}`,
                 `${tr('Версия')}: ${APP_VERSION}`,
                 `${tr('В кой раздел е проблемът?')} ${tabLabel}`,
                 '',
                 description
             ].join('\n');
-            const finish = () => {
-                showToast(tr('Докладът е копиран — постави го в имейл до нас.'));
+
+            const resetBtn = () => {
+                if (btn) btn.disabled = false;
+                if (icon) icon.className = 'fa-solid fa-paper-plane mr-1.5';
+                if (label) label.textContent = tr('Изпрати доклада');
+            };
+
+            // Основен път: директно изпращане в облака (Firestore), за да стигне
+            // при нас веднага — не разчита на пощенски клиент на устройството.
+            if (fbReady && typeof firebase !== 'undefined' && navigator.onLine !== false) {
+                try {
+                    await firebase.firestore().collection('bugReports').add({
+                        section: tabLabel,
+                        description: description,
+                        appVersion: APP_VERSION,
+                        lang: currentLang,
+                        syncCode: mySyncCode || null,
+                        userAgent: (navigator.userAgent || '').slice(0, 300),
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    showToast(tr('Докладът е изпратен — благодарим! Ще го разгледаме възможно най-скоро.'));
+                    resetBtn();
+                    closeReportBugModal();
+                    return;
+                } catch (e) {
+                    console.error('submitBugReport Firestore грешка:', e);
+                    // пада към резервния вариант по-долу
+                }
+            }
+
+            // Резервен път — без интернет/Firebase: копира доклада, за да не се загуби.
+            const finishFallback = () => {
+                showToast(tr('Няма връзка с облака — докладът е копиран вместо това. Постави го в имейл до нас.'), 'warn');
+                resetBtn();
                 closeReportBugModal();
             };
             if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(report).then(finish, finish);
+                navigator.clipboard.writeText(reportText).then(finishFallback, finishFallback);
             } else {
-                finish();
+                finishFallback();
             }
         }
 
