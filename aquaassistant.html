@@ -3668,7 +3668,7 @@
             if (r.cycle && typeof r.cycle === "object") t.cycle = { on: !!r.cycle.on, startedAt: Number(r.cycle.startedAt) || 0 };
             if (r.intervals && typeof r.intervals === "object") Object.keys(r.intervals).forEach(k => { const v = parseInt(r.intervals[k]); if (v >= 1 && v <= 365) t.intervals[k] = v; });
             if (Array.isArray(r.waterChangeLog)) t.waterChangeLog = r.waterChangeLog.filter(e => e && typeof e.t === "number").slice(-30).map(e => ({ t: e.t, percent: parseFloat(e.percent) || 0 }));
-            if (Array.isArray(r.timeline)) t.timeline = r.timeline.filter(e => e && typeof e.t === "number").slice(-40).map(e => ({ t: e.t, note: String(e.note || '').slice(0, 500), photoId: typeof e.photoId === "string" ? e.photoId : null, photo: (!e.photoId && typeof e.photo === "string") ? e.photo : undefined }));
+            if (Array.isArray(r.timeline)) t.timeline = r.timeline.filter(e => e && typeof e.t === "number").slice(-40).map(e => ({ t: e.t, note: String(e.note || '').slice(0, 500), photoId: typeof e.photoId === "string" ? e.photoId : null, photo: (!e.photoId && typeof e.photo === "string") ? e.photo : null }));
             if (Array.isArray(r.expenses)) t.expenses = r.expenses.filter(e => e && typeof e.t === "number").slice(-100).map(e => ({ t: e.t, category: String(e.category || 'Друго').slice(0, 40), desc: String(e.desc || '').slice(0, 120), amount: parseFloat(e.amount) || 0 }));
             if (Array.isArray(r.dosing)) t.dosing = r.dosing.filter(d => d && typeof d.id === "string").slice(0, 30).map(d => ({
                 id: d.id, name: String(d.name || 'Добавка').slice(0, 60), amount: parseFloat(d.amount) || 0,
