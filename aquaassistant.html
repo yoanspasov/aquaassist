@@ -962,7 +962,7 @@
         <nav class="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] text-slate-500">
             <a href="https://yoanspasov.github.io/aquaassist/privacy-policy.html" target="_blank" rel="noopener" class="hover:text-cyan-300 hover:underline" data-i18n>Политика за поверителност</a>
             <span class="text-slate-700">·</span>
-            <button type="button" onclick="contactEmail('bug')" class="hover:text-cyan-300 hover:underline" data-i18n>Докладвай бъг</button>
+            <button type="button" onclick="openReportBugModal()" class="hover:text-cyan-300 hover:underline" data-i18n>Докладвай бъг</button>
             <span class="text-slate-700">·</span>
             <button type="button" onclick="contactEmail('general')" class="hover:text-cyan-300 hover:underline" data-i18n>Контакт</button>
         </nav>
@@ -992,6 +992,38 @@
             </div>
             <div id="whatsNewContent" class="space-y-3 text-sm"></div>
             <button onclick="closeWhatsNewModal()" class="mt-4 w-full bg-cyan-700 hover:bg-cyan-600 text-white text-sm py-2 rounded-lg" data-i18n>Разбрах</button>
+        </div>
+    </div>
+
+    <!-- Доклад за бъг — падащо меню с раздела + свободен текст, после копира
+         готов текст в клипборда (не праща никъде автоматично, вижте bug в contactEmail). -->
+    <div id="reportBugModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-cyan-700 rounded-2xl p-5 max-w-md w-full max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-bold text-cyan-300"><i class="fa-solid fa-bug mr-2"></i><span data-i18n>Докладвай бъг</span></h3>
+                <button onclick="closeReportBugModal()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+            </div>
+            <div class="space-y-3 text-sm">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1" data-i18n>В кой раздел е проблемът?</label>
+                    <select id="bugTabSelect" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-cyan-400">
+                        <option value="Начало" data-i18n>Начало</option>
+                        <option value="Аквариум" data-i18n>Аквариум</option>
+                        <option value="История" data-i18n>История</option>
+                        <option value="Добави" data-i18n>Добави</option>
+                        <option value="Обитатели" data-i18n>Обитатели</option>
+                        <option value="Наръчник" data-i18n>Наръчник</option>
+                        <option value="Още" data-i18n>Още</option>
+                        <option value="Друго" data-i18n>Друго / не съм сигурен</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1" data-i18n>Опиши какво се случва:</label>
+                    <textarea id="bugDescription" rows="5" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-cyan-400 resize-none" data-i18n-placeholder placeholder="Напр. при натискане на бутона за смяна на вода нищо не се случва..."></textarea>
+                </div>
+                <p class="text-[11px] text-slate-500" data-i18n>Докладът ще се копира в клипборда — постави го в имейл до нас.</p>
+            </div>
+            <button onclick="submitBugReport()" class="mt-4 w-full bg-cyan-700 hover:bg-cyan-600 text-white text-sm py-2 rounded-lg font-medium"><i class="fa-solid fa-copy mr-1.5"></i><span data-i18n>Копирай доклада</span></button>
         </div>
     </div>
 
@@ -1133,10 +1165,11 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.5.7";
+        const APP_VERSION = "3.5.8";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         const CHANGELOG = [
+            { v: "3.5.8", items: ["Ново: \"Докладвай бъг\" вече отваря форма — избор на раздел от падащо меню + свободен текст за описание на проблема, после копира готов доклад в клипборда"] },
             { v: "3.5.7", items: ["Поправка: \"Докладвай бъг\" и \"Контакт\" вече само копират имейла и показват известие — премахнат е автоматичният опит за отваряне на mailto:, който в някои браузъри/прегледи показваше грешка \"This content is blocked\""] },
             { v: "3.5.6", items: ["Поправка: линкът \"Политика за поверителност\" долу вече е абсолютен и работи навсякъде; GitHub хранилището вече не е публично линкнато от приложението (за да не кани странични хора в суровите файлове); \"Докладвай бъг\" и \"Контакт\" вече копират имейла и показват известие, вместо да разчитат само на mailto"] },
             { v: "3.5.5", items: ["Поправка: панелът \"Какво ново\" хвърляше грешка в конзолата и никога не се показваше, защото елементите му бяха поставени след скрипта в кода"] },
@@ -3120,6 +3153,15 @@
             "Докладвай бъг": "Report a bug",
             "Контакт": "Contact",
             "Имейлът е копиран:": "Email copied:",
+            "В кой раздел е проблемът?": "Which section is the problem in?",
+            "Опиши какво се случва:": "Describe what's happening:",
+            "Докладът ще се копира в клипборда — постави го в имейл до нас.": "The report will be copied to the clipboard — paste it into an email to us.",
+            "Копирай доклада": "Copy report",
+            "Друго / не съм сигурен": "Other / not sure",
+            "Напр. при натискане на бутона за смяна на вода нищо не се случва...": "E.g. nothing happens when I tap the water-change button...",
+            "Моля, опиши накратко какъв е проблемът.": "Please briefly describe the problem.",
+            "Докладът е копиран — постави го в имейл до нас.": "Report copied — paste it into an email to us.",
+            "Версия": "Version",
             "Това е само преглед на споделен аквариум. Нищо тук не може да бъде променено и нищо не се запазва на твоето устройство.": "This is only a preview of a shared aquarium. Nothing here can be changed, and none of this data is saved on your device.",
             "Отвори собствен AquaAssist": "Open your own AquaAssist",
             "Линкът за преглед е невалиден или повреден.": "The preview link is invalid or corrupted.",
@@ -3909,6 +3951,47 @@
                 );
             } else {
                 showToast(CONTACT_EMAIL);
+            }
+        }
+
+        // ---------- Доклад за бъг — падащо меню с раздел + свободен текст ----------
+        function openReportBugModal() {
+            const ta = document.getElementById('bugDescription');
+            if (ta) ta.value = '';
+            const sel = document.getElementById('bugTabSelect');
+            if (sel) sel.selectedIndex = 0;
+            document.getElementById('reportBugModal').classList.remove('hidden');
+        }
+
+        function closeReportBugModal() {
+            document.getElementById('reportBugModal').classList.add('hidden');
+        }
+
+        function submitBugReport() {
+            const tabSelect = document.getElementById('bugTabSelect');
+            // Четем текста на вече избраната опция (той е минал през applyTranslations
+            // и е на текущия език), вместо value — за да няма разминаване с I18N ключа.
+            const tabLabel = tabSelect.selectedOptions[0] ? tabSelect.selectedOptions[0].textContent : tabSelect.value;
+            const description = document.getElementById('bugDescription').value.trim();
+            if (!description) {
+                showToast(tr('Моля, опиши накратко какъв е проблемът.'), 'warn');
+                return;
+            }
+            const report = [
+                `AquaAssist — ${tr('Докладвай бъг')}`,
+                `${tr('Версия')}: ${APP_VERSION}`,
+                `${tr('В кой раздел е проблемът?')} ${tabLabel}`,
+                '',
+                description
+            ].join('\n');
+            const finish = () => {
+                showToast(tr('Докладът е копиран — постави го в имейл до нас.'));
+                closeReportBugModal();
+            };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(report).then(finish, finish);
+            } else {
+                finish();
             }
         }
 
