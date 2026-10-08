@@ -957,8 +957,17 @@
 
     </main>
 
-    <footer class="max-w-4xl mx-auto md:pl-24 px-4 pt-2 pb-24 md:pb-8">
+    <footer class="max-w-4xl mx-auto md:pl-24 px-4 pt-2 pb-24 md:pb-8 space-y-2">
         <p class="text-left text-[10px] text-slate-600 select-none">AquaAssist · <span data-i18n>версия</span> <span id="footerVersion"></span> · <span data-i18n>Създадено от</span> <span class="text-slate-500">Yoan Spasov</span></p>
+        <nav class="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] text-slate-500">
+            <a href="privacy-policy.html" target="_blank" rel="noopener" class="hover:text-cyan-300 hover:underline" data-i18n>Политика за поверителност</a>
+            <span class="text-slate-700">·</span>
+            <a href="https://github.com/yoanspasov/aquaassist" target="_blank" rel="noopener" class="hover:text-cyan-300 hover:underline">GitHub</a>
+            <span class="text-slate-700">·</span>
+            <a href="https://github.com/yoanspasov/aquaassist/issues" target="_blank" rel="noopener" class="hover:text-cyan-300 hover:underline" data-i18n>Докладвай бъг</a>
+            <span class="text-slate-700">·</span>
+            <a href="mailto:ioancho93@gmail.com" class="hover:text-cyan-300 hover:underline" data-i18n>Контакт</a>
+        </nav>
     </footer>
 
         <!-- Плаващ бутон за бързи действия (FAB) — само на мобилен -->
@@ -971,6 +980,21 @@
             <button onclick="fabGo('expense')" class="flex items-center gap-2 bg-slate-800/95 border border-white/10 backdrop-blur-md text-sm text-slate-100 px-3.5 py-2 rounded-full shadow-lg active:scale-95 transition-all duration-200"><i class="fa-solid fa-receipt text-cyan-400"></i>Нов разход</button>
         </div>
         <button id="fabBtn" onclick="toggleFab()" aria-label="Бързи действия" class="w-14 h-14 rounded-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-lg flex items-center justify-center active:scale-90 transition-all duration-200"><i id="fabIcon" class="fa-solid fa-plus text-xl transition-transform duration-300"></i></button>
+    </div>
+
+    <!-- "Какво ново" панел — трябва да е преди главния JS блок по-долу, защото
+         init кодът в него пише в тези елементи веднага при зареждане; ако стоеше след
+         скрипта (както преди), елементите още нямаше да съществуват в DOM-а и щеше
+         да хвърля "Cannot set properties of null". -->
+    <div id="whatsNewModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-cyan-700 rounded-2xl p-5 max-w-md w-full max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-bold text-cyan-300"><i class="fa-solid fa-sparkles mr-2"></i><span data-i18n>Какво ново</span></h3>
+                <button onclick="closeWhatsNewModal()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+            </div>
+            <div id="whatsNewContent" class="space-y-3 text-sm"></div>
+            <button onclick="closeWhatsNewModal()" class="mt-4 w-full bg-cyan-700 hover:bg-cyan-600 text-white text-sm py-2 rounded-lg" data-i18n>Разбрах</button>
+        </div>
     </div>
 
     <script>
@@ -1111,10 +1135,12 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.5.3";
+        const APP_VERSION = "3.5.5";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         const CHANGELOG = [
+            { v: "3.5.5", items: ["Поправка: панелът \"Какво ново\" хвърляше грешка в конзолата и никога не се показваше, защото елементите му бяха поставени след скрипта в кода"] },
+            { v: "3.5.4", items: ["Ново: ред с активни линкове долу в приложението — политика за поверителност, GitHub, докладване на бъг, контакт"] },
             { v: "3.5.3", items: ["Поправка: споделен линк (само преглед) вече показва напълно заключен екран без каквато и да е възможност за редактиране — вместо затварящ се прозорец над работещото приложение"] },
             { v: "3.5.1", items: ["Поправка: приложението вече никога не може да заседне на splash екрана при отваряне на споделен линк"] },
             { v: "3.5.0", items: ["Ново: Сподели аквариум само за преглед (линк за приятел, без запис у него)", "Ново: панел \"Какво ново\" (този, който виждаш точно сега)"] },
@@ -3091,6 +3117,8 @@
             "Копирай този линк:": "Copy this link:",
             "Невалиден линк за преглед.": "Invalid preview link.",
             "Заключен преглед — не може да се редактира": "Locked preview — cannot be edited",
+            "Докладвай бъг": "Report a bug",
+            "Контакт": "Contact",
             "Това е само преглед на споделен аквариум. Нищо тук не може да бъде променено и нищо не се запазва на твоето устройство.": "This is only a preview of a shared aquarium. Nothing here can be changed, and none of this data is saved on your device.",
             "Отвори собствен AquaAssist": "Open your own AquaAssist",
             "Линкът за преглед е невалиден или повреден.": "The preview link is invalid or corrupted.",
@@ -4563,17 +4591,6 @@
         try { notifyEnabled = localStorage.getItem(NOTIFY_KEY) === "1"; } catch (e) {}
         updateNotifyBtn();
     </script>
-    <!-- "Какво ново" панел -->
-    <div id="whatsNewModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
-        <div class="bg-slate-800 border border-cyan-700 rounded-2xl p-5 max-w-md w-full max-h-[85vh] overflow-y-auto">
-            <div class="flex items-center justify-between mb-3">
-                <h3 class="text-lg font-bold text-cyan-300"><i class="fa-solid fa-sparkles mr-2"></i><span data-i18n>Какво ново</span></h3>
-                <button onclick="closeWhatsNewModal()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
-            </div>
-            <div id="whatsNewContent" class="space-y-3 text-sm"></div>
-            <button onclick="closeWhatsNewModal()" class="mt-4 w-full bg-cyan-700 hover:bg-cyan-600 text-white text-sm py-2 rounded-lg" data-i18n>Разбрах</button>
-        </div>
-    </div>
 
     <!-- Забележка: заключеният режим "само преглед" (?view=...) вече не използва модал
          над работещото приложение — renderLockedViewScreen() изгражда цял заключен екран
