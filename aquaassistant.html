@@ -952,7 +952,7 @@
                 </div>
             </div>
 
-            <a href="privacy-policy.html" target="_blank" class="text-[11px] text-cyan-400 hover:text-cyan-300 underline inline-flex items-center gap-1"><i class="fa-solid fa-shield-halved"></i><span data-i18n>Политика за поверителност</span></a>
+            <a href="https://yoanspasov.github.io/aquaassist/privacy-policy.html" target="_blank" rel="noopener" class="text-[11px] text-cyan-400 hover:text-cyan-300 underline inline-flex items-center gap-1"><i class="fa-solid fa-shield-halved"></i><span data-i18n>Политика за поверителност</span></a>
         </section>
 
     </main>
@@ -960,13 +960,11 @@
     <footer class="max-w-4xl mx-auto md:pl-24 px-4 pt-2 pb-24 md:pb-8 space-y-2">
         <p class="text-left text-[10px] text-slate-600 select-none">AquaAssist · <span data-i18n>версия</span> <span id="footerVersion"></span> · <span data-i18n>Създадено от</span> <span class="text-slate-500">Yoan Spasov</span></p>
         <nav class="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] text-slate-500">
-            <a href="privacy-policy.html" target="_blank" rel="noopener" class="hover:text-cyan-300 hover:underline" data-i18n>Политика за поверителност</a>
+            <a href="https://yoanspasov.github.io/aquaassist/privacy-policy.html" target="_blank" rel="noopener" class="hover:text-cyan-300 hover:underline" data-i18n>Политика за поверителност</a>
             <span class="text-slate-700">·</span>
-            <a href="https://github.com/yoanspasov/aquaassist" target="_blank" rel="noopener" class="hover:text-cyan-300 hover:underline">GitHub</a>
+            <button type="button" onclick="contactEmail('bug')" class="hover:text-cyan-300 hover:underline" data-i18n>Докладвай бъг</button>
             <span class="text-slate-700">·</span>
-            <a href="https://github.com/yoanspasov/aquaassist/issues" target="_blank" rel="noopener" class="hover:text-cyan-300 hover:underline" data-i18n>Докладвай бъг</a>
-            <span class="text-slate-700">·</span>
-            <a href="mailto:ioancho93@gmail.com" class="hover:text-cyan-300 hover:underline" data-i18n>Контакт</a>
+            <button type="button" onclick="contactEmail('general')" class="hover:text-cyan-300 hover:underline" data-i18n>Контакт</button>
         </nav>
     </footer>
 
@@ -1135,10 +1133,12 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.5.5";
+        const APP_VERSION = "3.5.7";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         const CHANGELOG = [
+            { v: "3.5.7", items: ["Поправка: \"Докладвай бъг\" и \"Контакт\" вече само копират имейла и показват известие — премахнат е автоматичният опит за отваряне на mailto:, който в някои браузъри/прегледи показваше грешка \"This content is blocked\""] },
+            { v: "3.5.6", items: ["Поправка: линкът \"Политика за поверителност\" долу вече е абсолютен и работи навсякъде; GitHub хранилището вече не е публично линкнато от приложението (за да не кани странични хора в суровите файлове); \"Докладвай бъг\" и \"Контакт\" вече копират имейла и показват известие, вместо да разчитат само на mailto"] },
             { v: "3.5.5", items: ["Поправка: панелът \"Какво ново\" хвърляше грешка в конзолата и никога не се показваше, защото елементите му бяха поставени след скрипта в кода"] },
             { v: "3.5.4", items: ["Ново: ред с активни линкове долу в приложението — политика за поверителност, GitHub, докладване на бъг, контакт"] },
             { v: "3.5.3", items: ["Поправка: споделен линк (само преглед) вече показва напълно заключен екран без каквато и да е възможност за редактиране — вместо затварящ се прозорец над работещото приложение"] },
@@ -3119,6 +3119,7 @@
             "Заключен преглед — не може да се редактира": "Locked preview — cannot be edited",
             "Докладвай бъг": "Report a bug",
             "Контакт": "Contact",
+            "Имейлът е копиран:": "Email copied:",
             "Това е само преглед на споделен аквариум. Нищо тук не може да бъде променено и нищо не се запазва на твоето устройство.": "This is only a preview of a shared aquarium. Nothing here can be changed, and none of this data is saved on your device.",
             "Отвори собствен AquaAssist": "Open your own AquaAssist",
             "Линкът за преглед е невалиден или повреден.": "The preview link is invalid or corrupted.",
@@ -3890,6 +3891,24 @@
             if (!mySyncCode) return;
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(mySyncCode).then(() => showToast(tr('Кодът е копиран.')));
+            }
+        }
+
+        // Контакт по имейл — само копира адреса в клипборда и показва известие.
+        // Умишлено НЕ прави автоматично пренасочване към mailto: — в някои
+        // среди (sandbox/preview прегледи, определени мобилни браузъри) опит за
+        // автоматична навигация към непознат протокол бива блокиран от самата
+        // среда с объркващо съобщение "This content is blocked", въпреки че
+        // самото приложение няма проблем. Копирането работи навсякъде еднакво.
+        const CONTACT_EMAIL = 'ioancho93@gmail.com';
+        function contactEmail(kind) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(CONTACT_EMAIL).then(
+                    () => showToast(`${tr('Имейлът е копиран:')} ${CONTACT_EMAIL}`),
+                    () => showToast(CONTACT_EMAIL)
+                );
+            } else {
+                showToast(CONTACT_EMAIL);
             }
         }
 
