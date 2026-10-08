@@ -1111,7 +1111,7 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.5.1";
+        const APP_VERSION = "3.5.2";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         const CHANGELOG = [
@@ -2479,7 +2479,12 @@
             if (!raw) return;
             history.replaceState({}, '', location.pathname);
             try {
-                const d = JSON.parse(raw);
+                // Устойчиво на двата възможни случая: URLSearchParams вече декодира веднъж,
+                // но ако браузърът на получателя допълнително е кодирал линка при поставяне в адресната лента,
+                // raw може да се нуждае и от второ декодиране — опитваме и двата варианта.
+                let d;
+                try { d = JSON.parse(raw); }
+                catch (e1) { d = JSON.parse(decodeURIComponent(raw)); }
                 const row = (label, val, unit) => (val ? `<div class="flex justify-between border-b border-slate-700/50 py-1"><span class="text-slate-400">${label}</span><span class="font-medium">${val}${unit || ''}</span></div>` : '');
                 const fishRows = (d.f || []).map(([name, count]) => {
                     const species = animalsDB.find(a => a.name === name) || plantsDB.find(a => a.name === name);
