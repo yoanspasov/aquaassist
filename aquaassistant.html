@@ -1002,6 +1002,11 @@
             <button type="button" onclick="openReportBugModal()" class="hover:text-cyan-300 underline" data-i18n>Докладвай бъг</button>
             <span class="text-slate-700">·</span>
             <button type="button" onclick="contactEmail('general')" class="hover:text-cyan-300 underline" data-i18n>Контакт</button>
+            <span class="text-slate-700">·</span>
+            <span id="syncStatusIndicator" class="inline-flex items-center gap-1.5 text-slate-500">
+                <span id="syncStatusDot" class="w-1.5 h-1.5 rounded-full bg-slate-500 shrink-0"></span>
+                <span id="syncStatusText"></span>
+            </span>
         </div>
         <p class="text-left text-[10px] text-slate-600 select-none">AquaAssist · <span data-i18n>версия</span> <span id="footerVersion"></span> · <span data-i18n>Създадено от</span> <span class="text-slate-500">Yoan Spasov</span></p>
     </footer>
@@ -3260,6 +3265,9 @@
             "Синхронизирай между устройства": "Sync across devices",
             "Незадължително — с псевдоним и 6-цифрен код пазиш данните си достъпни и на телефон, и на компютър.": "Optional — with a nickname and a 6-digit code, keep your data accessible on both phone and computer.",
             "Настрой сега": "Set up now",
+            "Синхронизация: активна": "Sync: active",
+            "Синхронизация: няма връзка": "Sync: offline",
+            "Синхронизация: недостъпна": "Sync: unavailable",
             "Тук можеш да синхронизираш между устройства": "You can sync across devices here",
             "Вече имам код от друго устройство": "I already have a code from another device",
             "Запиши си този код някъде — ще ти трябва за другите устройства. Няма начин да го възстановим, ако го загубиш.": "Save this code somewhere — you'll need it on other devices. There's no way to recover it if you lose it.",
@@ -3668,6 +3676,7 @@
             if (typeof refreshAfterTankChange === 'function') refreshAfterTankChange();
             if (typeof renderEquipment === 'function') renderEquipment();
             if (typeof renderMiniStatus === 'function') renderMiniStatus();
+            if (typeof updateSyncStatus === 'function') updateSyncStatus();
             saveData();
         }
 
@@ -3983,6 +3992,30 @@
                 setTimeout(() => tip.classList.remove('sync-tooltip-show'), 4600);
             }, 800);
         }
+
+        // Статус на облачната синхронизация, показан долу във footer-а.
+        // Firestore няма вграден "online" индикатор (за разлика от Realtime Database),
+        // затова се осланяме на: дали Firebase SDK се е инициализирал успешно (fbReady)
+        // и дали устройството има интернет връзка (navigator.onLine). Не прави мрежови
+        // заявки — просто отразява реалното състояние на средата.
+        function updateSyncStatus() {
+            const dot = document.getElementById('syncStatusDot');
+            const text = document.getElementById('syncStatusText');
+            if (!dot || !text) return;
+            dot.classList.remove('bg-emerald-400', 'bg-red-400', 'bg-amber-400', 'bg-slate-500');
+            if (!fbReady) {
+                dot.classList.add('bg-amber-400');
+                text.textContent = tr('Синхронизация: недостъпна');
+            } else if (!navigator.onLine) {
+                dot.classList.add('bg-red-400');
+                text.textContent = tr('Синхронизация: няма връзка');
+            } else {
+                dot.classList.add('bg-emerald-400');
+                text.textContent = tr('Синхронизация: активна');
+            }
+        }
+        window.addEventListener('online', updateSyncStatus);
+        window.addEventListener('offline', updateSyncStatus);
 
         function initSyncUI() {
             const has = !!mySyncCode;
@@ -4859,6 +4892,7 @@
         renderLangSwitch();
         initSyncUI();
         maybeShowSyncTooltip();
+        updateSyncStatus();
         // checkViewFromUrl се проверява първо и връща true, ако е заключила екрана
         // в режим "само преглед" — в такъв случай останалите две не бива да се пипат,
         // защото нормалното приложение вече е скрито и заключено.
