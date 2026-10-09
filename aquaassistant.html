@@ -229,6 +229,21 @@
         #waterAlert.border-emerald-700 { border-color: #047857; }
         .aqua-toast.bg-emerald-600\/95 { background-color: rgba(5,150,105,0.95); }
         .aqua-toast.border-emerald-400\/40 { border-color: rgba(52,211,153,0.4); }
+
+        /* Лек пулсиращ пръстен около иконката за синхронизация — дискретна подсказка
+           за нов потребител, докато още няма sync код. Изчезва автоматично след това. */
+        @keyframes syncPulseRing {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(34,211,238,0.55); }
+            50% { box-shadow: 0 0 0 6px rgba(34,211,238,0); }
+        }
+        #syncHeaderBtn.sync-pulse { animation: syncPulseRing 2s ease-in-out infinite; }
+
+        @keyframes syncTooltipFade {
+            0% { opacity: 0; transform: translateY(-4px); }
+            10%, 85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-4px); }
+        }
+        #syncHeaderTooltip.sync-tooltip-show { display: block; animation: syncTooltipFade 4.5s ease-in-out forwards; }
     </style>
     <!-- Firebase (само за облачна синхронизация с код, без регистрация) -->
     <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
@@ -292,11 +307,12 @@
                     <button onclick="document.getElementById('importFile').click()" title="Импорт (JSON)" data-i18n-title class="bg-slate-700/80 hover:bg-cyan-900/60 text-xs w-8 h-8 flex items-center justify-center transition-all duration-200 active:scale-90 text-cyan-300" aria-label="Импорт (JSON)"><svg style="width:16px;height:16px;display:block;flex-shrink:0;margin:auto;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M12 15V3m0 0-4 4m4-4 4 4M4 19h16"/></svg></button>
                 </div>
                 <input type="file" id="importFile" accept=".json,application/json" class="hidden" onchange="importData(this)">
-                <div class="flex items-center rounded-xl border border-slate-600 overflow-hidden shrink-0">
+                <div class="relative flex items-center rounded-xl border border-slate-600 overflow-hidden shrink-0">
                     <button id="syncHeaderBtn" onclick="goToSyncSection()" title="Синхронизация между устройства" data-i18n-title class="relative bg-slate-700/80 hover:bg-cyan-900/60 text-xs w-8 h-8 flex items-center justify-center transition-all duration-200 active:scale-90 text-cyan-300" aria-label="Синхронизация между устройства">
                         <i class="fa-solid fa-cloud text-sm"></i>
                         <span id="syncHeaderDot" class="hidden absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-amber-400"></span>
                     </button>
+                    <div id="syncHeaderTooltip" class="hidden absolute top-full right-0 mt-2 w-48 bg-cyan-700 text-white text-[11px] leading-snug rounded-lg shadow-lg px-3 py-2 z-[70]" data-i18n>Тук можеш да синхронизираш между устройства</div>
                 </div>
                 <div class="flex items-center rounded-xl border border-slate-600 overflow-hidden shrink-0">
                     <button id="settingsBtn" onclick="toggleSettingsPanel()" title="Настройки" data-i18n-title class="bg-slate-700/80 hover:bg-cyan-900/60 text-xs w-8 h-8 flex items-center justify-center transition-all duration-200 active:scale-90 text-cyan-300" aria-label="Настройки">
@@ -3244,6 +3260,7 @@
             "Синхронизирай между устройства": "Sync across devices",
             "Незадължително — с псевдоним и 6-цифрен код пазиш данните си достъпни и на телефон, и на компютър.": "Optional — with a nickname and a 6-digit code, keep your data accessible on both phone and computer.",
             "Настрой сега": "Set up now",
+            "Тук можеш да синхронизираш между устройства": "You can sync across devices here",
             "Вече имам код от друго устройство": "I already have a code from another device",
             "Запиши си този код някъде — ще ти трябва за другите устройства. Няма начин да го възстановим, ако го загубиш.": "Save this code somewhere — you'll need it on other devices. There's no way to recover it if you lose it.",
             "Свали картичка за възстановяване": "Download recovery card",
@@ -3950,16 +3967,34 @@
 
         // ---------- Облачна синхронизация (без регистрация — само код, който пазиш сам) ----------
         const SYNC_CODE_KEY = 'aquaAssistSyncCode';
+        const SYNC_TOOLTIP_SHOWN_KEY = 'aquaAssistSyncTooltipShown';
         let mySyncCode = lsGet(SYNC_CODE_KEY) || '';
+
+        // Показва еднократно малко балонче до иконката за синхронизация, за да подскаже
+        // на нов потребител къде да отиде, за да си създаде псевдоним + код. Изчезва само
+        // след няколко секунди и повече не се появява на това устройство.
+        function maybeShowSyncTooltip() {
+            if (mySyncCode || lsGet(SYNC_TOOLTIP_SHOWN_KEY) === '1') return;
+            const tip = document.getElementById('syncHeaderTooltip');
+            if (!tip) return;
+            setTimeout(() => {
+                tip.classList.add('sync-tooltip-show');
+                lsSet(SYNC_TOOLTIP_SHOWN_KEY, '1');
+                setTimeout(() => tip.classList.remove('sync-tooltip-show'), 4600);
+            }, 800);
+        }
 
         function initSyncUI() {
             const has = !!mySyncCode;
             const noCodeBox = document.getElementById('syncNoCode');
             const hasCodeBox = document.getElementById('syncHasCode');
             const headerDot = document.getElementById('syncHeaderDot');
-            // Малка точка на иконката в горната лента, докато потребителят още няма sync код —
-            // дискретен знак, че синхронизацията съществува, без банер, който да затрупва екрана.
+            const headerBtn = document.getElementById('syncHeaderBtn');
+            // Малка точка и лек пулс на иконката в горната лента, докато потребителят
+            // още няма sync код — дискретен знак, че синхронизацията съществува,
+            // без банер, който да затрупва екрана. И двете изчезват щом има код.
             if (headerDot) headerDot.classList.toggle('hidden', has);
+            if (headerBtn) headerBtn.classList.toggle('sync-pulse', !has);
             if (!noCodeBox || !hasCodeBox) return;
             noCodeBox.classList.toggle('hidden', has);
             document.getElementById('syncLoginForm').classList.add('hidden');
@@ -4817,6 +4852,7 @@
         applyTranslations();
         renderLangSwitch();
         initSyncUI();
+        maybeShowSyncTooltip();
         // checkViewFromUrl се проверява първо и връща true, ако е заключила екрана
         // в режим "само преглед" — в такъв случай останалите две не бива да се пипат,
         // защото нормалното приложение вече е скрито и заключено.
