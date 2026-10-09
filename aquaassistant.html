@@ -2374,6 +2374,18 @@
                 </div>`).join('');
         }
 
+        // Превключва към таб "Аквариум", скролва до параметрите и отваря формата
+        // за редактиране — за да може картата на Начало да служи и като пряк път.
+        function goToParamsEdit() {
+            switchTab('aquarium');
+            setTimeout(() => {
+                const el = document.getElementById('secParams');
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                const form = document.getElementById('paramEditForm');
+                if (form && form.classList.contains('hidden')) toggleParamEdit();
+            }, 50);
+        }
+
         function toggleParamEdit() {
             const form = document.getElementById('paramEditForm');
             const opening = form.classList.contains('hidden');
@@ -4503,7 +4515,7 @@
                     ? `<svg viewBox="0 0 100 34" class="w-full h-10 text-cyan-400">${areaChart(pts, 100, 34, gradId)}</svg>
                        <div class="flex justify-between text-[9px] text-slate-500 -mt-0.5"><span>${Math.min(...vals).toFixed(1)}</span><span>${Math.max(...vals).toFixed(1)}</span></div>`
                     : `<p class="text-[10px] text-slate-600 h-10 flex items-center justify-center">${tr('няма история')}</p>`;
-                return `<div class="bg-slate-900/60 border ${cls} ${pulse} rounded-xl p-3 space-y-2 transition-colors duration-300 relative">
+                return `<div onclick="goToParamsEdit()" role="button" tabindex="0" title="${tr('Редактирай')}" class="bg-slate-900/60 border ${cls} ${pulse} rounded-xl p-3 space-y-2 transition-colors duration-300 relative cursor-pointer hover:border-cyan-500/60 active:scale-[0.98]">
                     <span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full ${dot}"></span>
                     <div class="flex items-center gap-2">
                         <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs bg-cyan-900/60 text-cyan-300"><i class="fa-solid ${icon}"></i></span>
