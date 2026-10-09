@@ -4078,14 +4078,8 @@
         // самото приложение няма проблем. Копирането работи навсякъде еднакво.
         const CONTACT_EMAIL = 'ioancho93@gmail.com';
         function contactEmail(kind) {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(CONTACT_EMAIL).then(
-                    () => showToast(`${tr('Имейлът е копиран:')} ${CONTACT_EMAIL}`),
-                    () => showToast(CONTACT_EMAIL)
-                );
-            } else {
-                showToast(CONTACT_EMAIL);
-            }
+            const subject = encodeURIComponent('AquaAssist');
+            window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}`;
         }
 
         // ---------- Доклад за бъг — падащо меню с раздел + свободен текст ----------
