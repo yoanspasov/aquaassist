@@ -985,7 +985,7 @@
                     </div>
                     <p class="text-[11px] text-amber-400"><i class="fa-solid fa-triangle-exclamation mr-1"></i><span data-i18n>Запиши си този код някъде — ще ти трябва за другите устройства. Няма начин да го възстановим, ако го загубиш.</span></p>
                     <button onclick="saveRecoveryCard()" class="w-full bg-slate-700 hover:bg-slate-600 border border-slate-600 text-xs px-3 py-2 rounded-lg font-medium text-amber-300"><i class="fa-solid fa-download mr-1.5"></i><span data-i18n>Свали картичка за възстановяване</span></button>
-                    <button onclick="uploadToCloud()" class="w-full bg-cyan-700 hover:bg-cyan-600 text-xs px-3 py-2 rounded-lg font-medium text-white" data-i18n>Качи в облака</button>
+                    <button id="syncUploadBtn" onclick="uploadToCloud()" class="w-full bg-cyan-700 hover:bg-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed text-xs px-3 py-2 rounded-lg font-medium text-white" data-i18n>Качи в облака</button>
                     <p id="syncLastUpload" class="text-[11px] text-slate-500"></p>
                     <button onclick="forgetSyncCode()" class="text-[11px] text-red-400 hover:text-red-300 underline" data-i18n>Забрави този код на това устройство</button>
                 </div>
@@ -3268,6 +3268,7 @@
             "Синхронизация: активна": "Sync: active",
             "Синхронизация: няма връзка": "Sync: offline",
             "Синхронизация: недостъпна": "Sync: unavailable",
+            "Синхронизация: грешка": "Sync: error",
             "Тук можеш да синхронизираш между устройства": "You can sync across devices here",
             "Вече имам код от друго устройство": "I already have a code from another device",
             "Запиши си този код някъде — ще ти трябва за другите устройства. Няма начин да го възстановим, ако го загубиш.": "Save this code somewhere — you'll need it on other devices. There's no way to recover it if you lose it.",
@@ -3728,7 +3729,7 @@
             if (r.cycle && typeof r.cycle === "object") t.cycle = { on: !!r.cycle.on, startedAt: Number(r.cycle.startedAt) || 0 };
             if (r.intervals && typeof r.intervals === "object") Object.keys(r.intervals).forEach(k => { const v = parseInt(r.intervals[k]); if (v >= 1 && v <= 365) t.intervals[k] = v; });
             if (Array.isArray(r.waterChangeLog)) t.waterChangeLog = r.waterChangeLog.filter(e => e && typeof e.t === "number").slice(-30).map(e => ({ t: e.t, percent: parseFloat(e.percent) || 0 }));
-            if (Array.isArray(r.timeline)) t.timeline = r.timeline.filter(e => e && typeof e.t === "number").slice(-40).map(e => ({ t: e.t, note: String(e.note || '').slice(0, 500), photoId: typeof e.photoId === "string" ? e.photoId : null, photo: (!e.photoId && typeof e.photo === "string") ? e.photo : undefined }));
+            if (Array.isArray(r.timeline)) t.timeline = r.timeline.filter(e => e && typeof e.t === "number").slice(-40).map(e => ({ t: e.t, note: String(e.note || '').slice(0, 500), photoId: typeof e.photoId === "string" ? e.photoId : null, photo: (!e.photoId && typeof e.photo === "string") ? e.photo : null }));
             if (Array.isArray(r.expenses)) t.expenses = r.expenses.filter(e => e && typeof e.t === "number").slice(-100).map(e => ({ t: e.t, category: String(e.category || 'Друго').slice(0, 40), desc: String(e.desc || '').slice(0, 120), amount: parseFloat(e.amount) || 0 }));
             if (Array.isArray(r.dosing)) t.dosing = r.dosing.filter(d => d && typeof d.id === "string").slice(0, 30).map(d => ({
                 id: d.id, name: String(d.name || 'Добавка').slice(0, 60), amount: parseFloat(d.amount) || 0,
@@ -4249,10 +4250,26 @@
             initSyncUI();
         }
 
+        // Пази да не се пускат едновременно качване и изтегляне (напр. при бързо
+        // двойно натискане), и за кратко показва грешка в статус индикатора долу.
+        let syncBusy = false;
+        function flagSyncError() {
+            const dot = document.getElementById('syncStatusDot');
+            const text = document.getElementById('syncStatusText');
+            if (!dot || !text) return;
+            dot.classList.remove('bg-emerald-400', 'bg-red-400', 'bg-amber-400', 'bg-slate-500');
+            dot.classList.add('bg-red-400');
+            text.textContent = tr('Синхронизация: грешка');
+        }
+
         async function uploadToCloud() {
+            if (syncBusy) return;
             if (!mySyncCode) { showToast(tr('Няма код още.'), 'warn'); return; }
             if (!fbReady) { showToast(tr('Синхронизацията не е настроена още.'), 'warn'); return; }
             if (!store.tanks || !store.tanks.length) { alert(tr('Няма аквариуми за качване.')); return; }
+            const btn = document.getElementById('syncUploadBtn');
+            syncBusy = true;
+            if (btn) btn.disabled = true;
             try {
                 showToast(tr('Качване...'));
                 captureTank(); // улавя най-актуалните стойности от екрана в store.tanks, преди да качим
@@ -4264,8 +4281,13 @@
                 const el = document.getElementById('syncLastUpload');
                 if (el) el.textContent = `${tr('Последно качване:')} ${new Date().toLocaleString(locale())}`;
                 showToast(tr('Качено успешно!'));
+                updateSyncStatus();
             } catch (e) {
                 alert(`${tr('Грешка при качване:')} ${e && e.message ? e.message : e}`);
+                flagSyncError();
+            } finally {
+                syncBusy = false;
+                if (btn) btn.disabled = false;
             }
         }
 
@@ -4278,7 +4300,9 @@
         // Споделена логика за изтегляне по код — ползва се и от ръчния бутон, и от автоматичното сканиране на QR.
         // askConfirm=true показва диалог "сигурен ли си"; false е за случаи, където вече сме питали с друго съобщение.
         async function downloadByCode(code, askConfirm) {
+            if (syncBusy) return;
             if (!fbReady) { alert(tr('Синхронизацията не е настроена още.')); return; }
+            syncBusy = true;
             try {
                 showToast(tr('Изтегляне...'));
                 const doc = await firebase.firestore().collection('syncCodes').doc(code).get();
@@ -4290,7 +4314,9 @@
                     return;
                 }
                 const newTanks = data.tanks;
-                const newActive = data.active || 0;
+                // Пазим индекса на активния аквариум в допустимите граници — ако данните
+                // в облака са повредени или остарели, не искаме извън-граничен индекс.
+                const newActive = Math.min(Math.max(parseInt(data.active, 10) || 0, 0), newTanks.length - 1);
                 mySyncCode = code;
                 lsSet(SYNC_CODE_KEY, mySyncCode);
                 // Пишем директно в localStorage, БЕЗ saveData()/captureTank() —
@@ -4303,6 +4329,9 @@
                 location.reload();
             } catch (e) {
                 alert(`${tr('Грешка при изтегляне:')} ${e && e.message ? e.message : e}`);
+                flagSyncError();
+            } finally {
+                syncBusy = false;
             }
         }
 
