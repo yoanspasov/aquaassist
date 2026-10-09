@@ -293,6 +293,12 @@
                 </div>
                 <input type="file" id="importFile" accept=".json,application/json" class="hidden" onchange="importData(this)">
                 <div class="flex items-center rounded-xl border border-slate-600 overflow-hidden shrink-0">
+                    <button id="syncHeaderBtn" onclick="goToSyncSection()" title="Синхронизация между устройства" data-i18n-title class="relative bg-slate-700/80 hover:bg-cyan-900/60 text-xs w-8 h-8 flex items-center justify-center transition-all duration-200 active:scale-90 text-cyan-300" aria-label="Синхронизация между устройства">
+                        <i class="fa-solid fa-cloud text-sm"></i>
+                        <span id="syncHeaderDot" class="hidden absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                    </button>
+                </div>
+                <div class="flex items-center rounded-xl border border-slate-600 overflow-hidden shrink-0">
                     <button id="settingsBtn" onclick="toggleSettingsPanel()" title="Настройки" data-i18n-title class="bg-slate-700/80 hover:bg-cyan-900/60 text-xs w-8 h-8 flex items-center justify-center transition-all duration-200 active:scale-90 text-cyan-300" aria-label="Настройки">
                         <svg style="width:16px;height:16px;display:block;flex-shrink:0;margin:auto;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.3.22.63.22 1v0c.38 0 .75.08 1.38.22"/></svg>
                     </button>
@@ -344,19 +350,6 @@
     </div>
 
     <main id="secTop" class="max-w-4xl mx-auto md:pl-24 p-4 space-y-6">
-
-        <!-- Поканa за синхронизация — видима само докато потребителят още няма sync код -->
-        <div id="syncWelcomeBanner" data-tab="home" class="tab-panel hidden bg-cyan-950/80 border border-cyan-700 text-cyan-200 p-4 rounded-xl shadow-lg flex items-center justify-between gap-3 flex-wrap relative">
-            <button onclick="dismissSyncBanner()" title="Затвори" data-i18n-title aria-label="Затвори" class="absolute top-2 right-2 text-cyan-400/60 hover:text-cyan-300 text-sm"><i class="fa-solid fa-xmark"></i></button>
-            <div class="flex items-center gap-3 pr-6">
-                <i class="fa-solid fa-cloud text-cyan-400 text-xl shrink-0"></i>
-                <div>
-                    <h3 class="text-sm font-semibold" data-i18n>Синхронизирай между устройства</h3>
-                    <p class="text-xs text-cyan-300" data-i18n>Незадължително — с псевдоним и 6-цифрен код пазиш данните си достъпни и на телефон, и на компютър.</p>
-                </div>
-            </div>
-            <button onclick="goToSyncSection()" class="text-xs bg-cyan-700 hover:bg-cyan-600 px-3 py-2 rounded-lg font-medium text-white shrink-0" data-i18n>Настрой сега</button>
-        </div>
 
         <!-- Начало: моментен статус на живо -->
         <div data-tab="home" class="tab-panel space-y-2">
@@ -3957,18 +3950,16 @@
 
         // ---------- Облачна синхронизация (без регистрация — само код, който пазиш сам) ----------
         const SYNC_CODE_KEY = 'aquaAssistSyncCode';
-        const SYNC_BANNER_DISMISS_KEY = 'aquaAssistSyncBannerDismissed';
         let mySyncCode = lsGet(SYNC_CODE_KEY) || '';
 
         function initSyncUI() {
             const has = !!mySyncCode;
             const noCodeBox = document.getElementById('syncNoCode');
             const hasCodeBox = document.getElementById('syncHasCode');
-            const banner = document.getElementById('syncWelcomeBanner');
-            // Банерът на Начало се показва само докато потребителят още няма sync код —
-            // целта е нов човек веднага да разбере, че синхронизацията съществува,
-            // без да задръства екрана на тези, които вече са си я настроили.
-            if (banner) banner.classList.toggle('hidden', has || lsGet(SYNC_BANNER_DISMISS_KEY) === '1');
+            const headerDot = document.getElementById('syncHeaderDot');
+            // Малка точка на иконката в горната лента, докато потребителят още няма sync код —
+            // дискретен знак, че синхронизацията съществува, без банер, който да затрупва екрана.
+            if (headerDot) headerDot.classList.toggle('hidden', has);
             if (!noCodeBox || !hasCodeBox) return;
             noCodeBox.classList.toggle('hidden', has);
             document.getElementById('syncLoginForm').classList.add('hidden');
@@ -3984,12 +3975,6 @@
                 const el = document.getElementById('secBackup');
                 if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 50);
-        }
-
-        function dismissSyncBanner() {
-            lsSet(SYNC_BANNER_DISMISS_KEY, '1');
-            const banner = document.getElementById('syncWelcomeBanner');
-            if (banner) banner.classList.add('hidden');
         }
 
         function showSyncLoginForm() {
@@ -4186,12 +4171,7 @@
         function forgetSyncCode() {
             if (!confirm(tr('Сигурен ли си? Ще трябва да го въведеш ръчно, за да го ползваш пак на това устройство.'))) return;
             mySyncCode = '';
-            try {
-                localStorage.removeItem(SYNC_CODE_KEY);
-                // Без код поканата за синхронизация пак трябва да е видима,
-                // затова нулираме и отметката, че банерът е бил затворен ръчно.
-                localStorage.removeItem(SYNC_BANNER_DISMISS_KEY);
-            } catch (e) {}
+            try { localStorage.removeItem(SYNC_CODE_KEY); } catch (e) {}
             initSyncUI();
         }
 
