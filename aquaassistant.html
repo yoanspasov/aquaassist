@@ -991,18 +991,18 @@
                 </div>
             </div>
 
-            <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] text-cyan-400">
-                <a href="https://yoanspasov.github.io/aquaassist/privacy-policy.html" target="_blank" rel="noopener" class="hover:text-cyan-300 underline inline-flex items-center gap-1"><i class="fa-solid fa-shield-halved"></i><span data-i18n>Политика за поверителност</span></a>
-                <span class="text-slate-700">·</span>
-                <button type="button" onclick="openReportBugModal()" class="hover:text-cyan-300 underline" data-i18n>Докладвай бъг</button>
-                <span class="text-slate-700">·</span>
-                <button type="button" onclick="contactEmail('general')" class="hover:text-cyan-300 underline" data-i18n>Контакт</button>
-            </div>
         </section>
 
     </main>
 
     <footer class="max-w-4xl mx-auto md:pl-24 px-4 pt-2 pb-24 md:pb-8 space-y-2">
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] text-cyan-400">
+            <a href="https://yoanspasov.github.io/aquaassist/privacy-policy.html" target="_blank" rel="noopener" class="hover:text-cyan-300 underline inline-flex items-center gap-1"><i class="fa-solid fa-shield-halved"></i><span data-i18n>Политика за поверителност</span></a>
+            <span class="text-slate-700">·</span>
+            <button type="button" onclick="openReportBugModal()" class="hover:text-cyan-300 underline" data-i18n>Докладвай бъг</button>
+            <span class="text-slate-700">·</span>
+            <button type="button" onclick="contactEmail('general')" class="hover:text-cyan-300 underline" data-i18n>Контакт</button>
+        </div>
         <p class="text-left text-[10px] text-slate-600 select-none">AquaAssist · <span data-i18n>версия</span> <span id="footerVersion"></span> · <span data-i18n>Създадено от</span> <span class="text-slate-500">Yoan Spasov</span></p>
     </footer>
 
@@ -4070,16 +4070,28 @@
             showToast(tr('Картичката е свалена.'));
         }
 
-        // Контакт по имейл — само копира адреса в клипборда и показва известие.
-        // Умишлено НЕ прави автоматично пренасочване към mailto: — в някои
-        // среди (sandbox/preview прегледи, определени мобилни браузъри) опит за
-        // автоматична навигация към непознат протокол бива блокиран от самата
-        // среда с объркващо съобщение "This content is blocked", въпреки че
-        // самото приложение няма проблем. Копирането работи навсякъде еднакво.
+        // Контакт по имейл — отваря Gmail compose в нов таб с попълнен получател.
+        // Умишлено не се ползва mailto: — то разчита на инсталиран/настроен
+        // пощенски клиент по подразбиране и в много браузъри/среди (включително
+        // такива без такъв клиент) просто не прави нищо видимо или показва грешка
+        // "This content is blocked". Линк към Gmail web compose е обикновен https
+        // адрес, работи навсякъде еднакво, с copy-to-clipboard като резервен вариант.
         const CONTACT_EMAIL = 'ioancho93@gmail.com';
         function contactEmail(kind) {
             const subject = encodeURIComponent('AquaAssist');
-            window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}`;
+            const url = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(CONTACT_EMAIL)}&su=${subject}`;
+            const win = window.open(url, '_blank');
+            if (!win) {
+                // Ако изскачащият прозорец е блокиран, поне копираме адреса.
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(CONTACT_EMAIL).then(
+                        () => showToast(`${tr('Имейлът е копиран:')} ${CONTACT_EMAIL}`),
+                        () => showToast(CONTACT_EMAIL)
+                    );
+                } else {
+                    showToast(CONTACT_EMAIL);
+                }
+            }
         }
 
         // ---------- Доклад за бъг — падащо меню с раздел + свободен текст ----------
