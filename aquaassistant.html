@@ -962,7 +962,7 @@
                         <button onclick="copySyncCode()" title="Копирай" data-i18n-title aria-label="Копирай кода" class="text-slate-400 hover:text-cyan-300"><i class="fa-solid fa-copy"></i></button>
                     </div>
                     <p class="text-[11px] text-amber-400"><i class="fa-solid fa-triangle-exclamation mr-1"></i><span data-i18n>Запиши си този код някъде — ще ти трябва за другите устройства. Няма начин да го възстановим, ако го загубиш.</span></p>
-                    <button onclick="saveRecoveryCard()" class="w-full bg-slate-700 hover:bg-slate-600 border border-slate-600 text-xs px-3 py-2 rounded-lg font-medium text-amber-300"><i class="fa-solid fa-download mr-1.5"></i><span data-i18n>Изтегли резервно копие на кода</span></button>
+                    <button onclick="saveRecoveryCard()" class="w-full bg-slate-700 hover:bg-slate-600 border border-slate-600 text-xs px-3 py-2 rounded-lg font-medium text-amber-300"><i class="fa-solid fa-download mr-1.5"></i><span data-i18n>Свали картичка за възстановяване</span></button>
                     <button onclick="uploadToCloud()" class="w-full bg-cyan-700 hover:bg-cyan-600 text-xs px-3 py-2 rounded-lg font-medium text-white" data-i18n>Качи в облака</button>
                     <p id="syncLastUpload" class="text-[11px] text-slate-500"></p>
                     <button onclick="forgetSyncCode()" class="text-[11px] text-red-400 hover:text-red-300 underline" data-i18n>Забрави този код на това устройство</button>
@@ -3237,14 +3237,14 @@
             "Създай код": "Create code",
             "Вече имам код от друго устройство": "I already have a code from another device",
             "Запиши си този код някъде — ще ти трябва за другите устройства. Няма начин да го възстановим, ако го загубиш.": "Save this code somewhere — you'll need it on other devices. There's no way to recover it if you lose it.",
-            "Изтегли резервно копие на кода": "Download a backup of the code",
+            "Свали картичка за възстановяване": "Download recovery card",
             "код за синхронизация": "sync code",
             "Код": "Code",
             "Създаден на": "Created on",
             "Пази този файл на сигурно място (напр. бележки на телефона, email до себе си).": "Keep this file somewhere safe (e.g. your phone's notes, an email to yourself).",
             "Въведи кода на друго устройство през „Вече имам код от друго устройство\", за да изтеглиш данните си.": "Enter the code on another device via \"I already have a code from another device\" to download your data.",
             "AquaAssist не може да възстанови този код вместо теб, ако го загубиш.": "AquaAssist cannot recover this code for you if you lose it.",
-            "Резервното копие е свалено.": "Backup downloaded.",
+            "Картичката е свалена.": "Recovery card downloaded.",
             "напр. yoan-4f2a9c": "e.g. yoan-4f2a9c",
             "Изтегли": "Download",
             "Назад": "Back",
@@ -4009,7 +4009,7 @@
             a.click();
             document.body.removeChild(a);
             setTimeout(() => URL.revokeObjectURL(url), 2000);
-            showToast(tr('Резервното копие е свалено.'));
+            showToast(tr('Картичката е свалена.'));
         }
 
         // Контакт по имейл — само копира адреса в клипборда и показва известие.
@@ -4148,7 +4148,12 @@
         function forgetSyncCode() {
             if (!confirm(tr('Сигурен ли си? Ще трябва да го въведеш ръчно, за да го ползваш пак на това устройство.'))) return;
             mySyncCode = '';
-            try { localStorage.removeItem(SYNC_CODE_KEY); } catch (e) {}
+            try {
+                localStorage.removeItem(SYNC_CODE_KEY);
+                // Без код поканата за синхронизация пак трябва да е видима,
+                // затова нулираме и отметката, че банерът е бил затворен ръчно.
+                localStorage.removeItem(SYNC_BANNER_DISMISS_KEY);
+            } catch (e) {}
             initSyncUI();
         }
 
