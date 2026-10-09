@@ -345,19 +345,6 @@
 
     <main id="secTop" class="max-w-4xl mx-auto md:pl-24 p-4 space-y-6">
 
-        <!-- Поканa за синхронизация — видима само докато потребителят още няма sync код -->
-        <div id="syncWelcomeBanner" data-tab="home" class="tab-panel hidden bg-cyan-950/80 border border-cyan-700 text-cyan-200 p-4 rounded-xl shadow-lg flex items-center justify-between gap-3 flex-wrap relative">
-            <button onclick="dismissSyncBanner()" title="Затвори" data-i18n-title aria-label="Затвори" class="absolute top-2 right-2 text-cyan-400/60 hover:text-cyan-300 text-sm"><i class="fa-solid fa-xmark"></i></button>
-            <div class="flex items-center gap-3 pr-6">
-                <i class="fa-solid fa-cloud text-cyan-400 text-xl shrink-0"></i>
-                <div>
-                    <h3 class="text-sm font-semibold" data-i18n>Синхронизирай между устройства</h3>
-                    <p class="text-xs text-cyan-300" data-i18n>Незадължително — с псевдоним и 6-цифрен код пазиш данните си достъпни и на телефон, и на компютър.</p>
-                </div>
-            </div>
-            <button onclick="goToSyncSection()" class="text-xs bg-cyan-700 hover:bg-cyan-600 px-3 py-2 rounded-lg font-medium text-white shrink-0" data-i18n>Настрой сега</button>
-        </div>
-
         <!-- Начало: моментен статус на живо -->
         <div data-tab="home" class="tab-panel space-y-2">
             <h2 class="text-sm font-semibold text-slate-400 flex items-center px-1"><i class="fa-solid fa-gauge-high mr-2 text-cyan-400"></i> <span data-i18n>Моментен статус</span></h2>
@@ -975,7 +962,7 @@
                         <button onclick="copySyncCode()" title="Копирай" data-i18n-title aria-label="Копирай кода" class="text-slate-400 hover:text-cyan-300"><i class="fa-solid fa-copy"></i></button>
                     </div>
                     <p class="text-[11px] text-amber-400"><i class="fa-solid fa-triangle-exclamation mr-1"></i><span data-i18n>Запиши си този код някъде — ще ти трябва за другите устройства. Няма начин да го възстановим, ако го загубиш.</span></p>
-                    <button onclick="saveRecoveryCard()" class="w-full bg-slate-700 hover:bg-slate-600 border border-slate-600 text-xs px-3 py-2 rounded-lg font-medium text-amber-300"><i class="fa-solid fa-download mr-1.5"></i><span data-i18n>Свали картичка за възстановяване</span></button>
+                    <button onclick="saveRecoveryCard()" class="w-full bg-slate-700 hover:bg-slate-600 border border-slate-600 text-xs px-3 py-2 rounded-lg font-medium text-amber-300"><i class="fa-solid fa-download mr-1.5"></i><span data-i18n>Изтегли резервно копие на кода</span></button>
                     <button onclick="uploadToCloud()" class="w-full bg-cyan-700 hover:bg-cyan-600 text-xs px-3 py-2 rounded-lg font-medium text-white" data-i18n>Качи в облака</button>
                     <p id="syncLastUpload" class="text-[11px] text-slate-500"></p>
                     <button onclick="forgetSyncCode()" class="text-[11px] text-red-400 hover:text-red-300 underline" data-i18n>Забрави този код на това устройство</button>
@@ -3248,19 +3235,16 @@
             "Твърде много обитатели за един QR код — използвай експорт в JSON вместо това.": "Too many inhabitants for a single QR code — use JSON export instead.",
             "Моля, използвай само латински букви и цифри.": "Please use only Latin letters and digits.",
             "Създай код": "Create code",
-            "Синхронизирай между устройства": "Sync across devices",
-            "Незадължително — с псевдоним и 6-цифрен код пазиш данните си достъпни и на телефон, и на компютър.": "Optional — with a nickname and a 6-digit code, keep your data accessible on both phone and computer.",
-            "Настрой сега": "Set up now",
             "Вече имам код от друго устройство": "I already have a code from another device",
             "Запиши си този код някъде — ще ти трябва за другите устройства. Няма начин да го възстановим, ако го загубиш.": "Save this code somewhere — you'll need it on other devices. There's no way to recover it if you lose it.",
-            "Свали картичка за възстановяване": "Download recovery card",
+            "Изтегли резервно копие на кода": "Download a backup of the code",
             "код за синхронизация": "sync code",
             "Код": "Code",
             "Създаден на": "Created on",
             "Пази този файл на сигурно място (напр. бележки на телефона, email до себе си).": "Keep this file somewhere safe (e.g. your phone's notes, an email to yourself).",
             "Въведи кода на друго устройство през „Вече имам код от друго устройство\", за да изтеглиш данните си.": "Enter the code on another device via \"I already have a code from another device\" to download your data.",
             "AquaAssist не може да възстанови този код вместо теб, ако го загубиш.": "AquaAssist cannot recover this code for you if you lose it.",
-            "Картичката е свалена.": "Recovery card downloaded.",
+            "Резервното копие е свалено.": "Backup downloaded.",
             "напр. yoan-4f2a9c": "e.g. yoan-4f2a9c",
             "Изтегли": "Download",
             "Назад": "Back",
@@ -3957,39 +3941,17 @@
 
         // ---------- Облачна синхронизация (без регистрация — само код, който пазиш сам) ----------
         const SYNC_CODE_KEY = 'aquaAssistSyncCode';
-        const SYNC_BANNER_DISMISS_KEY = 'aquaAssistSyncBannerDismissed';
         let mySyncCode = lsGet(SYNC_CODE_KEY) || '';
 
         function initSyncUI() {
             const has = !!mySyncCode;
             const noCodeBox = document.getElementById('syncNoCode');
             const hasCodeBox = document.getElementById('syncHasCode');
-            const banner = document.getElementById('syncWelcomeBanner');
-            // Банерът на Начало се показва само докато потребителят още няма sync код —
-            // целта е нов човек веднага да разбере, че синхронизацията съществува,
-            // без да задръства екрана на тези, които вече са си я настроили.
-            if (banner) banner.classList.toggle('hidden', has || lsGet(SYNC_BANNER_DISMISS_KEY) === '1');
             if (!noCodeBox || !hasCodeBox) return;
             noCodeBox.classList.toggle('hidden', has);
             document.getElementById('syncLoginForm').classList.add('hidden');
             hasCodeBox.classList.toggle('hidden', !has);
             if (has) document.getElementById('syncCodeDisplay').textContent = mySyncCode;
-        }
-
-        // Превключва към таб "Още" и плавно скролва до картата за синхронизация,
-        // за да не дублираме формата на две места в кода.
-        function goToSyncSection() {
-            switchTab('more');
-            setTimeout(() => {
-                const el = document.getElementById('secBackup');
-                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 50);
-        }
-
-        function dismissSyncBanner() {
-            lsSet(SYNC_BANNER_DISMISS_KEY, '1');
-            const banner = document.getElementById('syncWelcomeBanner');
-            if (banner) banner.classList.add('hidden');
         }
 
         function showSyncLoginForm() {
@@ -4047,7 +4009,7 @@
             a.click();
             document.body.removeChild(a);
             setTimeout(() => URL.revokeObjectURL(url), 2000);
-            showToast(tr('Картичката е свалена.'));
+            showToast(tr('Резервното копие е свалено.'));
         }
 
         // Контакт по имейл — само копира адреса в клипборда и показва известие.
