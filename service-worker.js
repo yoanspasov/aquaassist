@@ -23,7 +23,8 @@
 // текстът на бутона "Обнови" беше невидим (бял на бял фон) при тъмни теми.
 // v32: Поправка — нов аквариум без въведени данни вече не показва "просрочена"
 // смяна на водата (index.html: tankHasUserActivity).
-const CACHE_NAME = "aquaassistant-cache-v32";
+// v33: Добавено ново растение: Салвиния Натанс.
+const CACHE_NAME = "aquaassistant-cache-v33";
 const CORE_ASSETS = [
   "./index.html",
   "./manifest.json",

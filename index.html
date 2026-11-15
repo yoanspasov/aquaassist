@@ -1518,7 +1518,8 @@
             { name: "Водна висария (Water Wisteria)", type: "Растение", temp: "22-28°C", ph: "6.0 - 7.5", minLiters: 40, food: "Светлина: Умерена", compat: "Бързорастяща, лесна за начинаещи", litersPerFish: 0, aggressive: false },
             { name: "Плачещ мъх (Weeping Moss)", type: "Растение", temp: "20-28°C", ph: "6.0 - 7.5", minLiters: 10, food: "Светлина: Ниска", compat: "Увисващ мъх, добър за декор на корени/камъни", litersPerFish: 0, aggressive: false },
             { name: "Алтернантера Рейнекии (Alternanthera Reineckii)", type: "Растение", temp: "22-28°C", ph: "6.0 - 7.5", minLiters: 40, food: "Светлина: Силна + CO2", compat: "Червен цвят при силна светлина, бавнорастящо", litersPerFish: 0, aggressive: false },
-            { name: "Хигрофила Корумбоза (Hygrophila Corymbosa)", type: "Растение", temp: "22-28°C", ph: "6.0 - 7.5", minLiters: 60, food: "Светлина: Умерена", compat: "Бързорастящо стъблено растение за заден план", litersPerFish: 0, aggressive: false }
+            { name: "Хигрофила Корумбоза (Hygrophila Corymbosa)", type: "Растение", temp: "22-28°C", ph: "6.0 - 7.5", minLiters: 60, food: "Светлина: Умерена", compat: "Бързорастящо стъблено растение за заден план", litersPerFish: 0, aggressive: false },
+            { name: "Салвиния Натанс (Salvinia Natans)", type: "Растение", temp: "20-28°C", ph: "6.0 - 7.5", minLiters: 10, food: "Светлина: Умерена / Силна", compat: "Плаващо растение, бързорастящо, намалява светлината", litersPerFish: 0, aggressive: false }
         ];
 
 
@@ -1695,11 +1696,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.54";
+        const APP_VERSION = "3.6.55";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.55", items: [
+                "Добавено ново растение: Салвиния Натанс"
+            ], items_en: [
+                "Added new plant: Salvinia Natans"
+            ] },
             { v: "3.6.54", items: [
                 "Поправка: нов аквариум, в който още нищо не е въведено, вече не показва подвеждащо \"Време е за смяна на водата\" / \"просрочена\" — предупреждението се появява едва след първата въведена информация"
             ], items_en: [
@@ -4148,6 +4154,8 @@
             "Мирна, стадна, леки вътрешни йерархии": "Peaceful, schooling, mild internal hierarchy",
             "Много мирна, лесна за начинаещи": "Very peaceful, easy for beginners",
             "Стадна (мин. 5 бр.), расте голяма, изисква опит": "Schooling (min. 5 pcs.), grows large, needs experience",
+            "Салвиния Натанс (Salvinia Natans)": "Salvinia Natans (Water Spangles)",
+            "Плаващо растение, бързорастящо, намалява светлината": "Floating plant, fast-growing, reduces light",
             "Мин": "Min",
             "Флора": "Flora",
             "— Избери —": "— Select —",
