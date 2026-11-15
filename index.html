@@ -1696,11 +1696,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.55";
+        const APP_VERSION = "3.6.56";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.56", items: [
+                "При добавяне на разход се показва известие със сумата и категорията"
+            ], items_en: [
+                "Adding an expense now shows a confirmation toast with the amount and category"
+            ] },
             { v: "3.6.55", items: [
                 "Добавено ново растение: Салвиния Натанс"
             ], items_en: [
@@ -3092,6 +3097,7 @@
             document.getElementById('expenseAmount').value = '';
             renderExpenses();
             saveData();
+            showToast(`Добавен разход: ${tr(category)} ${desc ? '(' + desc + ')' : ''} – ${amount.toFixed(2)} €`);
         }
 
         function deleteExpense(i) {

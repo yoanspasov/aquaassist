@@ -24,7 +24,8 @@
 // v32: Поправка — нов аквариум без въведени данни вече не показва "просрочена"
 // смяна на водата (index.html: tankHasUserActivity).
 // v33: Добавено ново растение: Салвиния Натанс.
-const CACHE_NAME = "aquaassistant-cache-v33";
+// v34: Известие при добавяне на разход.
+const CACHE_NAME = "aquaassistant-cache-v34";
 const CORE_ASSETS = [
   "./index.html",
   "./manifest.json",
