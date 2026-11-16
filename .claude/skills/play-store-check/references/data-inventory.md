@@ -46,7 +46,6 @@
 
 | Услуга | Адрес | Какво се изпраща |
 |---|---|---|
-| Google Analytics 4 | `googletagmanager.com` (G-BPNWZDZTSX) | посещения, страни, страници; анонимен идентификатор в браузъра (бисквитка, описано в политиката) |
 | Cloudflare Web Analytics | `static.cloudflareinsights.com` (beacon) | посещения и страници (описано в `privacy-policy.html`) |
 | Firebase Firestore | `firestore.googleapis.com` (през gstatic SDK) | виж раздел 3 |
 | Google Fonts | `fonts.googleapis.com`, `fonts.gstatic.com` | шрифт Inter (заявка от браузъра) |
@@ -55,7 +54,7 @@
 
 Всички стилове и Font Awesome са локални. Tailwind е статичен.
 
-**Забележка:** CLAUDE.md изисква да няма външни услуги за проследяване без одобрение. GA4 и Cloudflare Web Analytics вече присъстват в кода и са описани в `privacy-policy.html`; за Play трябва да са отразени и в "Data safety".
+**Забележка:** От версия 3.6.58 Google Analytics е премахнат (той ползваше бисквитки без съгласие). Остава само Cloudflare Web Analytics, който не използва бисквитки. Ако някой върне GA, трябва да се добави съгласие (Consent Mode или банер) и да се обнови политиката.
 
 ## 5. Разрешения и системни функции
 
@@ -83,4 +82,4 @@
 - `deleteTank` не изтрива снимките на аквариума и на визуалния дневник от IndexedDB (остават "сираци").
 - `importData` презаписва данните без потвърждение.
 - Снимката на аквариума не се включва в експорта.
-- Политиката описва данните за облака, но за имейл/име в докладите и за `analytics/featureUsage` трябва да се провери дали са отразени точно.
+- Имейлът и името от докладите се пазят и локално (`aquaAssistReporterName`, `aquaAssistReporterEmail`) — трябва да са описани в политиката (предложено, предстои запис).

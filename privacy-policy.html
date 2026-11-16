@@ -4,13 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="pageTitle">Политика за поверителност — AquaAssist</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { color-scheme: dark; }
+        * { box-sizing: border-box; }
+        body { margin: 0; min-height: 100vh; background: #020617; color: #e2e8f0; font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; overflow-wrap: break-word; }
+        main { max-width: 42rem; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+        h1, h2, p, ul { margin: 0; }
+        h2 { margin-bottom: .5rem; }
+        .flex { display: flex; }
+        .inline-flex { display: inline-flex; }
+        .items-center { align-items: center; }
+        .gap-2 { gap: .5rem; }
+        .gap-3 { gap: .75rem; }
+        .space-y-6 > * + * { margin-top: 1.5rem; }
+        .space-y-2 > * + * { margin-top: .5rem; }
+        .space-y-1 > * + * { margin-top: .25rem; }
+        .pb-4 { padding-bottom: 1rem; }
+        .pt-4 { padding-top: 1rem; }
+        .border-b { border-bottom: 1px solid #1e293b; }
+        .text-xs { font-size: .75rem; line-height: 1.5; }
+        .text-sm { font-size: 1rem; line-height: 1.6; }
+        .text-lg { font-size: 1.125rem; line-height: 1.5; }
+        .text-xl { font-size: 1.25rem; line-height: 1.4; }
+        .text-2xl { font-size: 1.5rem; }
+        .font-semibold { font-weight: 600; }
+        .font-bold { font-weight: 700; }
+        .leading-relaxed { line-height: 1.625; }
+        .mx-auto { margin-left: auto; margin-right: auto; }
+        .list-disc { list-style-type: disc; }
+        .list-inside { list-style-position: inside; }
+        .underline { text-decoration: underline; }
+        .text-slate-200 { color: #e2e8f0; }
+        .text-slate-300 { color: #cbd5e1; }
+        .text-slate-400 { color: #94a3b8; }
+        .text-slate-500 { color: #94a3b8; }
+        .text-cyan-300 { color: #67e8f9; }
+        .text-cyan-400 { color: #22d3ee; }
+        a { color: #22d3ee; }
+        a:hover, a:focus-visible { color: #67e8f9; }
+        strong { color: #f8fafc; font-weight: 600; }
+        section li { margin-top: .25rem; }
+        svg { width: 1em; height: 1em; fill: currentColor; flex-shrink: 0; }
+    </style>
 </head>
 <body class="bg-slate-950 text-slate-200 min-h-screen">
     <main class="max-w-2xl mx-auto p-6 space-y-6">
         <header class="flex items-center gap-3 pb-4 border-b border-slate-800">
-            <i class="fa-solid fa-fish text-cyan-400 text-2xl"></i>
+            <svg class="text-cyan-400 text-2xl" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12c3.5-4.6 8.2-6.6 13-5 1.3.4 2.5 1.2 3.6 2.2L22 6v12l-3.4-3.2c-1.1 1-2.3 1.8-3.6 2.2-4.8 1.6-9.5-.4-13-5zm6 0a1.2 1.2 0 1 0 2.4 0 1.2 1.2 0 0 0-2.4 0z"/></svg>
             <div>
                 <h1 class="text-xl font-bold">AquaAssist</h1>
                 <p class="text-xs text-slate-500" data-bg="Политика за поверителност" data-en="Privacy Policy"></p>
@@ -21,7 +61,7 @@
 
         <section class="space-y-2">
             <h2 class="text-lg font-semibold text-cyan-300" data-bg="Накратко" data-en="In short"></h2>
-            <p class="text-sm leading-relaxed" data-bg='AquaAssist не изисква регистрация. По подразбиране всичко, което въвеждаш — параметри на водата, обитатели, снимки, бележки и разходи — се пази <strong>само на твоето устройство</strong>, в браузъра, в който отваряш приложението, и никъде не се изпраща. Данни напускат устройството ти само ако изрично избереш да ползваш <strong>облачна синхронизация</strong> или да <strong>изпратиш доклад за бъг</strong> — и двете са по твой избор, обяснени по-долу.' data-en='AquaAssist requires no registration. By default, everything you enter — water parameters, inhabitants, photos, notes and expenses — stays <strong>only on your device</strong>, in the browser where you open the app, and is never sent anywhere. Data leaves your device only if you explicitly choose to use <strong>cloud sync</strong> or <strong>submit a bug report</strong> — both optional, explained below.'></p>
+            <p class="text-sm leading-relaxed" data-bg='AquaAssist не изисква регистрация. По подразбиране всичко, което въвеждаш — параметри на водата, обитатели, снимки, бележки и разходи — се пази <strong>само на твоето устройство</strong>, в браузъра, в който отваряш приложението. Данни напускат устройството ти само ако изрично избереш да ползваш <strong>облачна синхронизация</strong> или да <strong>изпратиш доклад за бъг</strong> — и двете са по твой избор, обяснени по-долу. Единственото автоматично изпращане е анонимната статистика за посещения (Cloudflare Web Analytics, без бисквитки) и анонимният брояч на използваните функции — виж раздел „Статистика за посещения“.' data-en='AquaAssist requires no registration. By default, everything you enter — water parameters, inhabitants, photos, notes and expenses — stays <strong>only on your device</strong>, in the browser where you open the app. Data leaves your device only if you explicitly choose to use <strong>cloud sync</strong> or to <strong>submit a bug report</strong> — both optional, explained below. The only automatic sending is anonymous visit statistics (Cloudflare Web Analytics, no cookies) and an anonymous feature-usage counter — see the &quot;Visitor statistics&quot; section.'></p>
         </section>
 
         <section class="space-y-2">
@@ -31,17 +71,17 @@
 
         <section class="space-y-2">
             <h2 class="text-lg font-semibold text-cyan-300" data-bg="Къде се пазят" data-en="Where it's stored"></h2>
-            <p class="text-sm leading-relaxed" data-bg='Текстовите данни се пазят в <strong>LocalStorage</strong> на браузъра ти. Снимките се пазят отделно в <strong>IndexedDB</strong> на същия браузър. И двете технологии са стандартна част от всеки браузър и не изпращат нищо извън устройството ти.' data-en='Text data is stored in your browser''s <strong>LocalStorage</strong>. Photos are stored separately in <strong>IndexedDB</strong> on the same browser. Both technologies are a standard part of every browser and send nothing outside your device.'></p>
+            <p class="text-sm leading-relaxed" data-bg='Текстовите данни се пазят в <strong>LocalStorage</strong> на браузъра ти. Снимките се пазят отделно в <strong>IndexedDB</strong> на същия браузър. И двете технологии са стандартна част от всеки браузър и не изпращат нищо извън устройството ти.' data-en='Text data is stored in your browser&#39;s <strong>LocalStorage</strong>. Photos are stored separately in <strong>IndexedDB</strong> on the same browser. Both technologies are a standard part of every browser and send nothing outside your device.'></p>
         </section>
 
         <section class="space-y-2">
             <h2 class="text-lg font-semibold text-cyan-300" data-bg="Облачна синхронизация (по избор)" data-en="Cloud sync (optional)"></h2>
-            <p class="text-sm leading-relaxed" data-bg='Ако решиш да ползваш синхронизация между устройства, приложението генерира код (псевдоним + случайни символи — не е свързан с реално твое име или имейл) и съхранява аквариумите, параметрите, обитателите, историята, както и избраната тема/език/известия в облачна база данни (<strong>Firebase Firestore</strong>, услуга на Google). Снимките <strong>не се</strong> пренасят по този начин. Данните под твоя код са защитени — достъпни са само ако знаеш точния код, не могат да бъдат изброени или прегледани от други.' data-en='If you choose to use sync between devices, the app generates a code (alias + random characters — not linked to your real name or email) and stores your aquariums, parameters, inhabitants, history, and chosen theme/language/notifications in a cloud database (<strong>Firebase Firestore</strong>, a Google service). Photos are <strong>not</strong> transferred this way. Data under your code is protected — accessible only if you know the exact code, and cannot be listed or browsed by others.'></p>
+            <p class="text-sm leading-relaxed" data-bg='Ако решиш да ползваш синхронизация между устройства, приложението генерира код (псевдоним + случайни символи; препоръчваме псевдонимът да не е истинското ти име, за да не се свързва с теб) и съхранява аквариумите, параметрите, обитателите, историята, както и избраната тема/език/известия в облачна база данни (<strong>Firebase Firestore</strong>, услуга на Google). Снимките <strong>не се</strong> пренасят по този начин. Данните под твоя код са защитени — достъпни са само ако знаеш точния код, не могат да бъдат изброени или прегледани от други.' data-en='If you choose to use sync between devices, the app generates a code (alias + random characters; we recommend the alias is not your real name, so it is not linked to you) and stores your aquariums, parameters, inhabitants, history, and chosen theme/language/notifications in a cloud database (<strong>Firebase Firestore</strong>, a Google service). Photos are <strong>not</strong> transferred this way. Data under your code is protected — accessible only if you know the exact code, and cannot be listed or browsed by others.'></p>
         </section>
 
         <section class="space-y-2">
             <h2 class="text-lg font-semibold text-cyan-300" data-bg="Доклади за бъг (по избор)" data-en="Bug reports (optional)"></h2>
-            <p class="text-sm leading-relaxed" data-bg='Ако използваш функцията "Докладвай бъг", текстът на доклада, избраният раздел, версията на приложението, езикът и кратка техническа информация за браузъра се изпращат в същата облачна база данни (Firebase), за да можем да диагностицираме и отстраним проблема. По желание можеш да добавиш име и/или имейл — ако го направиш, ще ги ползваме <strong>само</strong> за да отговорим по този конкретен доклад, не за друго. Полетата са незадължителни и можеш да изпратиш доклад напълно анонимно. Докладите не са публично четими — достъпни са само за нас.' data-en='If you use the "Report a bug" feature, the report text, the selected section, the app version, the language, and brief technical browser information are sent to the same cloud database (Firebase), so we can diagnose and fix the issue. You may optionally add a name and/or email — if you do, we will use them <strong>only</strong> to reply about that specific report, nothing else. These fields are optional and you can submit a report fully anonymously. Reports are not publicly readable — only we have access.'></p>
+            <p class="text-sm leading-relaxed" data-bg='Ако използваш функцията "Докладвай бъг", текстът на доклада, избраният раздел, версията на приложението, езикът и кратка техническа информация за браузъра се изпращат в същата облачна база данни (Firebase), за да можем да диагностицираме и отстраним проблема. По желание можеш да добавиш име и/или имейл — ако го направиш, ще ги ползваме <strong>само</strong> за да отговорим по този конкретен доклад, не за друго. Полетата са незадължителни и можеш да изпратиш доклад напълно анонимно. Ако въведеш име или имейл, приложението ги запомня локално в браузъра, за да не ги пишеш отново; те се изпращат само с доклада. Докладите не са публично четими — достъпни са само за нас.' data-en='If you use the "Report a bug" feature, the report text, the selected section, the app version, the language, and brief technical browser information are sent to the same cloud database (Firebase), so we can diagnose and fix the issue. You may optionally add a name and/or email — if you do, we will use them <strong>only</strong> to reply about that specific report, nothing else. These fields are optional and you can submit a report fully anonymously. If you enter a name or email, the app remembers them locally in your browser so you do not have to retype them; they are sent only with the report. Reports are not publicly readable — only we have access.'></p>
         </section>
 
         <section class="space-y-2">
@@ -51,7 +91,7 @@
 
         <section class="space-y-2">
             <h2 class="text-lg font-semibold text-cyan-300" data-bg="Известия" data-en="Notifications"></h2>
-            <p class="text-sm leading-relaxed" data-bg='Ако включиш известия в браузъра, те се обработват изцяло локално — приложението само проверява данните, които вече си въвел, и решава дали да ти напомни (например за смяна на вода). Никаква информация не напуска устройството ти заради това.' data-en='If you enable browser notifications, they are processed entirely locally — the app only checks the data you''ve already entered and decides whether to remind you (for example, about a water change). No information leaves your device because of this.'></p>
+            <p class="text-sm leading-relaxed" data-bg='Ако включиш известия в браузъра, те се обработват изцяло локално — приложението само проверява данните, които вече си въвел, и решава дали да ти напомни (например за смяна на вода). Никаква информация не напуска устройството ти заради това.' data-en='If you enable browser notifications, they are processed entirely locally — the app only checks the data you&#39;ve already entered and decides whether to remind you (for example, about a water change). No information leaves your device because of this.'></p>
         </section>
 
         <section class="space-y-2">
@@ -61,12 +101,12 @@
 
         <section class="space-y-2">
             <h2 class="text-lg font-semibold text-cyan-300" data-bg="Външни услуги (шрифтове и икони)" data-en="External services (fonts and icons)"></h2>
-            <p class="text-sm leading-relaxed" data-bg='Приложението зарежда стилове и шрифтове от Tailwind CSS, Font Awesome и Google Fonts през техните CDN мрежи. Това са стандартни доставчици на статично съдържание — те могат да видят технически данни като IP адрес при зареждане на файловете, както при отваряне на всеки сайт, но AquaAssist не им изпраща данни от самото приложение.' data-en='The app loads styles and fonts from Tailwind CSS, Font Awesome and Google Fonts through their CDN networks. These are standard static content providers — they may see technical data such as IP address when loading the files, as with opening any website, but AquaAssist does not send them any data from within the app itself.'></p>
+            <p class="text-sm leading-relaxed" data-bg='Приложението зарежда шрифта Inter от Google Fonts и библиотеката за QR код от cdnjs.cloudflare.com (Cloudflare). Иконите и стиловете са вградени в самото приложение. Firebase SDK се зарежда от gstatic.com (Google) при всяко отваряне на приложението. Тези доставчици могат да видят технически данни като IP адрес при зареждане на файловете, както при всеки сайт, но AquaAssist не им изпраща данни от потребителя.' data-en='The app loads the Inter font from Google Fonts and the QR code library from cdnjs.cloudflare.com (Cloudflare). Icons and styles are built into the app itself. The Firebase SDK is loaded from gstatic.com (Google) every time the app opens. These providers may see technical data such as your IP address when the files load, as with any website, but AquaAssist does not send them any user data.'></p>
         </section>
 
         <section class="space-y-2">
             <h2 class="text-lg font-semibold text-cyan-300" data-bg="Статистика за посещения" data-en="Visitor statistics"></h2>
-            <p class="text-sm leading-relaxed" data-bg='Използваме Cloudflare Web Analytics и Google Analytics, за да виждаме приблизителен брой посетители, от кои държави/региони идват (по IP адрес, само на ниво град/държава, не точно местоположение) и кои страници на сайта разглеждат. Google Analytics пази случаен, анонимен идентификатор в браузъра ти (бисквитка), за да разпознава повторни посещения — той не е свързан с име, имейл или друга лична информация. Не ползваме тези инструменти за реклама.' data-en='We use Cloudflare Web Analytics and Google Analytics to see an approximate number of visitors, which countries/regions they come from (by IP address, only at city/country level, not precise location), and which pages of the site they view. Google Analytics stores a random, anonymous identifier in your browser (a cookie) to recognize repeat visits — it is not linked to a name, email, or other personal information. We do not use these tools for advertising.'></p>
+            <p class="text-sm leading-relaxed" data-bg='Използваме <strong>Cloudflare Web Analytics</strong>, за да виждаме приблизителен брой посетители, от кои държави/региони идват (по IP адрес, само на ниво град/държава, не точно местоположение) и кои страници на сайта разглеждат. Cloudflare Web Analytics <strong>не използва бисквитки</strong>. Не ползваме тези данни за реклама. Анонимният брояч на функции е отделен и е описан по-долу.' data-en='We use <strong>Cloudflare Web Analytics</strong> to see an approximate number of visitors, which countries/regions they come from (by IP address, only at city/country level, not precise location), and which pages of the site they view. Cloudflare Web Analytics <strong>does not use cookies</strong>. We do not use this data for advertising. The anonymous feature counter is separate and described below.'></p>
         </section>
 
         <section class="space-y-2">
@@ -77,13 +117,13 @@
         <section class="space-y-2">
             <h2 class="text-lg font-semibold text-cyan-300" data-bg="Контакт и изтриване на данни" data-en="Contact and data deletion"></h2>
             <p class="text-sm leading-relaxed">
-                <span data-bg='Ако имаш въпроси относно тази политика, приложението, или искаш да поискаш изтриване на данни, които си изпратил чрез облачна синхронизация или доклад за бъг (включително име/имейл, ако си ги оставил), пиши на' data-en='If you have questions about this policy, the app, or want to request deletion of data you''ve sent via cloud sync or a bug report (including name/email, if you left them), write to'></span>
+                <span data-bg='Ако имаш въпроси относно тази политика, приложението, или искаш да поискаш изтриване на данни, които си изпратил чрез облачна синхронизация или доклад за бъг (включително име/имейл, ако си ги оставил), пиши на' data-en='If you have questions about this policy, the app, or want to request deletion of data you&#39;ve sent via cloud sync or a bug report (including name/email, if you left them), write to'></span>
                 <a href="mailto:ioancho93@gmail.com" class="text-cyan-400 hover:text-cyan-300 underline">ioancho93@gmail.com</a>.
             </p>
             <p class="text-sm leading-relaxed" data-bg='След получена заявка по имейл, всички данни, свързани с твоя код за синхронизация (аквариуми, параметри, обитатели, история) и/или с доклад за бъг, който си изпратил (включително име/имейл, ако си ги оставил), се изтриват напълно от облачната база данни в рамките на 7 дни. Не пазим резервни копия извън тази база данни. Данните, съхранени локално на твоето устройство, не са засегнати и можеш да ги изтриеш по всяко време директно от приложението.' data-en='After we receive your email request, all data linked to your sync code (aquariums, parameters, inhabitants, history) and/or to a bug report you submitted (including name/email, if you left them) is permanently deleted from the cloud database within 7 days. We keep no backups outside this database. Data stored locally on your device is not affected and you can delete it at any time directly from the app.'></p>
         </section>
 
-        <a href="." class="inline-flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 pt-4"><i class="fa-solid fa-arrow-left"></i><span data-bg="Обратно към приложението" data-en="Back to the app"></span></a>
+        <a href="." class="inline-flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 pt-4"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z"/></svg><span data-bg="Обратно към приложението" data-en="Back to the app"></span></a>
     </main>
     <script>
         // Показва политиката на езика, който вече е избран в самото приложение
