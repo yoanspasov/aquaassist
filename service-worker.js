@@ -25,7 +25,8 @@
 // смяна на водата (index.html: tankHasUserActivity).
 // v33: Добавено ново растение: Салвиния Натанс.
 // v34: Известие при добавяне на разход.
-const CACHE_NAME = "aquaassistant-cache-v34";
+// v35: Поправка на правописа на "Сиамски водораслояд".
+const CACHE_NAME = "aquaassistant-cache-v35";
 const CORE_ASSETS = [
   "./index.html",
   "./manifest.json",

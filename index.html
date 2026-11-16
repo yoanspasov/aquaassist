@@ -1430,7 +1430,7 @@
             { name: "Целофанена скарида (Ghost Shrimp)", type: "Безгръбначно", temp: "18-28°C", ph: "7.0 - 8.0", minLiters: 19, food: "Остатъци от храна, алги", compat: "Издръжлива, отличен чистач", litersPerFish: 0.5, aggressive: false, isShrimp: true },
             { name: "Крибенсис цихлида (Kribensis)", type: "Риба", temp: "24-28°C", ph: "6.0 - 7.5", minLiters: 75, food: "Гранули за цихлиди, замразена храна", compat: "Териториална двойка, агресивна при размножаване", litersPerFish: 15, aggressive: true },
             { name: "Медена гурами (Honey Gourami)", type: "Риба", temp: "22-28°C", ph: "6.0 - 7.5", minLiters: 38, food: "Люспи, замразена храна", compat: "Много мирна, подходяща за начинаещи", litersPerFish: 5, aggressive: false },
-            { name: "Сиамски водорасложад (Siamese Algae Eater)", type: "Риба", temp: "24-26°C", ph: "6.5 - 7.0", minLiters: 75, food: "Алги, таблетки, зеленчуци", compat: "Миролюбив, отличен чистач на черни алги", litersPerFish: 8, aggressive: false },
+            { name: "Сиамски водораслояд (Siamese Algae Eater)", type: "Риба", temp: "24-26°C", ph: "6.5 - 7.0", minLiters: 75, food: "Алги, таблетки, зеленчуци", compat: "Миролюбив, отличен чистач на черни алги", litersPerFish: 8, aggressive: false },
             { name: "Бял облак (White Cloud Mountain Minnow)", type: "Риба", temp: "15-22°C", ph: "6.5 - 7.5", minLiters: 38, food: "Люспи, микрогранули", compat: "Студеноводна, стадна (мин. 6 бр.), не изисква нагревател", litersPerFish: 2, aggressive: false },
             { name: "Скарлет Бадис (Scarlet Badis)", type: "Риба", temp: "22-26°C", ph: "6.5 - 7.5", minLiters: 38, food: "Жива и замразена храна, не приема суха", compat: "Мъжките са териториални помежду си, нано вид", litersPerFish: 3, aggressive: true },
             { name: "Шоколадова гурами (Chocolate Gourami)", type: "Риба", temp: "25-29°C", ph: "4.0 - 6.5", minLiters: 75, food: "Люспи, замразена храна", compat: "Чувствителна, изисква мека кисела вода и стабилни параметри", litersPerFish: 12, aggressive: false },
@@ -1473,6 +1473,9 @@
         ];
 
         // СПРАВОЧНИК 2: АКВАРИУМНИ РАСТЕНИЯ
+        const RENAMED_SPECIES = {
+            "Сиамски водорасложад (Siamese Algae Eater)": "Сиамски водораслояд (Siamese Algae Eater)"
+        };
         const plantsDB = [
             { name: "Анубиас Бартери (Anubias Barteri)", type: "Растение", temp: "20-28°C", ph: "6.0 - 8.0", minLiters: 10, food: "Светлина: Ниска / Умерена", compat: "Захваща се за корен или камък", litersPerFish: 0, aggressive: false },
             { name: "Анубиас Нана (Anubias Nana)", type: "Растение", temp: "20-28°C", ph: "6.0 - 7.8", minLiters: 5, food: "Светлина: Ниска", compat: "Мини растение за корен/камък", litersPerFish: 0, aggressive: false },
@@ -1696,11 +1699,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.56";
+        const APP_VERSION = "3.6.57";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.57", items: [
+                "Поправка на правописа: \"Сиамски водораслояд\" (вместо \"водорасложад\") в енциклопедията — вече добавените такива риби се запазват"
+            ], items_en: [
+                "Spelling fix: \"Сиамски водораслояд\" (instead of \"водорасложад\") in the encyclopedia — fish already added under the old name are kept"
+            ] },
             { v: "3.6.56", items: [
                 "При добавяне на разход се показва известие със сумата и категорията"
             ], items_en: [
@@ -2100,7 +2108,7 @@
         // ---------- Любими видове (запазват се глобално, не само за текущия аквариум) ----------
         const FAV_KEY = 'aquaAssistFavSpecies';
         let favoriteSpecies = new Set();
-        try { favoriteSpecies = new Set(JSON.parse(lsGet(FAV_KEY) || '[]')); } catch (e) {}
+        try { favoriteSpecies = new Set(JSON.parse(lsGet(FAV_KEY) || '[]').map(n => RENAMED_SPECIES[n] || n)); } catch (e) {}
 
         function isFavoriteSpecies(name) { return favoriteSpecies.has(name); }
 
@@ -4213,7 +4221,7 @@
             "Търси растение по име...": "Search plant by name...",
             "Крибенсис цихлида (Kribensis)": "Kribensis",
             "Медена гурами (Honey Gourami)": "Honey Gourami",
-            "Сиамски водорасложад (Siamese Algae Eater)": "Siamese Algae Eater",
+            "Сиамски водораслояд (Siamese Algae Eater)": "Siamese Algae Eater",
             "Бял облак (White Cloud Mountain Minnow)": "White Cloud Mountain Minnow",
             "Червен корен плаващ (Red Root Floater)": "Red Root Floater",
             "Джудже Сагитария (Dwarf Sagittaria)": "Dwarf Sagittaria",
@@ -5099,7 +5107,8 @@
             }
             if (Array.isArray(r.fish)) r.fish.forEach(f => {
                 const c = parseInt(f && f.count);
-                const known = f && (animalsDB.find(d => d.name === f.name) || plantsDB.find(d => d.name === f.name));
+                const fname = f && (RENAMED_SPECIES[f.name] || f.name);
+                const known = f && (animalsDB.find(d => d.name === fname) || plantsDB.find(d => d.name === fname));
                 if (known && c > 0) t.fish.push({ ...known, count: c, note: String((f && f.note) || "").slice(0, 200), noteAt: Number(f.noteAt) || 0, addedAt: Number(f.addedAt) || 0, updatedAt: Number(f.updatedAt) || 0 });
             });
             return t;
