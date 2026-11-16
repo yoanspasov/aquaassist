@@ -1,14 +1,6 @@
 <!DOCTYPE html>
 <html lang="bg">
 <head>
-    <!-- Google Analytics (GA4) — брои посетители и показва разбивка по държави -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BPNWZDZTSX"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-BPNWZDZTSX');
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AquaAssist — Free Aquarium Tracker App | Аква Асистент за аквариум</title>
@@ -569,7 +561,7 @@
                     <i class="fa-solid fa-fish text-cyan-400 text-2xl mt-0.5"></i>
                     <div>
                         <h3 class="text-sm font-bold text-cyan-200 mb-1" data-i18n>Добре дошъл в AquaAssist!</h3>
-                        <p class="text-xs text-cyan-300 leading-relaxed" data-i18n>Безплатно приложение за аквариум — следи параметрите на водата, обитателите, съвместимостта и поддръжката, с вграден наръчник и диагностика на здравето. Без регистрация — всички данни остават на твоето устройство.</p>
+                        <p class="text-xs text-cyan-300 leading-relaxed" data-i18n>Безплатно приложение за аквариум — следи параметрите на водата, обитателите, съвместимостта и поддръжката, с вграден наръчник и диагностика на здравето. Без регистрация — по подразбиране всички данни остават на твоето устройство; облачната синхронизация е само по твой избор.</p>
                     </div>
                 </div>
             </div>
@@ -1699,11 +1691,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.57";
+        const APP_VERSION = "3.6.58";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.58", items: [
+                "Премахнат Google Analytics (ползваше бисквитки без съгласие). Остава Cloudflare Web Analytics, който не използва бисквитки. Поправени са текстовете за поверителност и за данните на устройството"
+            ], items_en: [
+                "Removed Google Analytics (it used cookies without consent). Cloudflare Web Analytics remains, which uses no cookies. Privacy texts and the on-device data wording were corrected"
+            ] },
             { v: "3.6.57", items: [
                 "Поправка на правописа: \"Сиамски водораслояд\" (вместо \"водорасложад\") в енциклопедията — вече добавените такива риби се запазват"
             ], items_en: [
@@ -4111,7 +4108,7 @@
             "Преименувай аквариум": "Rename aquarium", "Име на аквариума": "Aquarium name",
             "Напр. Хол, 120л общ": "E.g. Living room, 120L community",
             "Добре дошъл в AquaAssist!": "Welcome to AquaAssist!",
-            "Безплатно приложение за аквариум — следи параметрите на водата, обитателите, съвместимостта и поддръжката, с вграден наръчник и диагностика на здравето. Без регистрация — всички данни остават на твоето устройство.": "A free aquarium app — track water parameters, inhabitants, compatibility and maintenance, with a built-in species handbook and health diagnosis tool. No account needed — all your data stays on your device.",
+            "Безплатно приложение за аквариум — следи параметрите на водата, обитателите, съвместимостта и поддръжката, с вграден наръчник и диагностика на здравето. Без регистрация — по подразбиране всички данни остават на твоето устройство; облачната синхронизация е само по твой избор.": "A free aquarium app — track water parameters, inhabitants, compatibility and maintenance, with a built-in species handbook and health diagnosis tool. No account needed — by default all your data stays on your device; cloud sync is optional and only if you choose it.",
             // --- Справочник с видове (имена, храна/грижа, съвместимост) ---
             "Температура": "Temperature",
             "Мин. обем": "Min. volume",

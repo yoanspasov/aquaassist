@@ -26,7 +26,8 @@
 // v33: Добавено ново растение: Салвиния Натанс.
 // v34: Известие при добавяне на разход.
 // v35: Поправка на правописа на "Сиамски водораслояд".
-const CACHE_NAME = "aquaassistant-cache-v35";
+// v36: Премахнат Google Analytics; уточнени текстове за поверителност.
+const CACHE_NAME = "aquaassistant-cache-v36";
 const CORE_ASSETS = [
   "./index.html",
   "./manifest.json",
