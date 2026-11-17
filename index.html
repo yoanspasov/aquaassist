@@ -649,18 +649,18 @@
             </h2>
 
             <!-- Снимка на аквариума (т.5) — пази се само локално в IndexedDB, не се синхронизира между устройства -->
-            <div class="flex items-center gap-3 bg-slate-900/60 border border-slate-700 rounded-xl p-3">
-                <div id="tankAvatarPreview" class="w-14 h-14 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center overflow-hidden shrink-0">
-                    <i class="fa-solid fa-fish text-slate-500"></i>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-xs text-slate-400" data-i18n>Снимка на аквариума</p>
-                    <p class="text-[10px] text-slate-500" data-i18n>Снимката се пази само на това устройство (IndexedDB).</p>
-                </div>
-                <div class="flex gap-2 shrink-0">
-                    <input type="file" id="tankAvatarFile" accept="image/*" class="hidden" onchange="setTankAvatar(this.files[0]); this.value='';">
-                    <button type="button" onclick="document.getElementById('tankAvatarFile').click()" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1.5 rounded border border-slate-600 text-cyan-300 transition"><i class="fa-solid fa-camera mr-1"></i> <span data-i18n>Избери снимка</span></button>
-                    <button type="button" id="tankAvatarRemoveBtn" onclick="removeTankAvatar()" class="hidden text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1.5 rounded border border-slate-600 text-red-300 transition"><i class="fa-solid fa-trash"></i></button>
+            <div class="bg-slate-900/60 border border-slate-700 rounded-xl overflow-hidden">
+                <button type="button" id="tankAvatarPreview" onclick="openTankPhoto()" aria-label="Снимка на аквариума" class="relative block w-full aspect-video bg-slate-700 overflow-hidden"></button>
+                <div class="flex flex-col gap-3 p-3">
+                    <div>
+                        <p class="text-xs text-slate-400" data-i18n>Снимка на аквариума</p>
+                        <p class="text-[10px] text-slate-500" data-i18n>Снимката се пази само на това устройство (IndexedDB).</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="file" id="tankAvatarFile" accept="image/*" class="hidden" onchange="setTankAvatar(this.files[0]); this.value='';">
+                        <button type="button" onclick="document.getElementById('tankAvatarFile').click()" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1.5 rounded border border-slate-600 text-cyan-300 transition"><i class="fa-solid fa-camera mr-1"></i> <span data-i18n>Избери снимка</span></button>
+                        <button type="button" id="tankAvatarRemoveBtn" onclick="removeTankAvatar()" class="hidden text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1.5 rounded border border-slate-600 text-red-300 transition"><i class="fa-solid fa-trash"></i></button>
+                    </div>
                 </div>
             </div>
 
@@ -1695,11 +1695,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.68";
+        const APP_VERSION = "3.6.69";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.69", items: [
+                "Снимката на аквариума е широк банер на цялата ширина на картата. При натискане се показва цялата снимка"
+            ], items_en: [
+                "The aquarium photo is a wide banner across the full width of the card. Tapping it shows the whole photo"
+            ] },
             { v: "3.6.68", items: [
                 "Не можеш да създадеш или преименуваш аквариум с име, което вече имаш (без значение на главни и малки букви)"
             ], items_en: [
@@ -3010,10 +3015,26 @@
             if (header) { header.src = dataUrl || ''; header.classList.toggle('hidden', !dataUrl); }
             if (preview) {
                 preview.innerHTML = dataUrl
-                    ? `<img src="${dataUrl}" class="w-full h-full object-cover" alt="">`
-                    : `<i class="fa-solid fa-fish text-slate-500"></i>`;
+                    ? `<img src="${dataUrl}" class="absolute inset-0 w-full h-full object-cover" alt="">`
+                    : `<div class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-500"><i class="fa-solid fa-fish text-4xl"></i><span class="text-xs">${tr('Добави снимка')}</span></div>`;
+                preview.title = dataUrl ? tr('Отвори снимката') : tr('Избери снимка');
             }
             if (removeBtn) removeBtn.classList.toggle('hidden', !dataUrl);
+        }
+
+        // Отваря цялата снимка без отрязване; ако няма снимка, отваря избора на файл.
+        function openTankPhoto() {
+            const img = document.querySelector('#tankAvatarPreview img');
+            if (!img) { document.getElementById('tankAvatarFile').click(); return; }
+            const ov = document.createElement('div');
+            ov.className = 'fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center p-3';
+            ov.onclick = () => ov.remove();
+            const big = document.createElement('img');
+            big.src = img.src;
+            big.alt = '';
+            big.className = 'max-w-full max-h-full object-contain rounded-lg';
+            ov.appendChild(big);
+            document.body.appendChild(ov);
         }
 
         // Зарежда снимката на текущия аквариум от IndexedDB — извиква се при смяна
@@ -4276,6 +4297,8 @@
             "Няма общ": "No common",
             "Температурна единица": "Temperature unit",
             "Вече имаш аквариум с такова име. Избери друго име.": "You already have an aquarium with this name. Choose another name.",
+            "Добави снимка": "Add photo",
+            "Отвори снимката": "Open photo",
             "Въведи валидно количество.": "Enter a valid quantity.",
             "Още не е записано.": "Not logged yet.",
             "Повече от една Бета в аквариум: мъжките са агресивни помежду си.": "More than one Betta in the tank: males are aggressive toward each other.",
@@ -5143,6 +5166,7 @@
             applyTranslations();
             renderLangSwitch();
             renderTempSwitch();
+            loadTankAvatar();
             renderThemeSwatches();
             updateNotifyBtn();
             if (typeof renderWaterAlert === 'function') renderWaterAlert();

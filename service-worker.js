@@ -36,7 +36,8 @@
 // v44: Превключвател °C / °F за температурата.
 // v45: Етикетът °C / °F се обновява при зареждане на страницата.
 // v46: Забрана за два аквариума с еднакво име.
-const CACHE_NAME = "aquaassistant-cache-v46";
+// v47: Снимката на аквариума като широк банер.
+const CACHE_NAME = "aquaassistant-cache-v47";
 const CORE_ASSETS = [
   "./index.html",
   "./manifest.json",
