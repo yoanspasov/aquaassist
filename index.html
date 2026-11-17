@@ -504,6 +504,10 @@
                 <div id="langSwitch" class="flex gap-1.5"></div>
             </div>
             <div>
+                <p id="tempLabel" class="text-xs text-slate-400 mb-1.5" data-i18n>Температурна единица</p>
+                <div id="tempSwitch" class="flex gap-1.5"></div>
+            </div>
+            <div>
                 <p class="text-xs text-slate-400 mb-1.5" data-i18n>Тема</p>
                 <select id="themeSelect" class="hidden"><option value="ocean">Океанско Синьо</option><option value="plant">Растителен Зелен</option><option value="dark">Тъмен Нощен</option><option value="coral">Коралов Риф</option><option value="abyss">Дълбоко Море</option><option value="jungle">Сладководна Джунгла</option></select>
                 <div id="themeSwatches" class="grid grid-cols-3 gap-1.5"></div>
@@ -739,7 +743,7 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                 <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
                     <span class="text-xs text-slate-400" data-i18n>Температура</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help paramInfoIcon" tabindex="0" title="Температура на водата. Оптимално: 24–26 °C" data-i18n-title data-info="Температура на водата. Оптимално: 24–26 °C"></i>
-                    <p class="text-xl font-bold text-cyan-300 mt-1"><span id="valTemp" class="paramVal" inputmode="decimal">—</span> °C <span id="trendTemp" class="paramTrend text-xs font-semibold"></span></p>
+                    <p class="text-xl font-bold text-cyan-300 mt-1"><span id="valTemp" class="paramVal" inputmode="decimal">—</span> <span id="tempSym">°C</span> <span id="trendTemp" class="paramTrend text-xs font-semibold"></span></p>
                 </div>
                 <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
                     <span class="text-xs text-slate-400" data-i18n>pH ниво</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help paramInfoIcon" tabindex="0" title="pH — киселинност на водата. Оптимално: 6.5 – 7.5" data-i18n-title data-info="pH — киселинност на водата. Оптимално: 6.5 – 7.5"></i>
@@ -1691,11 +1695,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.64";
+        const APP_VERSION = "3.6.66";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.66", items: [
+                "Нов превключвател °C / °F в настройките (до избора на език). Всички температури се показват в избраната единица, включително видовете в енциклопедията и графиките. Данните се пазят в °C и не се променят"
+            ], items_en: [
+                "New °C / °F switch in Settings (next to the language choice). All temperatures are shown in the selected unit, including species in the encyclopedia and the charts. Data is stored in °C and is not changed"
+            ] },
             { v: "3.6.64", items: [
                 "В секцията за синхронизация полето и бутонът са един под друг и се виждат изцяло на тесни телефони"
             ], items_en: [
@@ -2165,7 +2174,7 @@
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-slate-300">
-                    <p><i class="fa-solid fa-temperature-half text-cyan-400 mr-1"></i>${tr('Температура')}: ${d.temp}</p>
+                    <p><i class="fa-solid fa-temperature-half text-cyan-400 mr-1"></i>${tr('Температура')}: ${convertTemps(d.temp)}</p>
                     <p><i class="fa-solid fa-vial text-green-400 mr-1"></i>pH: ${d.ph}</p>
                     <p><i class="fa-solid fa-box text-cyan-400 mr-1"></i>${tr('Мин. обем')}: ${d.minLiters} ${tr('л')}</p>
                     <p><i class="fa-solid fa-gauge text-cyan-400 mr-1"></i>${tr('Био-товар')}: ${d.litersPerFish} ${tr('л/бр.')}</p>
@@ -2193,7 +2202,7 @@
                     <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded border border-slate-700">${tr(item.type)}</span>
                 </div>
                 <div class="grid grid-cols-2 gap-x-2 gap-y-1 text-slate-300">
-                    <p><i class="fa-solid fa-temperature-half text-cyan-400"></i> ${item.temp}</p>
+                    <p><i class="fa-solid fa-temperature-half text-cyan-400"></i> ${convertTemps(item.temp)}</p>
                     <p><i class="fa-solid fa-vial text-green-400"></i> pH: ${item.ph}</p>
                     <p><i class="fa-solid fa-box text-cyan-400"></i> ${tr('Мин')}: ${item.minLiters}${tr('л')}</p>
                     <p><i class="fa-solid fa-utensils text-cyan-400"></i> ${tr(item.food)}</p>
@@ -2221,7 +2230,7 @@
                     <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded border border-slate-700">${tr('Флора')}</span>
                 </div>
                 <div class="grid grid-cols-2 gap-x-2 gap-y-1 text-slate-300">
-                    <p><i class="fa-solid fa-temperature-half text-emerald-400"></i> ${item.temp}</p>
+                    <p><i class="fa-solid fa-temperature-half text-emerald-400"></i> ${convertTemps(item.temp)}</p>
                     <p><i class="fa-solid fa-vial text-green-400"></i> pH: ${item.ph}</p>
                 </div>
                 <p class="text-[11px] text-slate-300 mt-1"><i class="fa-solid fa-sun text-yellow-400 mr-1"></i>${tr(item.food)}</p>
@@ -2590,17 +2599,17 @@
                 if (items.length > 1) {
                     const hi = items.reduce((a, b) => b.r[0] > a.r[0] ? b : a);
                     const lo = items.reduce((a, b) => b.r[1] < a.r[1] ? b : a);
-                    const fmt = (n, r) => k === 'ph' ? `${n}: pH ${r.join('-')}` : `${n} (${r.join('-')}${unit})`;
+                    const fmt = (n, r) => k === 'ph' ? `${n}: pH ${r.join('-')}` : `${n} (${convertTemps(`${r.join('-')}°C`)})`;
                     if (hi.r[0] > lo.r[1]) w.push(`${tr('Няма общ')} ${label}: ${fmt(hi.n, hi.r)} ${tr('и')} ${fmt(lo.n, lo.r)}.`);
                 }
             });
 
-            const tv = parseFloat(document.getElementById('valTemp').innerText);
+            const tv = readTempC();
             const pv = parseFloat(document.getElementById('valPH').innerText);
             myFishList.forEach(f => {
                 if (f.type === 'Растение') return;
                 const trng = rangeOf(f.temp), prng = rangeOf(f.ph);
-                if (trng && !isNaN(tv) && (tv < trng[0] || tv > trng[1])) w.push(`${tr('Температурата')} ${tv}°C ${tr('е извън обхвата за')} ${shortName(f)} (${f.temp}).`);
+                if (trng && !isNaN(tv) && (tv < trng[0] || tv > trng[1])) w.push(`${tr('Температурата')} ${tempNum(tv)}${tempSym()} ${tr('е извън обхвата за')} ${shortName(f)} (${convertTemps(f.temp)}).`);
                 if (prng && !isNaN(pv) && (pv < prng[0] || pv > prng[1])) w.push(`pH ${pv} ${tr('е извън обхвата за')} ${shortName(f)}: pH ${f.ph}.`);
             });
 
@@ -2640,13 +2649,13 @@
             myFishList.forEach(f => {
                 if (f.type === 'Растение') return;
                 const fr = rangeOf(f.temp), fp = rangeOf(f.ph);
-                if (trng && fr && (trng[0] > fr[1] || trng[1] < fr[0])) w.push(`${tr('Няма общ')} ${tr('температурен обхват')}: ${short(candidate.name)} (${candidate.temp}) ${tr('и')} ${shortName(f)} (${f.temp}).`);
+                if (trng && fr && (trng[0] > fr[1] || trng[1] < fr[0])) w.push(`${tr('Няма общ')} ${tr('температурен обхват')}: ${short(candidate.name)} (${convertTemps(candidate.temp)}) ${tr('и')} ${shortName(f)} (${convertTemps(f.temp)}).`);
                 if (prng && fp && (prng[0] > fp[1] || prng[1] < fp[0])) w.push(`${tr('Няма общ')} ${tr('pH обхват')}: ${short(candidate.name)}: pH ${candidate.ph} ${tr('и')} ${shortName(f)}: pH ${f.ph}.`);
             });
 
-            const tv = parseFloat(document.getElementById('valTemp').innerText);
+            const tv = readTempC();
             const pv = parseFloat(document.getElementById('valPH').innerText);
-            if (trng && !isNaN(tv) && (tv < trng[0] || tv > trng[1])) w.push(`${tr('Температурата')} ${tv}°C ${tr('е извън обхвата за')} ${short(candidate.name)} (${candidate.temp}).`);
+            if (trng && !isNaN(tv) && (tv < trng[0] || tv > trng[1])) w.push(`${tr('Температурата')} ${tempNum(tv)}${tempSym()} ${tr('е извън обхвата за')} ${short(candidate.name)} (${convertTemps(candidate.temp)}).`);
             if (prng && !isNaN(pv) && (pv < prng[0] || pv > prng[1])) w.push(`pH ${pv} ${tr('е извън обхвата за')} ${short(candidate.name)}: pH ${candidate.ph}.`);
 
             return [...new Set(w)];
@@ -2681,7 +2690,7 @@
             Object.keys(paramRanges).forEach(id => {
                 const el = document.getElementById(id);
                 if (!el) return;
-                const v = parseFloat(el.innerText);
+                const v = id === 'valTemp' ? readTempC() : parseFloat(el.innerText);
                 const [ok, warn] = paramRanges[id];
                 let card = el;
                 while (card && !card.classList.contains('rounded-xl')) card = card.parentElement;
@@ -3522,7 +3531,7 @@
             if (!t) return;
             const snapshot = {
                 t: Date.now(),
-                temp: parseFloat(document.getElementById('valTemp').innerText) || 0,
+                temp: readTempC() || 0,
                 ph: parseFloat(document.getElementById('valPH').innerText) || 0,
                 nh3: parseFloat(document.getElementById('valNH3').innerText) || 0,
                 no2: parseFloat(document.getElementById('valNO2').innerText) || 0,
@@ -3561,7 +3570,7 @@
                 const el = document.getElementById(id);
                 if (!el) return;
                 if (!curr || !prev) { el.innerHTML = ''; el.title = ''; return; }
-                const diff = (curr[key] || 0) - (prev[key] || 0);
+                const diff = key === 'temp' ? tempDeltaNum((curr[key] || 0) - (prev[key] || 0)) : (curr[key] || 0) - (prev[key] || 0);
                 if (!isFinite(diff) || Math.abs(diff) < 0.01) { el.innerHTML = ''; el.title = ''; return; }
                 const up = diff > 0;
                 const abs = Math.abs(diff);
@@ -3636,10 +3645,10 @@
             const t = store.tanks[store.active];
             const rows = (t && t.history) || [];
             if (!rows.length) { showToast('Няма история за експорт.', 'warn'); return; }
-            const head = ['Дата', 'Час', 'Температура', 'pH', 'NH3', 'NO2', 'NO3', 'GH', 'KH', 'Cl2'];
+            const head = ['Дата', 'Час', `Температура (${tempSym()})`, 'pH', 'NH3', 'NO2', 'NO3', 'GH', 'KH', 'Cl2'];
             const lines = [head.join(',')].concat(rows.map(e => {
                 const d = new Date(e.t);
-                return [d.toLocaleDateString(locale()), d.toLocaleTimeString(locale()), e.temp, e.ph, e.nh3, e.no2, e.no3, e.gh, e.kh, e.cl2].join(',');
+                return [d.toLocaleDateString(locale()), d.toLocaleTimeString(locale()), tempNum(e.temp), e.ph, e.nh3, e.no2, e.no3, e.gh, e.kh, e.cl2].join(',');
             }));
             const blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
             const a = document.createElement('a');
@@ -3811,7 +3820,7 @@
                     ${row(tr('Форма'), d.sh)}
                     ${row(tr('Обем'), d.l, ' ' + tr('л'))}
                     ${row('pH', d.ph)}
-                    ${row(tr('Температура'), d.temp, '°C')}
+                    ${row(tr('Температура'), tempShowStr(d.temp), ' ' + tempSym())}
                     ${row('NH3', d.nh3, ' mg/l')}
                     ${row('NO2', d.no2, ' mg/l')}
                     ${row('NO3', d.no3, ' mg/l')}
@@ -3865,11 +3874,11 @@
                 ['cl2', 'Хлор (mg/l)', 'text-teal-400']
             ];
             box.innerHTML = series.map(([k, label, color]) => {
-                const pts = h.map(e => ({ v: e[k], l: new Date(e.t).toLocaleString(locale()) }));
-                const last = h[h.length - 1][k];
+                const pts = h.map(e => ({ v: k === 'temp' ? tempNum(e[k]) : e[k], l: new Date(e.t).toLocaleString(locale()) }));
+                const last = k === 'temp' ? tempNum(h[h.length - 1][k]) : h[h.length - 1][k];
                 const first = new Date(h[0].t).toLocaleDateString(locale());
                 const lastD = new Date(h[h.length - 1].t).toLocaleDateString(locale());
-                const zone = paramRanges[HIST_ZONES[k]] ? paramRanges[HIST_ZONES[k]][0] : null;
+                const zone = paramRanges[HIST_ZONES[k]] ? paramRanges[HIST_ZONES[k]][0].map(z => k === 'temp' ? tempNum(z) : z) : null;
                 return `
                 <div class="bg-slate-900/60 border border-slate-700 rounded-xl p-3">
                     <div class="flex justify-between items-center mb-2 text-xs">
@@ -3975,7 +3984,7 @@
                 [tr('Обем'), sa.liters + ' л', sb.liters + ' л'],
                 [tr('Тип аквариум'), aqTypeLabel(sa.aqType), aqTypeLabel(sb.aqType)],
                 [tr('Капацитет'), sa.percent + '%', sb.percent + '%'],
-                [tr('Температура'), sa.temp + ' °C', sb.temp + ' °C'],
+                [tr('Температура'), tempShowStr(sa.temp) + ' ' + tempSym(), tempShowStr(sb.temp) + ' ' + tempSym()],
                 ['pH', sa.ph, sb.ph],
                 ['NH3', sa.nh3 + ' mg/l', sb.nh3 + ' mg/l'],
                 ['NO3', sa.no3 + ' mg/l', sb.no3 + ' mg/l'],
@@ -4255,6 +4264,7 @@
             "Дребно безгръбначно": "Small invertebrate",
             "Записано по-рано (без дата).": "Logged earlier (no date).",
             "Няма общ": "No common",
+            "Температурна единица": "Temperature unit",
             "Въведи валидно количество.": "Enter a valid quantity.",
             "Още не е записано.": "Not logged yet.",
             "Повече от една Бета в аквариум: мъжките са агресивни помежду си.": "More than one Betta in the tank: males are aggressive toward each other.",
@@ -5038,9 +5048,30 @@
 
         function locale() { return currentLang === 'en' ? 'en-GB' : 'bg-BG'; }
 
+        // Температурата се пази винаги в °C; тук се показва в избраната единица.
+        const TEMP_UNIT_KEY = 'aquaAssistTempUnit';
+        let tempUnit = lsGet(TEMP_UNIT_KEY) === 'F' ? 'F' : 'C';
+        const roundTo = (v, d) => Math.round(v * 10 ** d) / 10 ** d;
+        const cToF = c => c * 9 / 5 + 32;
+        const tempSym = () => tempUnit === 'F' ? '°F' : '°C';
+        const tempNum = c => tempUnit === 'F' ? roundTo(cToF(c), 1) : c;
+        const tempDeltaNum = d => tempUnit === 'F' ? roundTo(d * 1.8, 1) : d;
+        const tempToC = v => tempUnit === 'F' ? (v - 32) * 5 / 9 : v;
+        function tempShowStr(s) {
+            const c = parseFloat(s);
+            return isNaN(c) ? (s || '') : String(tempNum(c));
+        }
+        function convertTemps(text) {
+            if (tempUnit !== 'F' || typeof text !== 'string') return text;
+            return text
+                .replace(/(-?\d+(?:\.\d+)?)(\s*[-–]\s*)(-?\d+(?:\.\d+)?)\s*°C/g, (m, a, sep, b) => `${Math.round(cToF(+a))}${sep}${Math.round(cToF(+b))} °F`)
+                .replace(/(-?\d+(?:\.\d+)?)\s*°C/g, (m, a) => `${roundTo(cToF(+a), 1)} °F`)
+                .replace(/°C/g, '°F');
+        }
+
         function tr(text) {
-            if (currentLang !== 'en') return text;
-            return I18N[text] || text;
+            const out = currentLang === 'en' ? (I18N[text] || text) : text;
+            return convertTemps(out);
         }
 
         // Имената на видовете са записани като "Българско име (English name)".
@@ -5100,6 +5131,7 @@
             try { localStorage.setItem(LANG_KEY, currentLang); } catch (e) {}
             applyTranslations();
             renderLangSwitch();
+            renderTempSwitch();
             renderThemeSwatches();
             updateNotifyBtn();
             if (typeof renderWaterAlert === 'function') renderWaterAlert();
@@ -5128,6 +5160,62 @@
                     <svg width="16" height="12" viewBox="0 0 16 12" class="shrink-0 rounded-sm"><rect width="16" height="12" fill="#00247D"/><path d="M0 0L16 12M16 0L0 12" stroke="#ffffff" stroke-width="2.2"/><path d="M0 0L16 12M16 0L0 12" stroke="#CF142B" stroke-width="1"/><path d="M8 0V12M0 6H16" stroke="#ffffff" stroke-width="3.5"/><path d="M8 0V12M0 6H16" stroke="#CF142B" stroke-width="2"/></svg>
                     EN
                 </button>`;
+        }
+
+        function readTempC() {
+            const el = document.getElementById('valTemp');
+            const shown = (el.innerText || '').trim();
+            if (el.dataset.shown === shown && el.dataset.c !== undefined) return el.dataset.c === '' ? NaN : parseFloat(el.dataset.c);
+            const v = parseFloat(shown.replace(',', '.'));
+            return isNaN(v) ? NaN : tempToC(v);
+        }
+
+        function tempStoreStr() {
+            const el = document.getElementById('valTemp');
+            const shown = (el.innerText || '').trim();
+            if (el.dataset.shown === shown && el.dataset.c !== undefined) return el.dataset.c;
+            const c = readTempC();
+            return isNaN(c) ? '' : String(roundTo(c, 2));
+        }
+
+        function setTempDisplay(cStr) {
+            const el = document.getElementById('valTemp');
+            const raw = String(cStr ?? '').trim();
+            const c = parseFloat(raw);
+            const shown = isNaN(c) ? '—' : (tempUnit === 'F' ? String(tempNum(c)) : raw);
+            el.innerText = shown;
+            el.dataset.c = isNaN(c) ? '' : raw;
+            el.dataset.shown = shown;
+        }
+
+        function renderTempSwitch() {
+            const box = document.getElementById('tempSwitch');
+            if (!box) return;
+            const label = document.getElementById('tempLabel');
+            if (label) label.textContent = tr('Температурна единица');
+            const b = "flex-1 text-[11px] py-1.5 rounded-lg border transition-all duration-200 ";
+            const btn = (u, text) => `<button onclick="setTempUnit('${u}')" class="${b}${tempUnit === u ? 'bg-cyan-700 border-cyan-600 text-white' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}">${text}</button>`;
+            box.innerHTML = btn('C', '°C') + btn('F', '°F');
+        }
+
+        function setTempUnit(u) {
+            if (tempUnit === u) return;
+            captureTank();
+            tempUnit = u;
+            lsSet(TEMP_UNIT_KEY, u);
+            refreshTempViews();
+        }
+
+        function refreshTempViews() {
+            setTempDisplay(store.tanks[store.active].temp);
+            const sym = document.getElementById('tempSym');
+            if (sym) sym.textContent = tempSym();
+            renderTempSwitch();
+            applyTranslations();
+            refreshSelects();
+            refreshAfterTankChange();
+            updateParamColors();
+            renderMiniStatus();
         }
 
         let currentTheme = "ocean";
@@ -5959,7 +6047,7 @@
             if (!box) return;
             const defs = [
                 ['valPH', 'pH ниво', '', 'ph', 'fa-droplet', 'phGrad'],
-                ['valTemp', 'Температура', '°C', 'temp', 'fa-temperature-half', 'tempGrad'],
+                ['valTemp', 'Температура', tempSym(), 'temp', 'fa-temperature-half', 'tempGrad'],
                 ['valNH3', 'Амоняк (NH3)', 'mg/l', 'nh3', 'fa-flask', 'nh3Grad'],
                 ['valNO3', 'Нитрати (NO3)', 'mg/l', 'no3', 'fa-vial', 'no3Grad']
             ];
@@ -5967,7 +6055,7 @@
             const hist = (t && t.history) || [];
             box.innerHTML = defs.map(([id, label, unit, key, icon, gradId]) => {
                 const el = document.getElementById(id);
-                const v = el ? parseFloat(el.innerText) : NaN;
+                const v = el ? (id === 'valTemp' ? readTempC() : parseFloat(el.innerText)) : NaN;
                 const r = paramRanges[id];
                 let cls = 'border-slate-700', dot = 'bg-slate-600', pulse = '';
                 if (r && !isNaN(v)) {
@@ -5975,7 +6063,7 @@
                     else if (v >= r[1][0] && v <= r[1][1]) { cls = 'border-orange-500/60'; dot = 'bg-orange-400'; pulse = 'animate-pulse'; }
                     else { cls = 'border-red-500/60'; dot = 'bg-red-400'; pulse = 'animate-pulse'; }
                 }
-                const pts = hist.slice(-10).map(e => ({ v: e[key] })).filter(p => typeof p.v === 'number');
+                const pts = hist.slice(-10).map(e => ({ v: key === 'temp' ? tempNum(e[key]) : e[key] })).filter(p => typeof p.v === 'number');
                 const vals = pts.map(p => p.v);
                 const chart = pts.length >= 2
                     ? `<svg viewBox="0 0 100 34" class="w-full h-10 text-cyan-400">${areaChart(pts, 100, 34, gradId)}</svg>
@@ -5985,7 +6073,7 @@
                 // същата логика като renderParamTrends() за картите в таб "Аквариум".
                 let trendHtml = '';
                 if (hist.length >= 2) {
-                    const diff = (hist[hist.length - 1][key] || 0) - (hist[hist.length - 2][key] || 0);
+                    const diff = key === 'temp' ? tempDeltaNum((hist[hist.length - 1][key] || 0) - (hist[hist.length - 2][key] || 0)) : (hist[hist.length - 1][key] || 0) - (hist[hist.length - 2][key] || 0);
                     if (isFinite(diff) && Math.abs(diff) >= 0.01) {
                         const up = diff > 0;
                         const abs = Math.abs(diff);
@@ -5999,7 +6087,7 @@
                         <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs bg-cyan-900/60 text-cyan-300"><i class="fa-solid ${icon}"></i></span>
                         <span class="text-[11px] text-slate-400">${tr(label)}</span>
                     </div>
-                    <p class="text-xl font-bold text-slate-100">${isNaN(v) ? '—' : v}${unit ? ' <span class="text-xs font-normal text-slate-400">' + unit + '</span>' : ''}${trendHtml}</p>
+                    <p class="text-xl font-bold text-slate-100">${isNaN(v) ? '—' : (id === 'valTemp' ? tempNum(v) : v)}${unit ? ' <span class="text-xs font-normal text-slate-400">' + unit + '</span>' : ''}${trendHtml}</p>
                     ${chart}
                 </div>`;
             }).join('');
@@ -6188,7 +6276,7 @@
             t.aqWidth = document.getElementById('aqWidth').value;
             t.aqHeight = document.getElementById('aqHeight').value;
             const clean = v => v === '—' ? '' : v;
-            t.temp = clean(document.getElementById('valTemp').innerText);
+            t.temp = tempStoreStr();
             t.ph = clean(document.getElementById('valPH').innerText);
             t.nh3 = clean(document.getElementById('valNH3').innerText);
             t.no2 = clean(document.getElementById('valNO2').innerText);
@@ -6224,7 +6312,7 @@
             document.getElementById('aqLength').value = t.aqLength;
             document.getElementById('aqWidth').value = t.aqWidth;
             document.getElementById('aqHeight').value = t.aqHeight;
-            document.getElementById('valTemp').innerText = t.temp || '—';
+            setTempDisplay(t.temp);
             document.getElementById('valPH').innerText = t.ph || '—';
             document.getElementById('valNH3').innerText = t.nh3 || '—';
             document.getElementById('valNO2').innerText = t.no2 || '—';
@@ -6704,6 +6792,7 @@
         applyTranslations();
         renderGettingStarted();
         renderLangSwitch();
+        renderTempSwitch();
         initSyncUI();
         maybeShowSyncTooltip();
         updateSyncStatus();
