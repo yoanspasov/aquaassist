@@ -1210,18 +1210,18 @@
                 <p class="text-[11px] text-slate-500" data-i18n>Незадължително. Без имейл и парола — само код, който пазиш сам.</p>
 
                 <div id="syncNoCode" class="space-y-2">
-                    <div class="flex gap-2">
-                        <input type="text" id="syncNickname" placeholder="незадължително, само латиница" data-i18n-placeholder oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')" pattern="[a-zA-Z0-9]+" class="flex-1 bg-slate-700 border border-slate-600 rounded-lg p-2 text-xs">
-                        <button onclick="generateSyncCode()" class="bg-cyan-700 hover:bg-cyan-600 text-xs px-3 py-2 rounded-lg font-medium text-white shrink-0" data-i18n>Създай код</button>
+                    <div class="flex flex-col gap-2">
+                        <input type="text" id="syncNickname" placeholder="незадължително, само латиница" data-i18n-placeholder oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')" pattern="[a-zA-Z0-9]+" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2 text-xs">
+                        <button onclick="generateSyncCode()" class="w-full bg-cyan-700 hover:bg-cyan-600 text-xs px-3 py-2 rounded-lg font-medium text-white" data-i18n>Създай код</button>
                     </div>
                     <p class="text-[10px] text-slate-500" data-i18n>Ако оставиш полето празно, ще получиш автоматично генерирано случайно име.</p>
                     <button onclick="showSyncLoginForm()" class="text-[11px] text-cyan-400 hover:text-cyan-300 underline" data-i18n>Вече имам код от друго устройство</button>
                 </div>
 
                 <div id="syncLoginForm" class="hidden space-y-2">
-                    <div class="flex gap-2">
-                        <input type="text" id="syncCodeInput" placeholder="напр. guppy-4f2a9c" oninput="this.value = this.value.replace(/[^a-zA-Z0-9-]/g, '')" pattern="[a-zA-Z0-9-]+" class="flex-1 bg-slate-700 border border-slate-600 rounded-lg p-2 text-xs">
-                        <button onclick="downloadFromCloud()" class="bg-cyan-700 hover:bg-cyan-600 text-xs px-3 py-2 rounded-lg font-medium text-white shrink-0" data-i18n>Изтегли</button>
+                    <div class="flex flex-col gap-2">
+                        <input type="text" id="syncCodeInput" placeholder="напр. guppy-4f2a9c" oninput="this.value = this.value.replace(/[^a-zA-Z0-9-]/g, '')" pattern="[a-zA-Z0-9-]+" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2 text-xs">
+                        <button onclick="downloadFromCloud()" class="w-full bg-cyan-700 hover:bg-cyan-600 text-xs px-3 py-2 rounded-lg font-medium text-white" data-i18n>Изтегли</button>
                     </div>
                     <button onclick="hideSyncLoginForm()" class="text-[11px] text-slate-500 hover:text-slate-400 underline" data-i18n>Назад</button>
                 </div>
@@ -1691,11 +1691,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.63";
+        const APP_VERSION = "3.6.64";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.64", items: [
+                "В секцията за синхронизация полето и бутонът са един под друг и се виждат изцяло на тесни телефони"
+            ], items_en: [
+                "In the sync section, the field and button are stacked and fully visible on narrow phones"
+            ] },
             { v: "3.6.63", items: [
                 "След добавяне на риба или растение формата се нулира: без избор, количество 1, празно търсене. Невалидно количество (0 или празно) не добавя нищо и показва съобщение, а формата остава"
             ], items_en: [
