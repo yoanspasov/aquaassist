@@ -1691,11 +1691,21 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.58";
+        const APP_VERSION = "3.6.60";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.60", items: [
+                "Споделеният изглед на аквариум показва литрите с превод на английски"
+            ], items_en: [
+                "The shared aquarium view shows the volume unit translated in English"
+            ] },
+            { v: "3.6.59", items: [
+                "На английски предупрежденията за съвместимост и списъкът с обитатели вече показват английските имена, а храната и съвместимостта на видовете са преведени"
+            ], items_en: [
+                "In English, compatibility warnings and the inhabitants list now show English names, and species food and compatibility texts are translated"
+            ] },
             { v: "3.6.58", items: [
                 "Премахнат Google Analytics (ползваше бисквитки без съгласие). Остава Cloudflare Web Analytics, който не използва бисквитки. Поправени са текстовете за поверителност и за данните на устройството"
             ], items_en: [
@@ -1704,7 +1714,7 @@
             { v: "3.6.57", items: [
                 "Поправка на правописа: \"Сиамски водораслояд\" (вместо \"водорасложад\") в енциклопедията — вече добавените такива риби се запазват"
             ], items_en: [
-                "Spelling fix: \"Сиамски водораслояд\" (instead of \"водорасложад\") in the encyclopedia — fish already added under the old name are kept"
+                "Spelling fix for the Siamese algae eater name in the encyclopedia — fish already added under the old name are kept"
             ] },
             { v: "3.6.56", items: [
                 "При добавяне на разход се показва известие със сумата и категорията"
@@ -2362,7 +2372,7 @@
         async function removeItem(i) {
             const it = myFishList[i];
             if (!it) return;
-            const shortName = it.name.split(' (')[0];
+            const shortName = speciesName(it.name);
 
             if (it.count <= 1) {
                 if (!await showAppConfirm(`${tr('Да изтрия ли')} „${shortName}“ ${tr('от аквариума?')}`)) return;
@@ -2525,8 +2535,8 @@
             const box = document.getElementById('compatAlert');
             const list = document.getElementById('compatText');
             const has = name => myFishList.some(f => f.name === name);
-            const short = n => n.split(' (')[0];
-            const shortName = f => short(tr(f.name));
+            const short = n => speciesName(n);
+            const shortName = f => speciesName(f.name);
             const w = [];
 
             compatRules.forEach(r => {
@@ -2571,8 +2581,8 @@
 
         // ---------- Проверка "ще пасне ли?" ПРЕДИ добавяне на вид в аквариума ----------
         function checkCandidateCompatibility(candidate) {
-            const short = n => n.split(' (')[0];
-            const shortName = f => short(tr(f.name));
+            const short = n => speciesName(n);
+            const shortName = f => speciesName(f.name);
             const has = name => myFishList.some(f => f.name === name);
             const w = [];
             if (candidate.type === 'Растение') return w;
@@ -3769,7 +3779,7 @@
                     <h4 class="text-xl font-bold text-white">${d.n || ''}</h4>
                     ${row(tr('Тип'), aqTypeLabel(d.ty))}
                     ${row(tr('Форма'), d.sh)}
-                    ${row(tr('Обем'), d.l, ' л')}
+                    ${row(tr('Обем'), d.l, ' ' + tr('л'))}
                     ${row('pH', d.ph)}
                     ${row(tr('Температура'), d.temp, '°C')}
                     ${row('NH3', d.nh3, ' mg/l')}
@@ -4167,6 +4177,45 @@
             "Стадна (мин. 5 бр.), расте голяма, изисква опит": "Schooling (min. 5 pcs.), grows large, needs experience",
             "Салвиния Натанс (Salvinia Natans)": "Salvinia Natans (Water Spangles)",
             "Плаващо растение, бързорастящо, намалява светлината": "Floating plant, fast-growing, reduces light",
+            "Жива и замразена храна": "Live and frozen food",
+            "Всеядна, люспи, замразена храна": "Omnivore, flakes, frozen food",
+            "Всеядна, люспи": "Omnivore, flakes",
+            "Всеядна, люспи, живи ларви": "Omnivore, flakes, live larvae",
+            "Гранули за цихлиди, живи ларви": "Cichlid pellets, live larvae",
+            "Дребни живи и замразени ларви": "Small live and frozen larvae",
+            "Живи ларви, люспи": "Live larvae, flakes",
+            "Филтрира частици от водата, нужно течение": "Filters particles from the water, needs current",
+            "Филтрира частици от водата, нужно силно течение": "Filters particles from the water, needs strong current",
+            "Водорасли по стъклото и декорите": "Algae on the glass and decorations",
+            "Всеядна, водорасли, остатъци от храна": "Omnivore, algae, leftover food",
+            "Остатъци от храна, водорасли": "Leftover food, algae",
+            "Териториална, препоръчва се самостоятелен аквариум": "Territorial, best kept in a tank of its own",
+            "Полу-агресивна, стадна (мин. 6-8 бр.), хапе перки в малки групи": "Semi-aggressive, schooling (min. 6-8 pcs.), nips fins in small groups",
+            "Мирна, стадна (мин. 6 бр.)": "Peaceful, schooling (min. 6 pcs.)",
+            "Мирна, леко териториална между мъжки": "Peaceful, slightly territorial between males",
+            "Мирна, стадна, активна": "Peaceful, schooling, active",
+            "Много мирна, стадна": "Very peaceful, schooling",
+            "Активна, стадна (мин. 6 бр.), може да дразни по-бавни риби": "Active, schooling (min. 6 pcs.), may harass slower fish",
+            "Издръжлива, подходяща и за по-хладка вода": "Hardy, suitable for cooler water too",
+            "Активна, стадна": "Active, schooling",
+            "Мирна, стадна, дъно": "Peaceful, schooling, bottom-dwelling",
+            "Териториален, но по-мирен от повечето централноамерикански цихлиди": "Territorial, but more peaceful than most Central American cichlids",
+            "Много териториална, чифтосва се лесно": "Very territorial, breeds easily",
+            "Мирна за цихлид, образува двойки": "Peaceful for a cichlid, forms pairs",
+            "Мирна, спокойна": "Peaceful, calm",
+            "Много мирна, подходяща за нано аквариуми": "Very peaceful, suitable for nano tanks",
+            "Мирна, стадна, нужен е дълъг аквариум": "Peaceful, schooling, needs a long tank",
+            "Скача — нужен капак; мъжките се дразнят помежду си": "Jumps — needs a lid; males irritate each other",
+            "Мирна, не се размножава в сладка вода": "Peaceful, does not breed in fresh water",
+            "Не се размножава в сладка вода, отличен чистач": "Does not breed in fresh water, excellent cleaner",
+            "Мирна, не се смесва с Red Cherry/Neocaridina (кръстосва се)": "Peaceful, do not mix with Red Cherry/Neocaridina (they interbreed)",
+            "Много плодовит — следи популацията": "Very prolific — keep an eye on the population",
+            "Плаващо, расте много бързо, може да задуши повърхността": "Floating, grows very fast, may choke the surface",
+            "Нисък преден план, изисква поддръжка и подрязване": "Low foreground, needs upkeep and trimming",
+            "Бързорастяща, лесна за начинаещи": "Fast-growing, easy for beginners",
+            "Увисващ мъх, добър за декор на корени/камъни": "Hanging moss, good for decorating roots and rocks",
+            "Червен цвят при силна светлина, бавнорастящо": "Red color under strong light, slow-growing",
+            "Бързорастящо стъблено растение за заден план": "Fast-growing stem plant for the background",
             "Мин": "Min",
             "Флора": "Flora",
             "— Избери —": "— Select —",
@@ -4964,10 +5013,14 @@
         }
 
         // Имената на видовете са записани като "Българско име (English name)".
-        // На български показваме само българската част; на английски tr() вече връща чисто английско име.
+        // На български показваме само българската част; на английски - превода от I18N,
+        // а ако няма превод, английското име в скоби. Само за показване: търсенето по name не се променя.
         function speciesName(name) {
             const t = tr(name);
-            return currentLang === 'bg' ? t.split(' (')[0] : t;
+            if (currentLang === 'bg') return t.split(' (')[0];
+            if (t !== name) return t;
+            const m = name.match(/\(([^)]+)\)/);
+            return m ? m[1] : name;
         }
 
         // Съпоставя запазената (стара) стойност на типа аквариум към актуалния показван етикет,

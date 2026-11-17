@@ -27,7 +27,9 @@
 // v34: Известие при добавяне на разход.
 // v35: Поправка на правописа на "Сиамски водораслояд".
 // v36: Премахнат Google Analytics; уточнени текстове за поверителност.
-const CACHE_NAME = "aquaassistant-cache-v36";
+// v37: Английски имена в предупрежденията и преводи на храна/съвместимост.
+// v38: Превод на литрите в споделения изглед.
+const CACHE_NAME = "aquaassistant-cache-v38";
 const CORE_ASSETS = [
   "./index.html",
   "./manifest.json",
