@@ -1695,11 +1695,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.66";
+        const APP_VERSION = "3.6.67";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.67", items: [
+                "Поправка: етикетът °C / °F до температурата на водата е верен и след презареждане на страницата"
+            ], items_en: [
+                "Fix: the °C / °F label next to the water temperature is correct after reloading the page"
+            ] },
             { v: "3.6.66", items: [
                 "Нов превключвател °C / °F в настройките (до избора на език). Всички температури се показват в избраната единица, включително видовете в енциклопедията и графиките. Данните се пазят в °C и не се променят"
             ], items_en: [
@@ -5049,7 +5054,7 @@
         function locale() { return currentLang === 'en' ? 'en-GB' : 'bg-BG'; }
 
         // Температурата се пази винаги в °C; тук се показва в избраната единица.
-        const TEMP_UNIT_KEY = 'aquaAssistTempUnit';
+        const TEMP_UNIT_KEY = 'aquaassist_temp_unit';
         let tempUnit = lsGet(TEMP_UNIT_KEY) === 'F' ? 'F' : 'C';
         const roundTo = (v, d) => Math.round(v * 10 ** d) / 10 ** d;
         const cToF = c => c * 9 / 5 + 32;
@@ -5193,6 +5198,8 @@
             if (!box) return;
             const label = document.getElementById('tempLabel');
             if (label) label.textContent = tr('Температурна единица');
+            const sym = document.getElementById('tempSym');
+            if (sym) sym.textContent = tempSym();
             const b = "flex-1 text-[11px] py-1.5 rounded-lg border transition-all duration-200 ";
             const btn = (u, text) => `<button onclick="setTempUnit('${u}')" class="${b}${tempUnit === u ? 'bg-cyan-700 border-cyan-600 text-white' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}">${text}</button>`;
             box.innerHTML = btn('C', '°C') + btn('F', '°F');
