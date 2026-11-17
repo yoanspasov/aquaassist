@@ -1691,11 +1691,21 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.60";
+        const APP_VERSION = "3.6.62";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.62", items: [
+                "Всички pH предупреждения показват pH пред диапазона, без двойни скоби"
+            ], items_en: [
+                "All pH warnings show the pH label before the range, without double brackets"
+            ] },
+            { v: "3.6.61", items: [
+                "Предупрежденията за несъвместими pH диапазони са по-ясни: pH стои пред диапазона, без двойни скоби"
+            ], items_en: [
+                "Warnings about incompatible pH ranges are clearer: the pH label now comes before the range, without double brackets"
+            ] },
             { v: "3.6.60", items: [
                 "Споделеният изглед на аквариум показва литрите с превод на английски"
             ], items_en: [
@@ -2561,7 +2571,8 @@
                 if (items.length > 1) {
                     const hi = items.reduce((a, b) => b.r[0] > a.r[0] ? b : a);
                     const lo = items.reduce((a, b) => b.r[1] < a.r[1] ? b : a);
-                    if (hi.r[0] > lo.r[1]) w.push(`${tr('Няма общ')} ${label}: ${hi.n} (${hi.r.join('-')}${unit}) ${tr('и')} ${lo.n} (${lo.r.join('-')}${unit}).`);
+                    const fmt = (n, r) => k === 'ph' ? `${n}: pH ${r.join('-')}` : `${n} (${r.join('-')}${unit})`;
+                    if (hi.r[0] > lo.r[1]) w.push(`${tr('Няма общ')} ${label}: ${fmt(hi.n, hi.r)} ${tr('и')} ${fmt(lo.n, lo.r)}.`);
                 }
             });
 
@@ -2571,7 +2582,7 @@
                 if (f.type === 'Растение') return;
                 const trng = rangeOf(f.temp), prng = rangeOf(f.ph);
                 if (trng && !isNaN(tv) && (tv < trng[0] || tv > trng[1])) w.push(`${tr('Температурата')} ${tv}°C ${tr('е извън обхвата за')} ${shortName(f)} (${f.temp}).`);
-                if (prng && !isNaN(pv) && (pv < prng[0] || pv > prng[1])) w.push(`pH ${pv} ${tr('е извън обхвата за')} ${shortName(f)} (${f.ph}).`);
+                if (prng && !isNaN(pv) && (pv < prng[0] || pv > prng[1])) w.push(`pH ${pv} ${tr('е извън обхвата за')} ${shortName(f)}: pH ${f.ph}.`);
             });
 
             if (w.length === 0) { box.classList.add('hidden'); list.innerHTML = ''; return; }
@@ -2611,13 +2622,13 @@
                 if (f.type === 'Растение') return;
                 const fr = rangeOf(f.temp), fp = rangeOf(f.ph);
                 if (trng && fr && (trng[0] > fr[1] || trng[1] < fr[0])) w.push(`${tr('Няма общ')} ${tr('температурен обхват')}: ${short(candidate.name)} (${candidate.temp}) ${tr('и')} ${shortName(f)} (${f.temp}).`);
-                if (prng && fp && (prng[0] > fp[1] || prng[1] < fp[0])) w.push(`${tr('Няма общ')} ${tr('pH обхват')}: ${short(candidate.name)} (${candidate.ph}) ${tr('и')} ${shortName(f)} (${f.ph}).`);
+                if (prng && fp && (prng[0] > fp[1] || prng[1] < fp[0])) w.push(`${tr('Няма общ')} ${tr('pH обхват')}: ${short(candidate.name)}: pH ${candidate.ph} ${tr('и')} ${shortName(f)}: pH ${f.ph}.`);
             });
 
             const tv = parseFloat(document.getElementById('valTemp').innerText);
             const pv = parseFloat(document.getElementById('valPH').innerText);
             if (trng && !isNaN(tv) && (tv < trng[0] || tv > trng[1])) w.push(`${tr('Температурата')} ${tv}°C ${tr('е извън обхвата за')} ${short(candidate.name)} (${candidate.temp}).`);
-            if (prng && !isNaN(pv) && (pv < prng[0] || pv > prng[1])) w.push(`pH ${pv} ${tr('е извън обхвата за')} ${short(candidate.name)} (${candidate.ph}).`);
+            if (prng && !isNaN(pv) && (pv < prng[0] || pv > prng[1])) w.push(`pH ${pv} ${tr('е извън обхвата за')} ${short(candidate.name)}: pH ${candidate.ph}.`);
 
             return [...new Set(w)];
         }
