@@ -37,7 +37,8 @@
 // v45: Етикетът °C / °F се обновява при зареждане на страницата.
 // v46: Забрана за два аквариума с еднакво име.
 // v47: Снимката на аквариума като широк банер.
-const CACHE_NAME = "aquaassistant-cache-v47";
+// v48: Списък с друго оборудване.
+const CACHE_NAME = "aquaassistant-cache-v48";
 const CORE_ASSETS = [
   "./index.html",
   "./manifest.json",

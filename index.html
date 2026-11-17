@@ -937,6 +937,43 @@
                     <div id="eqPumpActions" class="flex flex-wrap gap-1.5"></div>
                 </div>
             </div>
+            <div class="border-t border-slate-700 pt-3 space-y-3">
+                <p class="text-sm font-semibold text-cyan-300"><i class="fa-solid fa-plus mr-1.5"></i><span data-i18n>Друго оборудване</span></p>
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700 space-y-2">
+                    <select id="eqNewType" onchange="eqOtherTypeChanged()" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2 text-xs">
+                        <option value="lamp" data-i18n>Лампа</option>
+                        <option value="filter" data-i18n>Филтър</option>
+                        <option value="media" data-i18n>Филтърна медия</option>
+                        <option value="co2" data-i18n>CO2</option>
+                        <option value="dosing" data-i18n>Дозираща система</option>
+                        <option value="skimmer" data-i18n>Скимер</option>
+                        <option value="heater" data-i18n>Нагревател</option>
+                        <option value="circulation" data-i18n>Помпа за циркулация</option>
+                        <option value="thermometer" data-i18n>Термометър</option>
+                        <option value="airpump" data-i18n>Въздушна помпа</option>
+                        <option value="uv" data-i18n>UV стерилизатор</option>
+                        <option value="timer" data-i18n>Таймер / контролер</option>
+                        <option value="feeder" data-i18n>Автоматична хранилка</option>
+                        <option value="chiller" data-i18n>Охладител</option>
+                        <option value="other" data-i18n>Друго</option>
+                    </select>
+                    <input type="text" id="eqNewCustom" maxlength="40" placeholder="Име (за „Друго“)" data-i18n-placeholder class="hidden w-full bg-slate-700 border border-slate-600 rounded-lg p-2 text-xs">
+                    <input type="text" id="eqNewModel" maxlength="80" placeholder="Марка / модел" data-i18n-placeholder class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2 text-xs">
+                    <input type="text" id="eqNewParams" maxlength="80" placeholder="Параметри (напр. 18 W, 800 л/ч)" data-i18n-placeholder class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2 text-xs">
+                    <label class="block text-[11px] text-slate-400"><span data-i18n>Закупено</span>
+                        <input type="date" id="eqNewBought" class="w-full mt-1 bg-slate-700 border border-slate-600 rounded-lg p-2 text-xs text-slate-200">
+                    </label>
+                    <label class="block text-[11px] text-slate-400"><span data-i18n>Последна смяна</span>
+                        <input type="date" id="eqNewServiced" class="w-full mt-1 bg-slate-700 border border-slate-600 rounded-lg p-2 text-xs text-slate-200">
+                    </label>
+                    <textarea id="eqNewNotes" rows="2" maxlength="300" placeholder="Бележка" data-i18n-placeholder class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2 text-xs"></textarea>
+                    <div class="flex gap-2">
+                        <button type="button" id="eqNewSave" onclick="addOtherEquipment()" class="text-xs bg-cyan-700 hover:bg-cyan-600 px-3 py-2 rounded-lg font-medium text-white" data-i18n>Добави оборудване</button>
+                        <button type="button" id="eqNewCancel" onclick="eqOtherResetForm()" class="hidden text-xs bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded-lg text-slate-200" data-i18n>Отказ</button>
+                    </div>
+                </div>
+                <div id="eqItemsList" class="space-y-2"></div>
+            </div>
         </section>
 
         <!-- Финансов дневник (Бюджет) -->
@@ -1695,11 +1732,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.69";
+        const APP_VERSION = "3.6.70";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.70", items: [
+                "В секция „Оборудване“ можеш да добавяш друго оборудване: лампа, CO2, дозираща система, скимер и други, с модел, параметри, дати и бележка"
+            ], items_en: [
+                "The Equipment section lets you add other equipment: lamp, CO2, dosing system, skimmer and more, with model, parameters, dates and a note"
+            ] },
             { v: "3.6.69", items: [
                 "Снимката на аквариума е широк банер на цялата ширина на картата. При натискане се показва цялата снимка"
             ], items_en: [
@@ -4296,6 +4338,29 @@
             "Записано по-рано (без дата).": "Logged earlier (no date).",
             "Няма общ": "No common",
             "Температурна единица": "Temperature unit",
+            "Друго оборудване": "Other equipment",
+            "Добави оборудване": "Add equipment",
+            "Запази промените": "Save changes",
+            "Име (за „Друго“)": "Name (for “Other”)",
+            "Марка / модел": "Brand / model",
+            "Параметри (напр. 18 W, 800 л/ч)": "Parameters (e.g. 18 W, 800 L/h)",
+            "Закупено": "Purchased",
+            "Последна смяна": "Last change",
+            "Бележка": "Note",
+            "Няма добавено оборудване.": "No other equipment added yet.",
+            "Въведи име на оборудването.": "Enter a name for the equipment.",
+            "Лампа": "Lamp",
+            "Филтърна медия": "Filter media",
+            "CO2": "CO2",
+            "Дозираща система": "Dosing system",
+            "Скимер": "Skimmer",
+            "Помпа за циркулация": "Circulation pump",
+            "Термометър": "Thermometer",
+            "Въздушна помпа": "Air pump",
+            "UV стерилизатор": "UV steriliser",
+            "Таймер / контролер": "Timer / controller",
+            "Автоматична хранилка": "Automatic feeder",
+            "Охладител": "Chiller",
             "Вече имаш аквариум с такова име. Избери друго име.": "You already have an aquarium with this name. Choose another name.",
             "Добави снимка": "Add photo",
             "Отвори снимката": "Open photo",
@@ -5172,6 +5237,7 @@
             if (typeof renderWaterAlert === 'function') renderWaterAlert();
             if (typeof refreshAfterTankChange === 'function') refreshAfterTankChange();
             if (typeof renderEquipment === 'function') renderEquipment();
+            if (typeof renderOtherEquipment === 'function') renderOtherEquipment();
             if (typeof renderMiniStatus === 'function') renderMiniStatus();
             if (typeof updateSyncStatus === 'function') updateSyncStatus();
             if (typeof syncParamEditBtnLabel === 'function') syncParamEditBtnLabel();
@@ -5258,6 +5324,8 @@
         let currentTheme = "ocean";
         let store = { active: 0, tanks: [] };
 
+        const EQ_OTHER_TYPES = { lamp: 'Лампа', filter: 'Филтър', media: 'Филтърна медия', co2: 'CO2', dosing: 'Дозираща система', skimmer: 'Скимер', heater: 'Нагревател', circulation: 'Помпа за циркулация', thermometer: 'Термометър', airpump: 'Въздушна помпа', uv: 'UV стерилизатор', timer: 'Таймер / контролер', feeder: 'Автоматична хранилка', chiller: 'Охладител', other: 'Друго' };
+
         function newTank(name) {
             return {
                 name, aqType: "Общ аквариум (Community)", aqShape: "Правоъгълен",
@@ -5268,7 +5336,7 @@
                 fish: [], history: [], maintenanceLog: [], waterChangeLog: [], inhabitantLog: [],
                 timeline: [], expenses: [], dosing: [],
                 cycle: { on: false, startedAt: 0 }, intervals: {},
-                equipment: { filter: { model: "", notes: "" }, light: { model: "", hours: "", notes: "" }, heater: { model: "", notes: "" }, pump: { model: "", notes: "" } }
+                equipment: { filter: { model: "", notes: "" }, light: { model: "", hours: "", notes: "" }, heater: { model: "", notes: "" }, pump: { model: "", notes: "" } }, equipmentItems: []
             };
         }
 
@@ -5311,6 +5379,18 @@
                     }
                 });
             }
+            if (Array.isArray(r.equipmentItems)) t.equipmentItems = r.equipmentItems.filter(x => x && typeof x === 'object').slice(0, 60).map(x => ({
+                id: typeof x.id === 'string' && x.id ? x.id.slice(0, 60) : 'eq_' + Math.random().toString(36).slice(2, 10),
+                type: typeof x.type === 'string' && EQ_OTHER_TYPES[x.type] ? x.type : 'other',
+                customName: String(x.customName || '').slice(0, 40),
+                model: String(x.model || '').slice(0, 80),
+                params: String(x.params || '').slice(0, 80),
+                bought: /^\d{4}-\d{2}-\d{2}$/.test(x.bought) ? x.bought : '',
+                serviced: /^\d{4}-\d{2}-\d{2}$/.test(x.serviced) ? x.serviced : '',
+                notes: String(x.notes || '').slice(0, 300),
+                createdAt: Number(x.createdAt) || 0,
+                savedAt: Number(x.savedAt) || 0
+            }));
             if (Array.isArray(r.fish)) r.fish.forEach(f => {
                 const c = parseInt(f && f.count);
                 const fname = f && (RENAMED_SPECIES[f.name] || f.name);
@@ -6036,6 +6116,102 @@
             showToast(tr('Записано:') + ' ' + tr(m.label));
         }
 
+        let eqOtherEditId = null;
+        const eqEsc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+        function eqOtherLabel(it) {
+            return it.type === 'other' && it.customName ? it.customName : tr(EQ_OTHER_TYPES[it.type] || 'Друго');
+        }
+
+        function eqOtherTypeChanged() {
+            document.getElementById('eqNewCustom').classList.toggle('hidden', document.getElementById('eqNewType').value !== 'other');
+        }
+
+        function eqOtherResetForm() {
+            eqOtherEditId = null;
+            document.getElementById('eqNewType').value = 'lamp';
+            ['eqNewCustom', 'eqNewModel', 'eqNewParams', 'eqNewBought', 'eqNewServiced', 'eqNewNotes'].forEach(id => { document.getElementById(id).value = ''; });
+            eqOtherTypeChanged();
+            document.getElementById('eqNewSave').textContent = tr('Добави оборудване');
+            document.getElementById('eqNewCancel').classList.add('hidden');
+        }
+
+        function renderOtherEquipment() {
+            const box = document.getElementById('eqItemsList');
+            if (!box) return;
+            const t = store.tanks[store.active];
+            const items = (t && t.equipmentItems) || [];
+            if (!items.length) { box.innerHTML = `<p class="text-[11px] text-slate-500">${tr('Няма добавено оборудване.')}</p>`; return; }
+            const b = "text-[11px] px-2.5 py-1 rounded-lg border transition-all duration-200 ";
+            box.innerHTML = items.map(it => `
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700 space-y-1">
+                    <div class="flex justify-between items-start gap-2">
+                        <p class="text-sm font-semibold text-cyan-300 break-words">${eqEsc(eqOtherLabel(it))}</p>
+                        <div class="flex gap-1.5 shrink-0">
+                            <button onclick="editOtherEquipment('${it.id}')" class="${b}bg-slate-700 hover:bg-slate-600 border-slate-600 text-cyan-300">${tr('Редактирай')}</button>
+                            <button onclick="deleteOtherEquipment('${it.id}')" class="${b}bg-slate-700 hover:bg-red-900/60 border-slate-600 text-red-400">${tr('Изтрий')}</button>
+                        </div>
+                    </div>
+                    ${it.model ? `<p class="text-xs text-slate-300 break-words">${eqEsc(it.model)}</p>` : ''}
+                    ${it.params ? `<p class="text-xs text-slate-400 break-words">${eqEsc(it.params)}</p>` : ''}
+                    ${it.bought ? `<p class="text-[10px] text-slate-500">${tr('Закупено')}: ${eqEsc(it.bought)}</p>` : ''}
+                    ${it.serviced ? `<p class="text-[10px] text-slate-500">${tr('Последна смяна')}: ${eqEsc(it.serviced)}</p>` : ''}
+                    ${it.notes ? `<p class="text-[11px] text-slate-400 break-words">${eqEsc(it.notes)}</p>` : ''}
+                </div>`).join('');
+        }
+
+        function addOtherEquipment() {
+            const type = document.getElementById('eqNewType').value;
+            const customName = document.getElementById('eqNewCustom').value.trim().slice(0, 40);
+            const model = document.getElementById('eqNewModel').value.trim().slice(0, 80);
+            const params = document.getElementById('eqNewParams').value.trim().slice(0, 80);
+            const bought = document.getElementById('eqNewBought').value;
+            const serviced = document.getElementById('eqNewServiced').value;
+            const notes = document.getElementById('eqNewNotes').value.trim().slice(0, 300);
+            if (type === 'other' && !customName) { showToast('Въведи име на оборудването.', 'warn'); return; }
+            if (!model && !params && !notes) { showToast('Въведи модел или бележка.', 'warn'); return; }
+            const t = store.tanks[store.active];
+            if (!Array.isArray(t.equipmentItems)) t.equipmentItems = [];
+            const now = Date.now();
+            const data = { type, customName: type === 'other' ? customName : '', model, params, bought, serviced, notes };
+            const it = eqOtherEditId ? t.equipmentItems.find(x => x.id === eqOtherEditId) : null;
+            if (it) Object.assign(it, data, { savedAt: now });
+            else t.equipmentItems.push({ id: 'eq_' + now + '_' + Math.random().toString(36).slice(2, 7), ...data, createdAt: now, savedAt: now });
+            eqOtherResetForm();
+            renderOtherEquipment();
+            saveData();
+            showToast(tr('Записано:') + ' ' + tr(EQ_OTHER_TYPES[type]));
+        }
+
+        function editOtherEquipment(id) {
+            const t = store.tanks[store.active];
+            const it = ((t && t.equipmentItems) || []).find(x => x.id === id);
+            if (!it) return;
+            eqOtherEditId = id;
+            document.getElementById('eqNewType').value = it.type;
+            document.getElementById('eqNewCustom').value = it.customName || '';
+            document.getElementById('eqNewModel').value = it.model || '';
+            document.getElementById('eqNewParams').value = it.params || '';
+            document.getElementById('eqNewBought').value = it.bought || '';
+            document.getElementById('eqNewServiced').value = it.serviced || '';
+            document.getElementById('eqNewNotes').value = it.notes || '';
+            eqOtherTypeChanged();
+            document.getElementById('eqNewSave').textContent = tr('Запази промените');
+            document.getElementById('eqNewCancel').classList.remove('hidden');
+            document.getElementById('eqNewType').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        async function deleteOtherEquipment(id) {
+            const t = store.tanks[store.active];
+            const it = ((t && t.equipmentItems) || []).find(x => x.id === id);
+            if (!it) return;
+            if (!await showAppConfirm(`${tr('Да изтрия ли записа за')} „${eqOtherLabel(it)}“?`)) return;
+            t.equipmentItems = t.equipmentItems.filter(x => x.id !== id);
+            if (eqOtherEditId === id) eqOtherResetForm();
+            renderOtherEquipment();
+            saveData();
+        }
+
         function editEquipment(k) { eqEditing[k] = true; renderEquipment(); }
 
         function cancelEquipment(k) { eqEditing[k] = false; fillEquipmentFields(k); renderEquipment(); }
@@ -6387,6 +6563,8 @@
             document.getElementById('eqHeaterNotes').value = t.equipment.heater.notes;
             document.getElementById('eqPumpModel').value = t.equipment.pump.model;
             document.getElementById('eqPumpNotes').value = t.equipment.pump.notes;
+            eqOtherResetForm();
+            renderOtherEquipment();
             eqEditing = {};
             renderEquipment();
         }
