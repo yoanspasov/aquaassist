@@ -1691,11 +1691,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.62";
+        const APP_VERSION = "3.6.63";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.63", items: [
+                "След добавяне на риба или растение формата се нулира: без избор, количество 1, празно търсене. Невалидно количество (0 или празно) не добавя нищо и показва съобщение, а формата остава"
+            ], items_en: [
+                "After adding a fish or plant, the form resets: no selection, quantity 1, empty search. An invalid quantity (0 or empty) adds nothing and shows a message, and the form stays as it is"
+            ] },
             { v: "3.6.62", items: [
                 "Всички pH предупреждения показват pH пред диапазона, без двойни скоби"
             ], items_en: [
@@ -2222,8 +2227,8 @@
         function addAnimalToAquarium() {
             const idx = document.getElementById('animalSelect').value;
             if (idx === '') return;
-            const count = parseInt(document.getElementById('animalCount').value) || 1;
-            if (count <= 0) return;
+            const count = parseInt(document.getElementById('animalCount').value);
+            if (!(count > 0)) { showToast('Въведи валидно количество.', 'warn'); return; }
 
             const selected = animalsDB[idx];
             const existing = myFishList.find(x => x.name === selected.name);
@@ -2235,6 +2240,7 @@
             logInhabitantChange(selected, 'added', count);
 
             updateMyInhabitants();
+            resetAddForm('animal');
             refreshSelects();
             vibrate(15);
             saveData();
@@ -2245,8 +2251,8 @@
         function addPlantToAquarium() {
             const idx = document.getElementById('plantSelect').value;
             if (idx === '') return;
-            const count = parseInt(document.getElementById('plantCount').value) || 1;
-            if (count <= 0) return;
+            const count = parseInt(document.getElementById('plantCount').value);
+            if (!(count > 0)) { showToast('Въведи валидно количество.', 'warn'); return; }
 
             const selected = plantsDB[idx];
             const existing = myFishList.find(x => x.name === selected.name);
@@ -2258,11 +2264,19 @@
             logInhabitantChange(selected, 'added', count);
 
             updateMyInhabitants();
+            resetAddForm('plant');
             refreshSelects();
             vibrate(15);
             saveData();
             logFeatureUse('plantAdded');
             showToast(`${tr('Добавено:')} ${speciesName(selected.name)}`);
+        }
+
+        function resetAddForm(kind) {
+            const isPlant = kind === 'plant';
+            document.getElementById(isPlant ? 'plantSelect' : 'animalSelect').value = '';
+            document.getElementById(isPlant ? 'plantCount' : 'animalCount').value = '1';
+            document.getElementById(isPlant ? 'plantSearch' : 'animalSearch').value = '';
         }
 
         // Избран вид (по име) във всяко от двете падащи менюта в "Обитатели" — пази се между презаписванията,
@@ -4236,6 +4250,7 @@
             "Дребно безгръбначно": "Small invertebrate",
             "Записано по-рано (без дата).": "Logged earlier (no date).",
             "Няма общ": "No common",
+            "Въведи валидно количество.": "Enter a valid quantity.",
             "Още не е записано.": "Not logged yet.",
             "Повече от една Бета в аквариум: мъжките са агресивни помежду си.": "More than one Betta in the tank: males are aggressive toward each other.",
             "Температурата": "Temperature",

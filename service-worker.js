@@ -31,7 +31,8 @@
 // v38: Превод на литрите в споделения изглед.
 // v39: По-ясно форматиране на предупрежденията за pH диапазон.
 // v40: Същото форматиране и при предупрежденията "извън обхвата".
-const CACHE_NAME = "aquaassistant-cache-v40";
+// v41: Нулиране на формата за добавяне на риба и растение.
+const CACHE_NAME = "aquaassistant-cache-v41";
 const CORE_ASSETS = [
   "./index.html",
   "./manifest.json",
