@@ -35,7 +35,8 @@
 // v42: Подредба на полетата и бутоните в секцията за синхронизация на тесни екрани.
 // v44: Превключвател °C / °F за температурата.
 // v45: Етикетът °C / °F се обновява при зареждане на страницата.
-const CACHE_NAME = "aquaassistant-cache-v45";
+// v46: Забрана за два аквариума с еднакво име.
+const CACHE_NAME = "aquaassistant-cache-v46";
 const CORE_ASSETS = [
   "./index.html",
   "./manifest.json",

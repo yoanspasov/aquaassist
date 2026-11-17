@@ -1695,11 +1695,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.67";
+        const APP_VERSION = "3.6.68";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.68", items: [
+                "Не можеш да създадеш или преименуваш аквариум с име, което вече имаш (без значение на главни и малки букви)"
+            ], items_en: [
+                "You can't create or rename an aquarium to a name you already use (letter case is ignored)"
+            ] },
             { v: "3.6.67", items: [
                 "Поправка: етикетът °C / °F до температурата на водата е верен и след презареждане на страницата"
             ], items_en: [
@@ -4270,6 +4275,7 @@
             "Записано по-рано (без дата).": "Logged earlier (no date).",
             "Няма общ": "No common",
             "Температурна единица": "Temperature unit",
+            "Вече имаш аквариум с такова име. Избери друго име.": "You already have an aquarium with this name. Choose another name.",
             "Въведи валидно количество.": "Enter a valid quantity.",
             "Още не е записано.": "Not logged yet.",
             "Повече от една Бета в аквариум: мъжките са агресивни помежду си.": "More than one Betta in the tank: males are aggressive toward each other.",
@@ -6424,10 +6430,21 @@
             if (wb) wb.classList.add('hidden');
         }
 
+        function tankNameTaken(name, exceptIndex) {
+            const key = name.trim().toLowerCase();
+            return store.tanks.some((t, i) => i !== exceptIndex && t.name.trim().toLowerCase() === key);
+        }
+
         function confirmTankName() {
             const input = document.getElementById('tankNameInput');
             const name = input.value.trim().slice(0, 40);
             if (!name) { input.focus(); return; }
+            const exceptIndex = tankNameModalMode === "rename" ? store.active : -1;
+            if (tankNameTaken(name, exceptIndex)) {
+                showAppAlert(tr('Вече имаш аквариум с такова име. Избери друго име.'), 'warn');
+                input.focus();
+                return;
+            }
             if (tankNameModalMode === "add") {
                 captureTank();
                 store.tanks.push(newTank(name));
