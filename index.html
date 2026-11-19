@@ -1732,11 +1732,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.73";
+        const APP_VERSION = "3.6.74";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.74", items: [
+                "Подразбиращото се име на аквариума „Аквариум“ се показва на езика на приложението („Aquarium“ на английски). Преименуван аквариум се показва с името, което си въвел"
+            ], items_en: [
+                "The default aquarium name “Аквариум” is shown in the app language (“Aquarium” in English). A renamed aquarium shows the exact name you typed"
+            ] },
             { v: "3.6.73", items: [
                 "В „Друго оборудване“ отново има Лампа, Филтър и Нагревател, за да можеш да добавиш още филтри, лампи или нагреватели към аквариума"
             ], items_en: [
@@ -3228,7 +3233,7 @@
             const t = store.tanks[store.active];
             const e = t && t.timeline[i];
             if (!e || !navigator.share) return;
-            const text = (e.note || 'Запис от дневника на ' + t.name) + ` — AquaAssist, ${new Date(e.t).toLocaleDateString(locale())}`;
+            const text = (e.note || 'Запис от дневника на ' + displayTankName(t.name)) + ` — AquaAssist, ${new Date(e.t).toLocaleDateString(locale())}`;
             try {
                 if (e.photoId) {
                     const dataUrl = await photoGet(e.photoId);
@@ -3845,7 +3850,7 @@
             const encoded = encodeURIComponent(JSON.stringify(payload));
             const baseUrl = location.href.split('?')[0].split('#')[0];
             const url = `${baseUrl}?view=${encoded}`;
-            const shareText = `${tr('Виж моя аквариум в AquaAssist:')} ${t.name || ''}`.trim();
+            const shareText = `${tr('Виж моя аквариум в AquaAssist:')} ${displayTankName(t.name || '')}`.trim();
             // На телефон/съвместим браузър отваря родното меню "Сподели" (Viber,
             // Messenger, SMS и т.н.) — same модел като shareApp()/shareTimelineEntry().
             if (navigator.share) {
@@ -3923,7 +3928,7 @@
                         <h3 class="text-lg font-bold">${tr('Споделен аквариум (само преглед)')}</h3>
                     </div>
                     <p class="text-[11px] text-amber-300/90 mb-3"><i class="fa-solid fa-eye mr-1"></i>${tr('Заключен преглед — не може да се редактира')}</p>
-                    <h4 class="text-xl font-bold text-white">${d.n || ''}</h4>
+                    <h4 class="text-xl font-bold text-white">${displayTankName(d.n || '')}</h4>
                     ${row(tr('Тип'), aqTypeLabel(d.ty))}
                     ${row(tr('Форма'), d.sh)}
                     ${row(tr('Обем'), d.l, ' ' + tr('л'))}
@@ -4061,7 +4066,7 @@
         }
 
         function refreshCompareSelects() {
-            const opts = store.tanks.map((t, i) => `<option value="${i}">${t.name.replace(/</g, '&lt;')}</option>`).join('');
+            const opts = store.tanks.map((t, i) => `<option value="${i}">${displayTankName(t.name).replace(/</g, '&lt;')}</option>`).join('');
             const a = document.getElementById('compareA'), b = document.getElementById('compareB');
             const curA = a.value, curB = b.value;
             a.innerHTML = opts; b.innerHTML = opts;
@@ -4103,7 +4108,7 @@
             target.innerHTML = `
                 <table class="w-full text-xs text-left">
                     <thead><tr class="text-slate-400 border-b border-slate-700">
-                        <th class="py-1.5"></th><th class="py-1.5">${A.name.replace(/</g, '&lt;')}</th><th class="py-1.5">${B.name.replace(/</g, '&lt;')}</th>
+                        <th class="py-1.5"></th><th class="py-1.5">${displayTankName(A.name).replace(/</g, '&lt;')}</th><th class="py-1.5">${displayTankName(B.name).replace(/</g, '&lt;')}</th>
                     </tr></thead>
                     <tbody>${rows.map(r => `<tr class="border-b border-slate-700/50"><td class="py-1.5 text-slate-400">${r[0]}</td><td class="py-1.5 text-cyan-300">${r[1]}</td><td class="py-1.5 text-cyan-300">${r[2]}</td></tr>`).join('')}</tbody>
                 </table>`;
@@ -6620,7 +6625,7 @@
 
         function refreshTankSelect() {
             const sel = document.getElementById('aqSelect');
-            sel.innerHTML = store.tanks.map((t, i) => `<option value="${i}">${t.name.replace(/</g, '&lt;')}</option>`).join('');
+            sel.innerHTML = store.tanks.map((t, i) => `<option value="${i}">${displayTankName(t.name).replace(/</g, '&lt;')}</option>`).join('');
             sel.value = String(store.active);
         }
 
@@ -6650,13 +6655,16 @@
             // може да приеме предложеното име или да въведе свое.
             // По-кратко подразбиращо се име (вместо "Нов аквариум"/"New aquarium") — за да се
             // събира изцяло в падащото меню на телефон, без да се реже текстът.
-            const defaultName = currentLang === "en" ? "Aquarium" : "Аквариум";
-            openTankNameModal("add", defaultName);
+            let n = 1, cand;
+            do { cand = n === 1 ? "Аквариум" : "Аквариум " + n; n++; } while (tankNameTaken(cand, -1));
+            tankNameOriginal = cand;
+            openTankNameModal("add", displayTankName(cand));
         }
 
         function renameTank() {
             const t = store.tanks[store.active];
-            openTankNameModal("rename", t.name);
+            tankNameOriginal = t.name;
+            openTankNameModal("rename", displayTankName(t.name));
         }
 
         function openTankNameModal(mode, prefill) {
@@ -6674,6 +6682,7 @@
         function closeTankNameModal() {
             document.getElementById('tankNameModal').classList.add('hidden');
             tankNameModalMode = null;
+            tankNameOriginal = null;
         }
 
         function dismissWelcomeBanner() {
@@ -6681,15 +6690,26 @@
             if (wb) wb.classList.add('hidden');
         }
 
+        // Подразбиращото се име се пази на български ("Аквариум", "Аквариум 2"); показва се на езика на приложението.
+        let tankNameOriginal = null;
+        function displayTankName(name) {
+            const m = /^(Аквариум|Aquarium)( \d+)?$/.exec(String(name).trim());
+            if (!m) return name;
+            return (currentLang === 'en' ? 'Aquarium' : 'Аквариум') + (m[2] || '');
+        }
+        function tankNameKey(name) {
+            return String(name).trim().toLowerCase().replace(/^aquarium(?= |$)/, 'аквариум');
+        }
         function tankNameTaken(name, exceptIndex) {
-            const key = name.trim().toLowerCase();
-            return store.tanks.some((t, i) => i !== exceptIndex && t.name.trim().toLowerCase() === key);
+            const key = tankNameKey(name);
+            return store.tanks.some((t, i) => i !== exceptIndex && tankNameKey(t.name) === key);
         }
 
         function confirmTankName() {
             const input = document.getElementById('tankNameInput');
-            const name = input.value.trim().slice(0, 40);
-            if (!name) { input.focus(); return; }
+            const typed = input.value.trim().slice(0, 40);
+            if (!typed) { input.focus(); return; }
+            const name = tankNameOriginal !== null && typed === displayTankName(tankNameOriginal) ? tankNameOriginal : typed;
             const exceptIndex = tankNameModalMode === "rename" ? store.active : -1;
             if (tankNameTaken(name, exceptIndex)) {
                 showAppAlert(tr('Вече имаш аквариум с такова име. Избери друго име.'), 'warn');
@@ -6712,7 +6732,7 @@
 
         async function deleteTank() {
             if (store.tanks.length < 2) { showToast("Трябва да остане поне един аквариум", 'warn'); return; }
-            if (!await showAppConfirm(`${tr('Да изтрия ли')} „${store.tanks[store.active].name}“?`)) return;
+            if (!await showAppConfirm(`${tr('Да изтрия ли')} „${displayTankName(store.tanks[store.active].name)}“?`)) return;
             store.tanks.splice(store.active, 1);
             store.active = 0;
             applyTank(); refreshAfterTankChange(); saveData();
@@ -6839,7 +6859,7 @@
             if (!store.tanks.length) {
                 // По-кратко подразбиращо се име за съвсем нова инсталация (т.3.6.40) —
                 // "Нов аквариум"/"New aquarium" се режеше в падащото меню на тесни телефони.
-                store.tanks.push(newTank((currentLang === "en" ? "Aquarium" : "Аквариум")));
+                store.tanks.push(newTank("Аквариум"));
                 // Съвсем прясна инсталация (никога не е имало запазени данни) —
                 // ще предложим на потребителя да кръсти аквариума си веднага
                 // след като интерфейсът се зареди напълно (вижте извикването
@@ -7029,7 +7049,7 @@
             const daysLeft = Math.ceil((waterDue - Date.now()) / DAY_MS);
             const no3 = parseFloat(document.getElementById('valNO3').innerText) || 0;
             let body = null;
-            if (daysLeft <= 0 && tankHasUserActivity()) body = tr("Време е за смяна на водата в аквариум „") + (t ? t.name : '') + "“.";
+            if (daysLeft <= 0 && tankHasUserActivity()) body = tr("Време е за смяна на водата в аквариум „") + (t ? displayTankName(t.name) : '') + "“.";
             else if (no3 > 40) body = `${tr('Нитратите са високи')} (${no3} mg/l) — ${tr('обмисли по-ранна смяна на водата.')}`;
             else {
                 // Дозиране (торове/добавки) — същата логика за "просрочено", каквата
