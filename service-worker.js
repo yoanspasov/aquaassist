@@ -38,7 +38,8 @@
 // v46: Забрана за два аквариума с еднакво име.
 // v47: Снимката на аквариума като широк банер.
 // v48: Списък с друго оборудване.
-const CACHE_NAME = "aquaassistant-cache-v48";
+// v49: Промяна на броя на обитателите и растенията от списъка.
+const CACHE_NAME = "aquaassistant-cache-v49";
 const CORE_ASSETS = [
   "./index.html",
   "./manifest.json",

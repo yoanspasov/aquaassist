@@ -1732,11 +1732,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.70";
+        const APP_VERSION = "3.6.71";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.71", items: [
+                "Броят на обитателите и растенията може да се променя директно от списъка: бутони − и +, или въвеждане на точна стойност"
+            ], items_en: [
+                "The count of inhabitants and plants can now be changed directly in the list: − and + buttons, or type an exact number"
+            ] },
             { v: "3.6.70", items: [
                 "В секция „Оборудване“ можеш да добавяш друго оборудване: лампа, CO2, дозираща система, скимер и други, с модел, параметри, дати и бележка"
             ], items_en: [
@@ -2424,12 +2429,17 @@
             ].filter(Boolean).join(' · ');
             return `
                 <li class="py-2 space-y-1.5">
-                    <div class="flex justify-between items-center">
+                    <div class="flex flex-wrap justify-between items-center gap-2">
                         <span>
                             <i class="fa-solid ${icon} mr-2 text-xs"></i>
                             <strong>${speciesName(item.name)}</strong>${isPlant ? '' : ` <span class="text-xs text-slate-400">(${tr(item.type)})</span>`}
                         </span>
-                        <span class="bg-slate-700 px-2.5 py-0.5 rounded text-${accent}-300 font-semibold text-xs">${item.count} ${tr('бр.')}</span>
+                        <div class="flex items-center gap-1 shrink-0">
+                            <button type="button" onclick="setItemCount(${i}, ${item.count - 1})" aria-label="${tr('Намали')}" title="${tr('Намали')}" class="w-8 h-8 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 text-base leading-none active:scale-95">−</button>
+                            <input type="number" inputmode="numeric" min="1" max="${INV_MAX}" step="1" value="${item.count}" id="invCount_${i}" onchange="setItemCount(${i}, this.value)" aria-label="${tr('Брой')}" class="w-14 h-8 text-center bg-slate-900/60 border border-slate-700 rounded-lg text-xs text-slate-100">
+                            <button type="button" onclick="setItemCount(${i}, ${item.count + 1})" aria-label="${tr('Увеличи')}" title="${tr('Увеличи')}" class="w-8 h-8 rounded-lg bg-slate-700 border border-slate-600 text-slate-100 text-base leading-none active:scale-95">+</button>
+                            <span class="text-xs text-slate-400">${tr('бр.')}</span>
+                        </div>
                     </div>
                     <textarea id="invNote_${i}" rows="2" placeholder="${tr('Бележка...')}" class="w-full bg-slate-900/60 border border-slate-700 rounded px-2 py-1.5 text-[11px] text-slate-300 focus:outline-none focus:border-${accent}-400 resize-none">${noteVal}</textarea>
                     <div class="flex flex-wrap items-center justify-between gap-2">
@@ -2456,11 +2466,31 @@
             showToast(tr('Записано:') + ' ' + it.name.split(' (')[0]);
         }
 
-        function changeCount(i, d) {
-            myFishList[i].count += d;
-            myFishList[i].updatedAt = Date.now();
-            if (myFishList[i].count <= 0) myFishList.splice(i, 1);
-            updateMyInhabitants();
+        const INV_MAX = 999;
+
+        // Промяна на броя на обитател/растение. Стойност под 1 не премахва вида мълчаливо — пита се първо.
+        async function setItemCount(i, raw) {
+            const it = myFishList[i];
+            if (!it) return;
+            const str = String(raw).trim();
+            const n = str === '' ? NaN : Number(str);
+            if (!Number.isInteger(n)) { showToast(tr('Въведи валидно количество.'), 'warn'); updateMyInhabitants(); return; }
+            if (n < 1) {
+                if (!await showAppConfirm(`${tr('Да изтрия ли')} „${speciesName(it.name)}“ ${tr('от аквариума?')}`)) { updateMyInhabitants(); return; }
+                logInhabitantChange(it, 'removed', it.count);
+                myFishList.splice(i, 1);
+                refreshAfterTankChange();
+                saveData();
+                return;
+            }
+            if (n > INV_MAX) showToast(tr('Максимум 999 броя.'), 'warn');
+            const v = Math.min(n, INV_MAX);
+            if (v === it.count) { updateMyInhabitants(); return; }
+            const delta = v - it.count;
+            it.count = v;
+            it.updatedAt = Date.now();
+            logInhabitantChange(it, delta > 0 ? 'added' : 'removed', Math.abs(delta));
+            refreshAfterTankChange();
             saveData();
         }
 
@@ -4338,6 +4368,10 @@
             "Записано по-рано (без дата).": "Logged earlier (no date).",
             "Няма общ": "No common",
             "Температурна единица": "Temperature unit",
+            "Намали": "Decrease",
+            "Увеличи": "Increase",
+            "Брой": "Count",
+            "Максимум 999 броя.": "Maximum 999 pcs.",
             "Друго оборудване": "Other equipment",
             "Добави оборудване": "Add equipment",
             "Запази промените": "Save changes",
