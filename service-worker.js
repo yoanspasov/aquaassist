@@ -39,7 +39,8 @@
 // v47: Снимката на аквариума като широк банер.
 // v48: Списък с друго оборудване.
 // v49: Промяна на броя на обитателите и растенията от списъка.
-const CACHE_NAME = "aquaassistant-cache-v49";
+// v50: Махнати дублиращи се типове от менюто за ново оборудване.
+const CACHE_NAME = "aquaassistant-cache-v50";
 const CORE_ASSETS = [
   "./index.html",
   "./manifest.json",
