@@ -622,6 +622,20 @@
                     <input type="date" id="waterChangeDate" title="Дата (ако отчиташ със закъснение)" data-i18n-title aria-label="Дата на смяната" class="bg-slate-900/60 border border-cyan-800/50 rounded p-1.5 text-xs text-slate-300">
                     <button onclick="resetWaterTimer()" class="bg-cyan-600 hover:bg-cyan-500 text-xs px-3 py-1.5 rounded font-medium transition shadow" data-i18n>Отчети сменена вода</button>
                 </div>
+                <details id="wcExtrasBox" class="w-full bg-slate-900/40 border border-cyan-800/40 rounded p-2 text-xs">
+                    <summary class="cursor-pointer text-cyan-300/80" data-i18n>Още направено</summary>
+                    <div class="mt-2 space-y-1.5">
+                        <label class="flex items-center gap-2"><input type="checkbox" class="wcExtra accent-cyan-500" value="sponge"><span data-i18n>Изчистена гъба на филтъра</span></label>
+                        <label class="flex items-center gap-2"><input type="checkbox" class="wcExtra accent-cyan-500" value="canister"><span data-i18n>Изчистен канистър (филтър)</span></label>
+                        <label class="flex items-center gap-2"><input type="checkbox" class="wcExtra accent-cyan-500" value="siphon"><span data-i18n>Сифониране на субстрата</span></label>
+                        <label class="flex items-center gap-2"><input type="checkbox" class="wcExtra accent-cyan-500" value="glass"><span data-i18n>Почистени стъкла</span></label>
+                        <label class="flex items-center gap-2"><input type="checkbox" class="wcExtra accent-cyan-500" value="media"><span data-i18n>Подменена филтърна медия</span></label>
+                        <div id="wcFilterRow" class="hidden flex-wrap items-center gap-2 pt-1">
+                            <span class="text-cyan-300/80" data-i18n>Филтър:</span>
+                            <select id="wcFilterSel" class="bg-slate-900/60 border border-cyan-800/50 rounded p-1 text-xs"></select>
+                        </div>
+                    </div>
+                </details>
             </div>
 
             <div class="bg-slate-900/60 p-3 rounded-lg border border-cyan-800/50 text-xs grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -1732,11 +1746,21 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.75";
+        const APP_VERSION = "3.6.77";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.77", items: [
+                "Блокът „Още направено“ при смяна на водата е на цялата ширина"
+            ], items_en: [
+                "The “Also done” block for water changes now spans the full width"
+            ] },
+            { v: "3.6.76", items: [
+                "При смяна на водата можеш да отбележиш и друго направено: изчистена гъба или канистър на филтър, сифониране, стъкла, филтърна медия. При повече филтри избираш кой"
+            ], items_en: [
+                "When logging a water change you can also note other work done: cleaned filter sponge or canister, siphoning, glass, filter media. With several filters you pick which one"
+            ] },
             { v: "3.6.75", items: [
                 "Върнато е както беше: бутоните − и + до броя на обитателите и растенията са махнати. Остава „Премахни“, който пита колко да се махнат"
             ], items_en: [
@@ -2885,7 +2909,18 @@
             const t = store.tanks[store.active];
             if (t) {
                 if (!Array.isArray(t.waterChangeLog)) t.waterChangeLog = [];
-                t.waterChangeLog.push({ t: loggedAt, percent: pct });
+                const entry = { t: loggedAt, percent: pct };
+                const extras = [...document.querySelectorAll('.wcExtra:checked')].map(c => c.value);
+                if (extras.length) {
+                    entry.extras = extras;
+                    if (extras.some(x => WC_FILTER_CODES.includes(x))) {
+                        const list = wcFilterList();
+                        const sel = document.getElementById('wcFilterSel').value;
+                        entry.filters = list.length > 1 ? (sel === 'all' ? list.map(x => x.id) : [sel]) : [list[0].id];
+                    }
+                }
+                t.waterChangeLog.push(entry);
+                resetWcExtrasForm();
                 t.waterChangeLog.sort((a, b) => a.t - b.t);
                 if (t.waterChangeLog.length > 30) t.waterChangeLog = t.waterChangeLog.slice(-30);
             }
@@ -3430,7 +3465,41 @@
             }).join('');
         }
 
-        function renderWaterChangeLog() {
+        // Филтрите: "main" е фиксираната карта (Филтър 1), останалите са записи от „Друго оборудване“ с тип Филтър.
+function wcFilterList() {
+    const t = store.tanks[store.active];
+    const extra = ((t && t.equipmentItems) || []).filter(x => x.type === 'filter');
+    return [{ id: 'main', label: `${tr('Филтър')} 1` }, ...extra.map((x, k) => ({ id: x.id, label: `${tr('Филтър')} ${k + 2}` }))];
+}
+
+function renderWcFilters() {
+    const row = document.getElementById('wcFilterRow');
+    const sel = document.getElementById('wcFilterSel');
+    if (!row || !sel) return;
+    const list = wcFilterList();
+    const prev = sel.value;
+    const opts = list.map(f => `<option value="${f.id}">${f.label}</option>`);
+    if (list.length > 1) opts.push(`<option value="all">${tr('Всички филтри')}</option>`);
+    sel.innerHTML = opts.join('');
+    if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
+    row.classList.toggle('hidden', list.length <= 1);
+    row.classList.toggle('flex', list.length > 1);
+}
+
+function resetWcExtrasForm() {
+    document.querySelectorAll('.wcExtra').forEach(c => { c.checked = false; });
+    const sel = document.getElementById('wcFilterSel');
+    if (sel) sel.selectedIndex = 0;
+}
+
+function wcExtrasText(e) {
+    if (!Array.isArray(e.extras) || !e.extras.length) return '';
+    const names = (e.filters || []).map(id => { const f = wcFilterList().find(x => x.id === id); return f ? f.label : null; }).filter(Boolean);
+    const parts = e.extras.map(c => tr(WC_EXTRA_LABELS[c]) + (WC_FILTER_CODES.includes(c) && names.length ? ` (${names.map(n => tr(n)).join(', ')})` : ''));
+    return `<span class="block text-[10px] text-slate-400 mt-0.5 break-words">${parts.map(eqEsc).join(' · ')}</span>`;
+}
+
+function renderWaterChangeLog() {
             const box = document.getElementById('waterChangeLogList');
             if (!box) return;
             const t = store.tanks[store.active];
@@ -3441,7 +3510,7 @@
                 <label class="flex justify-between items-center bg-slate-900/60 border border-slate-700 rounded-lg px-3 py-2 text-xs ${logDeleteMode ? 'cursor-pointer hover:border-red-700/60' : ''}">
                     <span class="flex items-center gap-2">
                         ${logDeleteMode ? `<input type="checkbox" class="logEntryCheck accent-red-500" data-logtype="wc" data-idx="${idx}">` : ''}
-                        <span><i class="fa-solid fa-droplet mr-1.5 text-cyan-400"></i>${new Date(e.t).toLocaleString(locale())}</span>
+                        <span><i class="fa-solid fa-droplet mr-1.5 text-cyan-400"></i>${new Date(e.t).toLocaleString(locale())}</span>${wcExtrasText(e)}
                     </span>
                     <span class="text-cyan-300 font-semibold">${e.percent}% ${tr('сменена вода')}</span>
                 </label>`).join('');
@@ -4350,6 +4419,14 @@
             "Записано по-рано (без дата).": "Logged earlier (no date).",
             "Няма общ": "No common",
             "Температурна единица": "Temperature unit",
+            "Още направено": "Also done",
+            "Изчистена гъба на филтъра": "Cleaned filter sponge",
+            "Изчистен канистър (филтър)": "Cleaned filter canister",
+            "Сифониране на субстрата": "Siphoned the substrate",
+            "Почистени стъкла": "Cleaned glass",
+            "Подменена филтърна медия": "Replaced filter media",
+            "Всички филтри": "All filters",
+            "Филтър:": "Filter:",
             "Друго оборудване": "Other equipment",
             "Добави оборудване": "Add equipment",
             "Запази промените": "Save changes",
@@ -5336,6 +5413,9 @@
         let currentTheme = "ocean";
         let store = { active: 0, tanks: [] };
 
+        const WC_EXTRA_CODES = ['sponge', 'canister', 'siphon', 'glass', 'media'];
+        const WC_FILTER_CODES = ['sponge', 'canister', 'media'];
+        const WC_EXTRA_LABELS = { sponge: 'Изчистена гъба на филтъра', canister: 'Изчистен канистър (филтър)', siphon: 'Сифониране на субстрата', glass: 'Почистени стъкла', media: 'Подменена филтърна медия' };
         const EQ_OTHER_TYPES = { lamp: 'Лампа', filter: 'Филтър', media: 'Филтърна медия', co2: 'CO2', dosing: 'Дозираща система', skimmer: 'Скимер', heater: 'Нагревател', circulation: 'Помпа за циркулация', thermometer: 'Термометър', airpump: 'Въздушна помпа', uv: 'UV стерилизатор', timer: 'Таймер / контролер', feeder: 'Автоматична хранилка', chiller: 'Охладител', other: 'Друго' };
 
         function newTank(name) {
@@ -5369,7 +5449,12 @@
             if (Array.isArray(r.maintenanceLog)) t.maintenanceLog = r.maintenanceLog.filter(e => e && typeof e.t === "number" && typeof e.id === "string").slice(-20).map(e => ({ id: e.id, label: String(e.label || ''), t: e.t }));
             if (r.cycle && typeof r.cycle === "object") t.cycle = { on: !!r.cycle.on, startedAt: Number(r.cycle.startedAt) || 0 };
             if (r.intervals && typeof r.intervals === "object") Object.keys(r.intervals).forEach(k => { const v = parseInt(r.intervals[k]); if (v >= 1 && v <= 365) t.intervals[k] = v; });
-            if (Array.isArray(r.waterChangeLog)) t.waterChangeLog = r.waterChangeLog.filter(e => e && typeof e.t === "number").slice(-30).map(e => ({ t: e.t, percent: parseFloat(e.percent) || 0 }));
+            if (Array.isArray(r.waterChangeLog)) t.waterChangeLog = r.waterChangeLog.filter(e => e && typeof e.t === "number").slice(-30).map(e => {
+                const o = { t: e.t, percent: parseFloat(e.percent) || 0 };
+                if (Array.isArray(e.extras)) o.extras = e.extras.filter(x => typeof x === "string" && WC_EXTRA_CODES.includes(x)).slice(0, 10);
+                if (Array.isArray(e.filters)) o.filters = e.filters.filter(x => typeof x === "string").slice(0, 60).map(x => x.slice(0, 60));
+                return o;
+            });
             if (Array.isArray(r.inhabitantLog)) t.inhabitantLog = r.inhabitantLog.filter(e => e && typeof e.t === "number" && typeof e.name === "string" && (e.action === "added" || e.action === "removed")).slice(-60).map(e => ({ name: String(e.name).slice(0, 80), type: String(e.type || '').slice(0, 20), action: e.action, count: Math.max(1, parseInt(e.count) || 1), t: e.t }));
             if (Array.isArray(r.timeline)) t.timeline = r.timeline.filter(e => e && typeof e.t === "number").slice(-40).map(e => ({ t: e.t, note: String(e.note || '').slice(0, 500), photoId: typeof e.photoId === "string" ? e.photoId : null, photo: (!e.photoId && typeof e.photo === "string") ? e.photo : null }));
             if (Array.isArray(r.expenses)) t.expenses = r.expenses.filter(e => e && typeof e.t === "number").slice(-100).map(e => ({ t: e.t, category: String(e.category || 'Друго').slice(0, 40), desc: String(e.desc || '').slice(0, 120), amount: parseFloat(e.amount) || 0 }));
@@ -6151,6 +6236,7 @@
         }
 
         function renderOtherEquipment() {
+            renderWcFilters();
             const box = document.getElementById('eqItemsList');
             if (!box) return;
             const t = store.tanks[store.active];
@@ -6598,6 +6684,7 @@
         }
 
         function refreshAfterTankChange() {
+            renderWcFilters();
             refreshTankSelect();
             refreshSelects();
             updateMyInhabitants();
