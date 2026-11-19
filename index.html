@@ -941,10 +941,13 @@
                 <p class="text-sm font-semibold text-cyan-300"><i class="fa-solid fa-plus mr-1.5"></i><span data-i18n>Друго оборудване</span></p>
                 <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700 space-y-2">
                     <select id="eqNewType" onchange="eqOtherTypeChanged()" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2 text-xs">
+                        <option value="lamp" data-i18n>Лампа</option>
+                        <option value="filter" data-i18n>Филтър</option>
                         <option value="media" data-i18n>Филтърна медия</option>
                         <option value="co2" data-i18n>CO2</option>
                         <option value="dosing" data-i18n>Дозираща система</option>
                         <option value="skimmer" data-i18n>Скимер</option>
+                        <option value="heater" data-i18n>Нагревател</option>
                         <option value="circulation" data-i18n>Помпа за циркулация</option>
                         <option value="thermometer" data-i18n>Термометър</option>
                         <option value="airpump" data-i18n>Въздушна помпа</option>
@@ -1729,15 +1732,15 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.72";
+        const APP_VERSION = "3.6.73";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
-            { v: "3.6.72", items: [
-                "В „Друго оборудване“ липсват типовете Лампа, Филтър и Нагревател, защото вече имат собствена карта. Старите записи с тези типове се показват и редактират както преди"
+            { v: "3.6.73", items: [
+                "В „Друго оборудване“ отново има Лампа, Филтър и Нагревател, за да можеш да добавиш още филтри, лампи или нагреватели към аквариума"
             ], items_en: [
-                "“Other equipment” no longer lists Lamp, Filter and Heater, because they already have their own card. Existing entries of these types still show and edit as before"
+                "“Other equipment” lists Lamp, Filter and Heater again, so you can add more filters, lamps or heaters to the aquarium"
             ] },
             { v: "3.6.71", items: [
                 "Броят на обитателите и растенията може да се променя директно от списъка: бутони − и +, или въвеждане на точна стойност"
