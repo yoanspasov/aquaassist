@@ -1359,14 +1359,14 @@
                     <label for="bugReporterName" class="block text-xs text-slate-400 mb-1" data-i18n>Твоето име (по желание):</label>
                     <input id="bugReporterName" type="text" maxlength="40" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-cyan-400" data-i18n-placeholder placeholder="Напр. Иван">
                 </div>
-                <div>
-                    <label for="bugReporterEmail" class="block text-xs text-slate-400 mb-1" data-i18n>Имейл (по желание, за да ти отговорим):</label>
+                                <label class="flex items-start gap-2 text-xs text-slate-300">
+                    <input type="checkbox" id="bugWantReply" onchange="bugReplyToggled()" class="mt-0.5 accent-cyan-500">
+                    <span data-i18n>Искам отговор на този доклад. Запази имейла ми с доклада.</span>
+                </label>
+                <div id="bugEmailWrap" class="hidden">
+                    <label for="bugReporterEmail" class="block text-xs text-slate-400 mb-1" data-i18n>Имейл, на който да ти отговорим:</label>
                     <input id="bugReporterEmail" type="email" maxlength="100" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-cyan-400" data-i18n-placeholder placeholder="Напр. ivan@email.com">
                 </div>
-                <label class="flex items-start gap-2 text-xs text-slate-300">
-                    <input type="checkbox" id="bugRemember" class="mt-0.5 accent-cyan-500">
-                    <span data-i18n>Запомни имейла ми на това устройство за следващи доклади</span>
-                </label>
                 <div>
                     <label for="bugTabSelect" class="block text-xs text-slate-400 mb-1" data-i18n>В кой раздел е проблемът?</label>
                     <select id="bugTabSelect" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-cyan-400">
@@ -1751,11 +1751,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.78";
+        const APP_VERSION = "3.6.79";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.79", items: [
+                "В доклада за бъг имейлът се изпраща само ако отбележиш „Искам отговор“. Формата е празна и неотметната при всяко отваряне. Името и имейлът вече не се запомнят на устройството"
+            ], items_en: [
+                "In bug reports, your email is sent only if you tick “I want a reply”. The form is empty and unticked each time it opens. Name and email are no longer remembered on the device"
+            ] },
             { v: "3.6.78", items: [
                 "Поправено подравняване на „Разтворен CO2“. Падащото меню за оборудване започва с „— Избери —“. Изтриването на аквариум иска потвърждение с предупреждение. В доклада за бъг името и имейлът се запомнят на устройството само при отметка „Запомни имейла ми“"
             ], items_en: [
@@ -4440,7 +4445,9 @@ function renderWaterChangeLog() {
             "Избери тип оборудване.": "Choose an equipment type.",
             "Сигурен ли си, че искаш да изтриеш аквариум": "Are you sure you want to delete aquarium",
             "Всички данни за него ще бъдат изтрити и не могат да се върнат.": "All its data will be deleted and cannot be restored.",
-            "Запомни имейла ми на това устройство за следващи доклади": "Remember my email on this device for next reports",
+            "Искам отговор на този доклад. Запази имейла ми с доклада.": "I want a reply to this report. Save my email with the report.",
+            "Имейл, на който да ти отговорим:": "Email to reply to:",
+            "Въведи валиден имейл, за да получиш отговор.": "Enter a valid email to get a reply.",
             "Друго оборудване": "Other equipment",
             "Добави оборудване": "Add equipment",
             "Запази промените": "Save changes",
@@ -4817,7 +4824,7 @@ function renderWaterChangeLog() {
             "Напр. Иван": "E.g. John",
             "От": "From",
             "(без име)": "(no name)",
-            "Имейл (по желание, за да ти отговорим):": "Email (optional, so we can reply):",
+
             "Напр. ivan@email.com": "E.g. john@email.com",
             "Докладът се изпраща директно към нас заедно с версията на приложението. Ако оставиш имейл, ще го използваме само за да ти отговорим по този доклад.": "The report is sent directly to us along with the app version. If you leave an email, we'll use it only to reply about this report.",
             "Имейлът не изглежда валиден — провери го или остави полето празно.": "That email doesn't look valid — check it or leave the field empty.",
@@ -5926,17 +5933,19 @@ function renderWaterChangeLog() {
         // ---------- Доклад за бъг — падащо меню с раздел + свободен текст ----------
         const BUG_REPORTER_NAME_KEY = 'aquaAssistReporterName';
         const BUG_REPORTER_EMAIL_KEY = 'aquaAssistReporterEmail';
+        try { localStorage.removeItem(BUG_REPORTER_NAME_KEY); localStorage.removeItem(BUG_REPORTER_EMAIL_KEY); } catch (e) {}
         function openReportBugModal() {
             const ta = document.getElementById('bugDescription');
             if (ta) ta.value = '';
             const sel = document.getElementById('bugTabSelect');
             if (sel) sel.selectedIndex = 0;
             const nameInput = document.getElementById('bugReporterName');
-            if (nameInput) { try { nameInput.value = localStorage.getItem(BUG_REPORTER_NAME_KEY) || ''; } catch (e) {} }
+            if (nameInput) nameInput.value = '';
             const emailInput = document.getElementById('bugReporterEmail');
-            if (emailInput) { try { emailInput.value = localStorage.getItem(BUG_REPORTER_EMAIL_KEY) || ''; } catch (e) {} }
-            const rememberBox = document.getElementById('bugRemember');
-            if (rememberBox) { try { rememberBox.checked = !!(localStorage.getItem(BUG_REPORTER_NAME_KEY) || localStorage.getItem(BUG_REPORTER_EMAIL_KEY)); } catch (e) { rememberBox.checked = false; } }
+            if (emailInput) emailInput.value = '';
+            const wantReply = document.getElementById('bugWantReply');
+            if (wantReply) wantReply.checked = false;
+            bugReplyToggled();
             const btn = document.getElementById('submitBugBtn');
             const icon = document.getElementById('submitBugIcon');
             const label = document.getElementById('submitBugLabel');
@@ -5944,6 +5953,12 @@ function renderWaterChangeLog() {
             if (icon) icon.className = 'fa-solid fa-paper-plane mr-1.5';
             if (label) label.textContent = tr('Изпрати доклада');
             document.getElementById('reportBugModal').classList.remove('hidden');
+        }
+
+        function bugReplyToggled() {
+            const on = !!document.getElementById('bugWantReply').checked;
+            document.getElementById('bugEmailWrap').classList.toggle('hidden', !on);
+            if (!on) document.getElementById('bugReporterEmail').value = '';
         }
 
         function closeReportBugModal() {
@@ -5957,26 +5972,17 @@ function renderWaterChangeLog() {
             const tabLabel = tabSelect.selectedOptions[0] ? tabSelect.selectedOptions[0].textContent : tabSelect.value;
             const description = document.getElementById('bugDescription').value.trim();
             const reporterName = (document.getElementById('bugReporterName').value || '').trim().slice(0, 40);
-            const reporterEmail = (document.getElementById('bugReporterEmail').value || '').trim().slice(0, 100);
+            const wantReply = !!document.getElementById('bugWantReply').checked;
+            const reporterEmail = wantReply ? (document.getElementById('bugReporterEmail').value || '').trim().slice(0, 100) : '';
             if (!description) {
                 showToast(tr('Моля, опиши накратко какъв е проблемът.'), 'warn');
                 return;
             }
-            // Елементарна проверка на формата — не е строга валидация на имейли
-            // (не е и нужна тук), само хваща очевидни печатни грешки. Полето е
-            // по избор, затова празно минава без проблем.
-            if (reporterEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(reporterEmail)) {
-                showToast(tr('Имейлът не изглежда валиден — провери го или остави полето празно.'), 'warn');
+            if (wantReply && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(reporterEmail)) {
+                showToast(tr('Въведи валиден имейл, за да получиш отговор.'), 'warn');
                 return;
             }
-            // Запомняме името/имейла на това устройство само ако е отметнато; иначе ги изчистваме.
-            const remember = !!document.getElementById('bugRemember').checked;
-            try {
-                if (remember && reporterName) localStorage.setItem(BUG_REPORTER_NAME_KEY, reporterName);
-                else localStorage.removeItem(BUG_REPORTER_NAME_KEY);
-                if (remember && reporterEmail) localStorage.setItem(BUG_REPORTER_EMAIL_KEY, reporterEmail);
-                else localStorage.removeItem(BUG_REPORTER_EMAIL_KEY);
-            } catch (e) {}
+
 
             const btn = document.getElementById('submitBugBtn');
             const icon = document.getElementById('submitBugIcon');
