@@ -616,9 +616,9 @@
                 </div>
                 <div class="flex items-center flex-wrap gap-2">
                     <label for="waterChangePct" class="text-xs text-cyan-300/80" data-i18n>% сменена:</label>
-                    <input type="number" id="waterChangePct" value="" placeholder="0" min="1" max="100" oninput="waterPctTyped()" class="w-16 bg-slate-900/60 border border-cyan-800/50 rounded p-1.5 text-xs text-center">
+                    <input type="number" id="waterChangePct" value="" placeholder="0" min="1" max="100" oninput="waterPctTyped()" class="num-hint w-16 bg-slate-900/60 border border-cyan-800/50 rounded p-1.5 text-xs text-center">
                     <span class="text-[11px] text-cyan-400/60" data-i18n>или</span>
-                    <label id="waterChangeLitersLabel" for="waterChangeLiters" class="sr-only">Литри сменени</label><input type="number" id="waterChangeLiters" placeholder="0" min="0" step="0.5" oninput="updateFromLitersInput()" class="w-16 bg-slate-900/60 border border-cyan-800/50 rounded p-1.5 text-xs text-center">
+                    <label id="waterChangeLitersLabel" for="waterChangeLiters" class="sr-only">Литри сменени</label><input type="number" id="waterChangeLiters" placeholder="0" min="0" step="0.5" oninput="updateFromLitersInput()" class="num-hint w-16 bg-slate-900/60 border border-cyan-800/50 rounded p-1.5 text-xs text-center">
                     <span id="waterChangeUnitTxt" class="text-xs text-cyan-300/80 px-1">л</span>
                     <input type="date" id="waterChangeDate" title="Дата (ако отчиташ със закъснение)" data-i18n-title aria-label="Дата на смяната" class="bg-slate-900/60 border border-cyan-800/50 rounded p-1.5 text-xs text-slate-300">
                     <button onclick="resetWaterTimer()" class="bg-cyan-600 hover:bg-cyan-500 text-xs px-3 py-1.5 rounded font-medium transition shadow" data-i18n>Отчети сменена вода</button>
@@ -1046,7 +1046,7 @@
                 </div>
                 <div>
                     <label for="expenseAmount" class="block text-slate-400 mb-1" data-i18n>Сума (€):</label>
-                    <input type="number" id="expenseAmount" min="0" step="0.01" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2">
+                    <input type="number" id="expenseAmount" min="0" step="0.01" placeholder="0" class="num-hint w-full bg-slate-700 border border-slate-600 rounded-lg p-2 text-xs">
                 </div>
                 <button onclick="addExpense()" class="bg-cyan-700 hover:bg-cyan-600 text-white px-3 py-2 rounded-lg font-medium transition" data-i18n>Добави разход</button>
             </div>
@@ -1744,11 +1744,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.93";
+        const APP_VERSION = "3.6.94";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.94", items: [
+                "Полето „Сума“ в бюджета показва бледа нула като подсказка, както полетата за процент и литри при смяна на водата. Всички три използват един общ стил"
+            ], items_en: [
+                "The amount field in the budget shows a faint 0 hint, like the percentage and liters fields in the water change. All three share one style"
+            ] },
             { v: "3.6.93", items: [
                 "Финансовият дневник започва с празна категория „— Избери —“. Разход без категория или без сума не се записва и показва съобщение. Полетата за филтър и за раздел в отчета за бъг също започват с „— Избери —“"
             ], items_en: [
