@@ -509,7 +509,7 @@
             </div>
             <div>
                 <p class="text-xs text-slate-400 mb-1.5" data-i18n>Тема</p>
-                <select id="themeSelect" class="hidden"><option value="ocean">Океанско Синьо</option><option value="plant">Растителен Зелен</option><option value="dark">Тъмен Нощен</option><option value="coral">Коралов Риф</option><option value="abyss">Дълбоко Море</option><option value="jungle">Сладководна Джунгла</option></select>
+                <select id="themeSelect" class="hidden"><option value="ocean" data-i18n>Океанско Синьо</option><option value="plant" data-i18n>Растителен Зелен</option><option value="dark" data-i18n>Тъмен Нощен</option><option value="coral" data-i18n>Коралов Риф</option><option value="abyss" data-i18n>Дълбоко Море</option><option value="jungle" data-i18n>Сладководна Джунгла</option></select>
                 <div id="themeSwatches" class="grid grid-cols-3 gap-1.5"></div>
             </div>
             <div class="border-t border-slate-700 pt-3">
@@ -528,11 +528,11 @@
                     <button onclick="document.getElementById('importFile').click()" class="flex-1 text-[11px] px-2.5 py-2 rounded-lg border bg-slate-700 hover:bg-slate-600 border-slate-600 text-cyan-300 transition-all duration-200"><i class="fa-solid fa-upload mr-1"></i><span data-i18n>Импорт (JSON)</span></button>
                 </div>
             </div>
-            <button id="notifyBtn" onclick="toggleNotifications()" title="Известия" class="w-full flex items-center justify-between bg-slate-700 hover:bg-slate-600 text-xs rounded-lg px-3 py-2.5 border border-slate-600 text-slate-500 transition-all duration-200" aria-label="Известия">
+            <button id="notifyBtn" onclick="toggleNotifications()" data-i18n-title title="Известия"class="w-full flex items-center justify-between bg-slate-700 hover:bg-slate-600 text-xs rounded-lg px-3 py-2.5 border border-slate-600 text-slate-500 transition-all duration-200" aria-label="Известия">
                 <span class="flex items-center gap-2"><svg style="width:16px;height:16px;display:block;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M6 8a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span data-i18n>Известия</span></span>
                 <span id="notifyStatusLabel" class="text-[10px]">Включи</span>
             </button>
-            <button id="installBtn" onclick="installApp()" title="Инсталирай приложението" class="hidden w-full flex items-center justify-center gap-2 bg-cyan-700 hover:bg-cyan-600 text-xs rounded-lg px-3 py-2.5 border border-cyan-600 text-white transition-all duration-200" aria-label="Инсталирай приложението">
+            <button id="installBtn" onclick="installApp()" data-i18n-title title="Инсталирай приложението"class="hidden w-full flex items-center justify-center gap-2 bg-cyan-700 hover:bg-cyan-600 text-xs rounded-lg px-3 py-2.5 border border-cyan-600 text-white transition-all duration-200" aria-label="Инсталирай приложението">
                 <svg style="width:16px;height:16px;display:block;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg><span data-i18n>Инсталирай приложението</span>
             </button>
             <div id="iosInstallHint" class="hidden w-full text-[11px] text-slate-400 bg-slate-700/60 border border-slate-600 rounded-lg px-3 py-2.5 leading-snug">
@@ -988,7 +988,7 @@
                     </label>
                     <textarea id="eqNewNotes" rows="2" maxlength="300" placeholder="Бележка" data-i18n-placeholder class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2 text-xs"></textarea>
                     <div class="flex gap-2">
-                        <button type="button" id="eqNewSave" onclick="addOtherEquipment()" class="text-xs bg-cyan-700 hover:bg-cyan-600 px-3 py-2 rounded-lg font-medium text-white" data-i18n>Добави оборудване</button>
+                        <button type="button" id="eqNewSave" onclick="addOtherEquipment()" class="text-xs bg-cyan-700 hover:bg-cyan-600 px-3 py-2 rounded-lg font-medium text-white" data-i18n data-bg-orig="Добави оборудване">Добави оборудване</button>
                         <button type="button" id="eqNewCancel" onclick="eqOtherResetForm()" class="hidden text-xs bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded-lg text-slate-200" data-i18n>Отказ</button>
                     </div>
                 </div>
@@ -1247,7 +1247,7 @@
             <h2 class="text-lg font-semibold flex items-center"><i class="fa-solid fa-database mr-2 text-cyan-400"></i> <span data-i18n>Данни и резервно копие</span></h2>
             <div>
                 <div class="flex justify-between text-xs text-slate-400 mb-1">
-                    <span id="storageLabel" data-i18n>Заето място</span>
+                    <span id="storageLabel" data-i18n data-bg-orig="Заето място">Заето място</span>
                     <span id="storagePct"></span>
                 </div>
                 <div class="w-full bg-slate-700 h-2.5 rounded-full overflow-hidden"><div id="storageBar" class="bg-cyan-500 h-full w-0 transition-all duration-500"></div></div>
@@ -1281,7 +1281,7 @@
 
                 <div id="syncLoginForm" class="hidden space-y-2">
                     <div class="flex flex-col gap-2">
-                        <input type="text" id="syncCodeInput" placeholder="напр. guppy-4f2a9c" oninput="this.value = this.value.replace(/[^a-zA-Z0-9-]/g, '')" pattern="[a-zA-Z0-9-]+" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2 text-xs">
+                        <input type="text" id="syncCodeInput" data-i18n-placeholder placeholder="напр. guppy-4f2a9c" oninput="this.value = this.value.replace(/[^a-zA-Z0-9-]/g, '')" pattern="[a-zA-Z0-9-]+" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2 text-xs">
                         <button onclick="downloadFromCloud()" class="w-full bg-cyan-700 hover:bg-cyan-600 text-xs px-3 py-2 rounded-lg font-medium text-white" data-i18n>Изтегли</button>
                     </div>
                     <button onclick="hideSyncLoginForm()" class="text-[11px] text-slate-500 hover:text-slate-400 underline" data-i18n>Назад</button>
@@ -1756,11 +1756,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.82";
+        const APP_VERSION = "3.6.83";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.83", items: [
+                "Поправен е английският текст „Add equipment“ на бутона за добавяне на оборудване при български език. Оправени са и други английски надписи на български (бутонът „Заето място“, опциите за тема, подсказките за известия и инсталиране, примерът за код за синхронизация)"
+            ], items_en: [
+                "Fixed the English \"Add equipment\" label on the other-equipment button when the app is in Bulgarian. Also fixed other English labels in Bulgarian (the storage label, theme names, notification and install hints, the sync code example)"
+            ] },
             { v: "3.6.82", items: [
                 "Обемите навсякъде (аквариум, заетост, сравнение, предупреждения за минимален обем и био-товар) се показват в избраната мерна единица — литри или галони. Полето за обем на аквариума показва и двете. Празните полета на картата за смяна на водата са без „0“"
             ], items_en: [
@@ -4375,7 +4380,7 @@ function renderWaterChangeLog() {
             "Светла": "Light",
             "Налична е нова версия на приложението.": "A new version of the app is available.",
             "Обнови": "Update",
-            "Известия": "Notifications",
+            "Известия": "Notifications", "Включи известия": "Turn on notifications",
             "Включи": "Enable", "Включени": "Enabled", "Известията са включени": "Notifications are enabled",
             "Инсталирай приложението": "Install the app",
             // Навигация
