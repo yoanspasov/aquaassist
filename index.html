@@ -1756,11 +1756,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.83";
+        const APP_VERSION = "3.6.84";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.84", items: [
+                "Поправка: в картата за смяна на водата при празно поле отново се показват нули с мерната единица (например „0 gal“, „0.0 fl oz“, „0.0 мл“), а не празно или текст „gal“"
+            ], items_en: [
+                "Fix: when the water change card fields are empty, zeros with the unit are shown again (for example \"0 gal\", \"0.0 fl oz\", \"0.0 mL\") instead of blank or the text \"gal\""
+            ] },
             { v: "3.6.83", items: [
                 "Поправен е английският текст „Add equipment“ на бутона за добавяне на оборудване при български език. Оправени са и други английски надписи на български (бутонът „Заето място“, опциите за тема, подсказките за известия и инсталиране, примерът за код за синхронизация)"
             ], items_en: [
@@ -2618,14 +2623,13 @@
             const rawPct = document.getElementById('waterChangePct').value;
             const enteredPct = rawPct ? Math.min(Math.max(parseFloat(rawPct) || 0, 1), 100) / 100 : 0;
             const waterToChange = Math.round(totalLiters * enteredPct);
-            const showCalc = rawPct !== '';
-            document.getElementById('calcLiters').innerText = showCalc ? fmtVol(waterToChange) : '';
-            document.getElementById('waterChangeLiters').placeholder = getVolumeUnit() === 'gal' ? 'gal' : tr('л');
-            document.getElementById('calcDechlor').innerText = showCalc ? fmtMl(waterToChange * 0.2) : '';
-            document.getElementById('calcFert').innerText = showCalc ? fmtMl(waterToChange * 0.1) : '';
+            document.getElementById('calcLiters').innerText = fmtVol(waterToChange);
+            document.getElementById('waterChangeLiters').placeholder = '0';
+            document.getElementById('calcDechlor').innerText = fmtMl(waterToChange * 0.2);
+            document.getElementById('calcFert').innerText = fmtMl(waterToChange * 0.1);
             updateNo3Hint();
             const litersField = document.getElementById('waterChangeLiters');
-            if (litersField && document.activeElement !== litersField && litersField.dataset.user !== '1') litersField.value = !showCalc ? '' : (getVolumeUnit() === 'gal' ? Math.round(waterToChange / GAL_TO_L * 100) / 100 : waterToChange);
+            if (litersField && document.activeElement !== litersField && litersField.dataset.user !== '1') litersField.value = getVolumeUnit() === 'gal' ? Math.round(waterToChange / GAL_TO_L * 100) / 100 : waterToChange;
 
             checkCompatibility();
             updateParamColors();
@@ -2959,7 +2963,7 @@
             el.innerText = l > 0 ? `${fmtNum(l, 1)} ${tr('л')} = ${fmtNum(l / GAL_TO_L, 2)} gal` : '';
         }
         function fmtMl(ml) {
-            if (getVolumeUnit() === 'gal') { const oz = ml / FLOZ_TO_ML; return `${fmtNum(oz, oz >= 100 ? 0 : oz >= 10 ? 1 : 2)} ${tr('fl oz')}`; }
+            if (getVolumeUnit() === 'gal') { const oz = ml / FLOZ_TO_ML; return `${oz.toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: oz >= 100 ? 0 : oz >= 10 ? 1 : 2 })} ${tr('fl oz')}`; }
             return `${ml.toFixed(1)} ${tr('мл')}`;
         }
 
