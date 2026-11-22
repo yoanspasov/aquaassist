@@ -766,15 +766,15 @@
                 </div>
                 <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
                     <span class="text-xs text-slate-400" data-i18n>Амоняк (NH3)</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help paramInfoIcon" tabindex="0" title="NH3/NH4 — токсичен отпадък от рибите. Оптимално: 0 mg/l" data-i18n-title data-info="NH3/NH4 — токсичен отпадък от рибите. Оптимално: 0 mg/l"></i>
-                    <p class="text-xl font-bold text-emerald-300 mt-1"><span id="valNH3" class="paramVal" inputmode="decimal">—</span> mg/l <span id="trendNH3" class="paramTrend text-xs font-semibold"></span></p>
+                    <p class="text-xl font-bold text-emerald-300 mt-1"><span id="valNH3" class="paramVal" inputmode="decimal">—</span> <span class="conc-unit">mg/l</span> <span id="trendNH3" class="paramTrend text-xs font-semibold"></span></p>
                 </div>
                 <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
                     <span class="text-xs text-slate-400" data-i18n>Нитрити (NO2)</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help paramInfoIcon" tabindex="0" title="NO2 — междинен токсичен продукт от азотния цикъл. Оптимално: 0 mg/l" data-i18n-title data-info="NO2 — междинен токсичен продукт от азотния цикъл. Оптимално: 0 mg/l"></i>
-                    <p class="text-xl font-bold text-red-300 mt-1"><span id="valNO2" class="paramVal" inputmode="decimal">—</span> mg/l <span id="trendNO2" class="paramTrend text-xs font-semibold"></span></p>
+                    <p class="text-xl font-bold text-red-300 mt-1"><span id="valNO2" class="paramVal" inputmode="decimal">—</span> <span class="conc-unit">mg/l</span> <span id="trendNO2" class="paramTrend text-xs font-semibold"></span></p>
                 </div>
                 <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
                     <span class="text-xs text-slate-400" data-i18n>Нитрати (NO3)</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help paramInfoIcon" tabindex="0" title="NO3 — краен продукт от азотния цикъл. Оптимално: 10–25 mg/l" data-i18n-title data-info="NO3 — краен продукт от азотния цикъл. Оптимално: 10–25 mg/l"></i>
-                    <p class="text-xl font-bold text-yellow-300 mt-1"><span id="valNO3" class="paramVal" inputmode="decimal">—</span> mg/l <span id="trendNO3" class="paramTrend text-xs font-semibold"></span></p>
+                    <p class="text-xl font-bold text-yellow-300 mt-1"><span id="valNO3" class="paramVal" inputmode="decimal">—</span> <span class="conc-unit">mg/l</span> <span id="trendNO3" class="paramTrend text-xs font-semibold"></span></p>
                 </div>
                 <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
                     <span class="text-xs text-slate-400" data-i18n>Обща твърдост (GH)</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help paramInfoIcon" tabindex="0" title="GH — обща твърдост на водата. Ориентировъчно оптимално: 4–12 dGH" data-i18n-title data-info="GH — обща твърдост на водата. Ориентировъчно оптимално: 4–12 dGH"></i>
@@ -786,7 +786,7 @@
                 </div>
                 <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
                     <span class="text-xs text-slate-400" data-i18n>Хлор (Cl2)</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help paramInfoIcon" tabindex="0" title="Cl2 — хлор от чешмяната вода, токсичен за рибите. Оптимално: 0 mg/l (неутрализирай с антихлор)" data-i18n-title data-info="Cl2 — хлор от чешмяната вода, токсичен за рибите. Оптимално: 0 mg/l (неутрализирай с антихлор)"></i>
-                    <p class="text-xl font-bold text-teal-300 mt-1"><span id="valCl2" class="paramVal" inputmode="decimal">—</span> mg/l <span id="trendCl2" class="paramTrend text-xs font-semibold"></span></p>
+                    <p class="text-xl font-bold text-teal-300 mt-1"><span id="valCl2" class="paramVal" inputmode="decimal">—</span> <span class="conc-unit">mg/l</span> <span id="trendCl2" class="paramTrend text-xs font-semibold"></span></p>
                 </div>
             </div>
 
@@ -798,7 +798,7 @@
                     <p class="text-[11px] text-slate-500 mt-0.5" data-i18n>Ориентировъчна стойност, не замества директно измерване.</p>
                 </div>
                 <div class="text-right shrink-0">
-                    <p class="text-xl font-bold mt-1"><span id="valCO2">—</span> <span class="text-xs font-normal text-slate-400">mg/l</span></p>
+                    <p class="text-xl font-bold mt-1"><span id="valCO2">—</span> <span class="text-xs font-normal text-slate-400 conc-unit">mg/l</span></p>
                     <span id="co2Badge" class="text-[11px] px-2 py-0.5 rounded-full font-semibold"></span>
                 </div>
             </div>
@@ -1765,11 +1765,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.88";
+        const APP_VERSION = "3.6.89";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.89", items: [
+                "Концентрациите (mg/l) се показват като ppm, когато е избран gal. Числата са същите. При литри остава mg/l"
+            ], items_en: [
+                "Concentrations (mg/l) are shown as ppm when gal is selected. The numbers are the same. With liters it stays mg/l"
+            ] },
             { v: "3.6.88", items: [
                 "Мерни единици в настройките: двата избора са подредени в мрежа — °C / °F и Л / gal. Обемите се показват в избраната единица навсякъде. Данните се пазят винаги в литри и не се променят"
             ], items_en: [
@@ -2735,9 +2740,9 @@
             const no3 = parseFloat(document.getElementById('valNO3').innerText) || 0;
             const pct = Math.round(recommendedChangePercent() * 100);
             const hint = document.getElementById('no3Hint');
-            if (no3 > 40) hint.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i>${tr('NO3 е високо')} (${no3} mg/l) — ${tr('препоръчва се по-голяма смяна')} (${pct}%) ${tr('и по-честа поддръжка.')}`;
-            else if (no3 > 20) hint.innerHTML = `${tr('NO3 е умерено')} (${no3} mg/l) — ${tr('препоръчителна смяна:')} ${pct}%.`;
-            else hint.innerHTML = `${tr('NO3 е в нормата')} (${no3} mg/l) — ${tr('стандартна смяна:')} ${pct}%.`;
+            if (no3 > 40) hint.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i>${tr('NO3 е високо')} (${no3} ${concUnit()}) — ${tr('препоръчва се по-голяма смяна')} (${pct}%) ${tr('и по-честа поддръжка.')}`;
+            else if (no3 > 20) hint.innerHTML = `${tr('NO3 е умерено')} (${no3} ${concUnit()}) — ${tr('препоръчителна смяна:')} ${pct}%.`;
+            else hint.innerHTML = `${tr('NO3 е в нормата')} (${no3} ${concUnit()}) — ${tr('стандартна смяна:')} ${pct}%.`;
         }
 
         function checkCompatibility() {
@@ -4165,12 +4170,12 @@ function renderWaterChangeLog() {
                     ${row(tr('Обем'), d.l ? fmtVol(parseFloat(d.l)) : '')}
                     ${row('pH', d.ph)}
                     ${row(tr('Температура'), tempShowStr(d.temp), ' ' + tempSym())}
-                    ${row('NH3', d.nh3, ' mg/l')}
-                    ${row('NO2', d.no2, ' mg/l')}
-                    ${row('NO3', d.no3, ' mg/l')}
+                    ${row('NH3', d.nh3, ' ' + concUnit())}
+                    ${row('NO2', d.no2, ' ' + concUnit())}
+                    ${row('NO3', d.no3, ' ' + concUnit())}
                     ${row('GH', d.gh, ' dGH')}
                     ${row('KH', d.kh, ' dKH')}
-                    ${row('Cl2', d.cl2, ' mg/l')}
+                    ${row('Cl2', d.cl2, ' ' + concUnit())}
                     <div class="pt-2">
                         <p class="text-slate-400 mb-1">${tr('Обитатели')}:</p>
                         <ul class="list-disc list-inside space-y-0.5">${fishRows || '<li class="text-slate-500">' + tr('Няма добавени') + '</li>'}</ul>
@@ -4330,8 +4335,8 @@ function renderWaterChangeLog() {
                 [tr('Капацитет'), sa.percent + '%', sb.percent + '%'],
                 [tr('Температура'), tempShowStr(sa.temp) + ' ' + tempSym(), tempShowStr(sb.temp) + ' ' + tempSym()],
                 ['pH', sa.ph, sb.ph],
-                ['NH3', sa.nh3 + ' mg/l', sb.nh3 + ' mg/l'],
-                ['NO3', sa.no3 + ' mg/l', sb.no3 + ' mg/l'],
+                ['NH3', sa.nh3 + ' ' + concUnit(), sb.nh3 + ' ' + concUnit()],
+                ['NO3', sa.no3 + ' ' + concUnit(), sb.no3 + ' ' + concUnit()],
                 [tr('Видове'), sa.species, sb.species],
                 [tr('Общо бройки'), sa.individuals, sb.individuals],
                 [tr('Дни до смяна на вода'), sa.daysLeft, sb.daysLeft]
@@ -5475,7 +5480,18 @@ function renderWaterChangeLog() {
 
         function tr(text) {
             const out = currentLang === 'en' ? (I18N[text] || text) : text;
-            return convertTemps(out);
+            return convertTemps(concTokens(out));
+        }
+
+        // Концентрациите: при литри се показват mg/l, при галони — ppm (числото не се променя).
+        // Замяната е само за показване, на изхода на tr(); ключовете и праговете не се променят.
+        function concUnit() { return volumeUnit === 'gal' ? 'ppm' : 'mg/l'; }
+        function concTokens(text) {
+            if (typeof text !== 'string' || volumeUnit !== 'gal') return text;
+            return text.replace(/mg\/l/g, 'ppm');
+        }
+        function refreshConcUnits() {
+            document.querySelectorAll('.conc-unit').forEach(el => { el.textContent = concUnit(); });
         }
 
         // Имената на видовете са записани като "Българско име (English name)".
@@ -5612,6 +5628,7 @@ function renderWaterChangeLog() {
             if (aqLabel) aqLabel.textContent = tr(volumeUnit === 'gal' ? 'Обем (gal):' : 'Обем (л):');
             const wcTxt = document.getElementById('waterChangeUnitTxt');
             if (wcTxt) wcTxt.textContent = volumeUnit === 'gal' ? 'gal' : tr('л');
+            refreshConcUnits();
         }
 
         // Глобална мерна единица за обем (Л / gal). Пази се само в localStorage ключ
@@ -5633,7 +5650,9 @@ function renderWaterChangeLog() {
                 wl.value = volumeUnit === 'gal' ? Math.round(exact / GAL_TO_L * 10000) / 10000 : Math.round(exact * 10000) / 10000;
             }
             renderTempSwitch();
+            applyTranslations();
             updateCapacity();
+            renderMiniStatus();
             refreshAfterTankChange();
         }
 
@@ -5774,15 +5793,15 @@ function renderWaterChangeLog() {
             }
             const perWeek = (f.slope * 7).toFixed(1);
             if (f.cur >= NO3_LIMIT) {
-                box.innerHTML = `<p class="text-red-300 font-semibold">${tr('Нитратите са')} ${f.cur} mg/l — ${tr('над')} ${NO3_LIMIT}.</p><p class="text-xs text-slate-400">${tr('Смени вода сега (препоръчително 40–50%).')}</p>`;
+                box.innerHTML = `<p class="text-red-300 font-semibold">${tr('Нитратите са')} ${f.cur} ${concUnit()} — ${tr('над')} ${NO3_LIMIT}.</p><p class="text-xs text-slate-400">${tr('Смени вода сега (препоръчително 40–50%).')}</p>`;
             } else if (f.slope <= 0.05) {
-                box.innerHTML = `<p class="text-green-300 font-semibold">${tr('Стабилни')} (${f.cur} mg/l)</p><p class="text-xs text-slate-400">${tr('Не растат забележимо')} (${perWeek >= 0 ? '+' : ''}${perWeek} mg/l ${tr('на седмица')}).</p>`;
+                box.innerHTML = `<p class="text-green-300 font-semibold">${tr('Стабилни')} (${f.cur} ${concUnit()})</p><p class="text-xs text-slate-400">${tr('Не растат забележимо')} (${perWeek >= 0 ? '+' : ''}${perWeek} ${concUnit()} ${tr('на седмица')}).</p>`;
             } else {
                 const days = (NO3_LIMIT - f.cur) / f.slope;
                 const when = fmtD(Date.now() + days * DAY_MS);
                 const cls = days <= 3 ? 'text-red-300' : days <= 10 ? 'text-orange-300' : 'text-green-300';
-                box.innerHTML = `<p class="${cls} font-semibold">≈ ${Math.max(Math.round(days), 0)} ${tr('дни до')} ${NO3_LIMIT} mg/l</p>
-                    <p class="text-xs text-slate-400">${tr('Растат с')} ≈ ${perWeek} mg/l ${tr('на седмица (сега')} ${f.cur}). ${tr('Планирай смяна около')} ${when}.</p>`;
+                box.innerHTML = `<p class="${cls} font-semibold">≈ ${Math.max(Math.round(days), 0)} ${tr('дни до')} ${NO3_LIMIT} ${concUnit()}</p>
+                    <p class="text-xs text-slate-400">${tr('Растат с')} ≈ ${perWeek} ${concUnit()} ${tr('на седмица (сега')} ${f.cur}). ${tr('Планирай смяна около')} ${when}.</p>`;
             }
         }
 
@@ -6620,8 +6639,8 @@ function renderWaterChangeLog() {
             const defs = [
                 ['valPH', 'pH ниво', '', 'ph', 'fa-droplet', 'phGrad'],
                 ['valTemp', 'Температура', tempSym(), 'temp', 'fa-temperature-half', 'tempGrad'],
-                ['valNH3', 'Амоняк (NH3)', 'mg/l', 'nh3', 'fa-flask', 'nh3Grad'],
-                ['valNO3', 'Нитрати (NO3)', 'mg/l', 'no3', 'fa-vial', 'no3Grad']
+                ['valNH3', 'Амоняк (NH3)', concUnit(), 'nh3', 'fa-flask', 'nh3Grad'],
+                ['valNO3', 'Нитрати (NO3)', concUnit(), 'no3', 'fa-vial', 'no3Grad']
             ];
             const t = store.tanks[store.active];
             const hist = (t && t.history) || [];
@@ -7358,7 +7377,7 @@ function renderWaterChangeLog() {
             const no3 = parseFloat(document.getElementById('valNO3').innerText) || 0;
             let body = null;
             if (daysLeft <= 0 && tankHasUserActivity()) body = tr("Време е за смяна на водата в аквариум „") + (t ? displayTankName(t.name) : '') + "“.";
-            else if (no3 > 40) body = `${tr('Нитратите са високи')} (${no3} mg/l) — ${tr('обмисли по-ранна смяна на водата.')}`;
+            else if (no3 > 40) body = `${tr('Нитратите са високи')} (${no3} ${concUnit()}) — ${tr('обмисли по-ранна смяна на водата.')}`;
             else {
                 // Дозиране (торове/добавки) — същата логика за "просрочено", каквата
                 // се използва и за видимия статус в списъка (dosingDueInfo).
