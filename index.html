@@ -1755,11 +1755,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.80";
+        const APP_VERSION = "3.6.81";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.81", items: [
+                "Картата за смяна на водата показва всичко в галони и течни унции, когато е избрано gal. След успешен запис полетата се изчистват, за да не се записва двойно"
+            ], items_en: [
+                "The water change card shows everything in gallons and fluid ounces when gal is selected. After a successful save the fields are cleared so nothing is recorded twice"
+            ] },
             { v: "3.6.80", items: [
                 "Смяната на водата: можеш да въведеш литри или галони; без процент и литри не се записва; процентът е между 0 и 100. Отметките за поддръжката и „Още направено“ вече не се прехвърлят към друг аквариум"
             ], items_en: [
@@ -2601,9 +2606,10 @@
             const rawPct = document.getElementById('waterChangePct').value;
             const enteredPct = rawPct ? Math.min(Math.max(parseFloat(rawPct) || 0, 1), 100) / 100 : 0;
             const waterToChange = Math.round(totalLiters * enteredPct);
-            document.getElementById('calcLiters').innerText = `${waterToChange} ${tr('л')}`;
-            document.getElementById('calcDechlor').innerText = `${(waterToChange * 0.2).toFixed(1)} ${tr('мл')}`;
-            document.getElementById('calcFert').innerText = `${(waterToChange * 0.1).toFixed(1)} ${tr('мл')}`;
+            document.getElementById('calcLiters').innerText = fmtVol(waterToChange);
+            document.getElementById('waterChangeLiters').placeholder = getVolumeUnit() === 'gal' ? 'gal' : tr('л');
+            document.getElementById('calcDechlor').innerText = fmtMl(waterToChange * 0.2);
+            document.getElementById('calcFert').innerText = fmtMl(waterToChange * 0.1);
             updateNo3Hint();
             const litersField = document.getElementById('waterChangeLiters');
             if (litersField && document.activeElement !== litersField && litersField.dataset.user !== '1') litersField.value = getVolumeUnit() === 'gal' ? Math.round(waterToChange / GAL_TO_L * 100) / 100 : waterToChange;
@@ -2664,6 +2670,8 @@
             const totalLiters = parseFloat(document.getElementById('aqLiters').value) || 60;
             document.getElementById('waterChangeLiters').dataset.user = '1';
             const liters = parseFloat(document.getElementById('waterChangeLiters').value) * (getVolumeUnit() === 'gal' ? GAL_TO_L : 1);
+            // Точното количество в литри: при смяна на единицата показваме закръглено, но записваме това.
+            document.getElementById('waterChangeLiters').dataset.exactL = Number.isFinite(liters) ? String(liters) : '';
             if (isNaN(liters) || totalLiters <= 0) return;
             const pct = Math.min(Math.max((liters / totalLiters) * 100, 1), 100);
             document.getElementById('waterChangePct').value = Math.round(pct * 10) / 10;
@@ -2924,6 +2932,17 @@
         const VOL_UNIT_KEY = 'aquassist_volume_unit';
         document.getElementById('waterChangeUnit').value = lsGet(VOL_UNIT_KEY) === 'gal' ? 'gal' : 'L';
 
+        const FLOZ_TO_ML = 29.5735;
+        function fmtNum(v, maxDigits) { return v.toLocaleString(locale(), { maximumFractionDigits: maxDigits }); }
+        function fmtVol(liters) {
+            if (getVolumeUnit() === 'gal') { const g = liters / GAL_TO_L; return `${fmtNum(g, g >= 10 ? 1 : 2)} gal`; }
+            return `${Math.round(liters)} ${tr('л')}`;
+        }
+        function fmtMl(ml) {
+            if (getVolumeUnit() === 'gal') { const oz = ml / FLOZ_TO_ML; return `${fmtNum(oz, oz >= 100 ? 0 : oz >= 10 ? 1 : 2)} ${tr('fl oz')}`; }
+            return `${ml.toFixed(1)} ${tr('мл')}`;
+        }
+
         function getVolumeUnit() {
             const s = document.getElementById('waterChangeUnit');
             return s && s.value === 'gal' ? 'gal' : 'L';
@@ -2931,7 +2950,7 @@
 
         function waterPctTyped() {
             const l = document.getElementById('waterChangeLiters');
-            if (l) delete l.dataset.user;
+            if (l) { delete l.dataset.user; delete l.dataset.exactL; }
             updateCapacity();
         }
 
@@ -2939,9 +2958,9 @@
             const unit = getVolumeUnit();
             lsSet(VOL_UNIT_KEY, unit);
             const l = document.getElementById('waterChangeLiters');
-            const v = parseFloat(l.value);
-            if (l.dataset.user === '1' && Number.isFinite(v)) {
-                l.value = unit === 'gal' ? Math.round(v / GAL_TO_L * 100) / 100 : Math.round(v * GAL_TO_L * 100) / 100;
+            const exact = parseFloat(l.dataset.exactL);
+            if (l.dataset.user === '1' && Number.isFinite(exact)) {
+                l.value = unit === 'gal' ? Math.round(exact / GAL_TO_L * 10000) / 10000 : Math.round(exact * 10000) / 10000;
             }
             updateCapacity();
         }
@@ -2964,7 +2983,8 @@
                 const v = Number(litRaw);
                 if (!Number.isFinite(v) || v <= 0) { showToast(tr('Въведи число по-голямо от 0.'), 'warn'); return; }
                 if (!(aqL > 0)) { showToast(tr('Въведи процент, защото обемът на аквариума не е зададен.'), 'warn'); return; }
-                litersVal = unit === 'gal' ? v * GAL_TO_L : v;
+                const exact = parseFloat(litField.dataset.exactL);
+                litersVal = Number.isFinite(exact) ? exact : (unit === 'gal' ? v * GAL_TO_L : v);
                 if (litersVal > aqL && !await showAppConfirm(tr('Литрите са повече от обема на аквариума. Продължи?'), 'warn')) return;
                 pct = Math.min(100, (litersVal / aqL) * 100);
             } else if (pctRaw !== '') {
@@ -3004,7 +3024,9 @@
                 }
                 t.waterChangeLog.push(entry);
                 resetWcExtrasForm();
-                ['taskFilter', 'taskPlants', 'taskGlass', 'taskFertilize'].forEach(id => { document.getElementById(id).checked = false; document.getElementById(id + 'Confirm').classList.add('hidden'); });
+                document.getElementById('waterChangePct').value = '';
+            const lf = document.getElementById('waterChangeLiters'); lf.value = ''; delete lf.dataset.user; delete lf.dataset.exactL;
+            ['taskFilter', 'taskPlants', 'taskGlass', 'taskFertilize'].forEach(id => { document.getElementById(id).checked = false; document.getElementById(id + 'Confirm').classList.add('hidden'); });
                 t.waterChangeLog.sort((a, b) => a.t - b.t);
                 if (t.waterChangeLog.length > 30) t.waterChangeLog = t.waterChangeLog.slice(-30);
             }
@@ -4511,6 +4533,8 @@ function renderWaterChangeLog() {
             "Подменена филтърна медия": "Replaced filter media",
             "Всички филтри": "All filters",
             "Филтър:": "Filter:",
+            "gal": "gal",
+            "fl oz": "fl oz",
             "Въведи процент или литри за смяната на водата.": "Enter a percentage or liters for the water change.",
             "Въведи число по-голямо от 0.": "Enter a number greater than 0.",
             "Процентът трябва да е между 0 и 100.": "The percentage must be between 0 and 100.",
@@ -6752,7 +6776,7 @@ function renderWaterChangeLog() {
             if (typeof calcDimsEditing !== 'undefined' && calcDimsEditing) { calcDimsEditing = false; syncCalcDimsEditBtnLabel(); }
             ['aqLength', 'aqWidth', 'aqHeight'].forEach(id => { const el = document.getElementById(id); if (el) el.disabled = true; });
             document.getElementById('waterChangePct').value = '';
-            const wl = document.getElementById('waterChangeLiters'); wl.value = ''; delete wl.dataset.user;
+            const wl = document.getElementById('waterChangeLiters'); wl.value = ''; delete wl.dataset.user; delete wl.dataset.exactL;
             resetWcExtrasForm();
             document.getElementById('taskFilter').checked = false;
             document.getElementById('taskPlants').checked = false;
