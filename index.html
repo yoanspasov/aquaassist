@@ -616,9 +616,13 @@
                 </div>
                 <div class="flex items-center flex-wrap gap-2">
                     <label for="waterChangePct" class="text-xs text-cyan-300/80" data-i18n>% сменена:</label>
-                    <input type="number" id="waterChangePct" value="" placeholder="0" min="1" max="100" oninput="updateCapacity()" class="w-16 bg-slate-900/60 border border-cyan-800/50 rounded p-1.5 text-xs text-center">
+                    <input type="number" id="waterChangePct" value="" placeholder="0" min="1" max="100" oninput="waterPctTyped()" class="w-16 bg-slate-900/60 border border-cyan-800/50 rounded p-1.5 text-xs text-center">
                     <span class="text-[11px] text-cyan-400/60" data-i18n>или</span>
                     <input type="number" id="waterChangeLiters" placeholder="л" min="0" step="0.5" oninput="updateFromLitersInput()" class="w-16 bg-slate-900/60 border border-cyan-800/50 rounded p-1.5 text-xs text-center" title="Въведи директно колко литра си сменил" data-i18n-title aria-label="Литри сменени">
+                    <select id="waterChangeUnit" onchange="waterUnitChanged()" aria-label="Единица" class="bg-slate-900/60 border border-cyan-800/50 rounded p-1.5 text-xs">
+                        <option value="L" data-i18n>л</option>
+                        <option value="gal">gal</option>
+                    </select>
                     <input type="date" id="waterChangeDate" title="Дата (ако отчиташ със закъснение)" data-i18n-title aria-label="Дата на смяната" class="bg-slate-900/60 border border-cyan-800/50 rounded p-1.5 text-xs text-slate-300">
                     <button onclick="resetWaterTimer()" class="bg-cyan-600 hover:bg-cyan-500 text-xs px-3 py-1.5 rounded font-medium transition shadow" data-i18n>Отчети сменена вода</button>
                 </div>
@@ -1751,11 +1755,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.79";
+        const APP_VERSION = "3.6.80";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.80", items: [
+                "Смяната на водата: можеш да въведеш литри или галони; без процент и литри не се записва; процентът е между 0 и 100. Отметките за поддръжката и „Още направено“ вече не се прехвърлят към друг аквариум"
+            ], items_en: [
+                "Water change: enter liters or gallons; nothing is saved without a percentage or liters; the percentage is 0 to 100. Maintenance ticks and “Also done” no longer carry over to another aquarium"
+            ] },
             { v: "3.6.79", items: [
                 "В доклада за бъг имейлът се изпраща само ако отбележиш „Искам отговор“. Формата е празна и неотметната при всяко отваряне. Името и имейлът вече не се запомнят на устройството"
             ], items_en: [
@@ -2597,7 +2606,7 @@
             document.getElementById('calcFert').innerText = `${(waterToChange * 0.1).toFixed(1)} ${tr('мл')}`;
             updateNo3Hint();
             const litersField = document.getElementById('waterChangeLiters');
-            if (litersField && document.activeElement !== litersField) litersField.value = waterToChange;
+            if (litersField && document.activeElement !== litersField && litersField.dataset.user !== '1') litersField.value = getVolumeUnit() === 'gal' ? Math.round(waterToChange / GAL_TO_L * 100) / 100 : waterToChange;
 
             checkCompatibility();
             updateParamColors();
@@ -2653,7 +2662,8 @@
         // Позволява директно въвеждане на литри вместо проценти — автоматично преизчислява %
         function updateFromLitersInput() {
             const totalLiters = parseFloat(document.getElementById('aqLiters').value) || 60;
-            const liters = parseFloat(document.getElementById('waterChangeLiters').value);
+            document.getElementById('waterChangeLiters').dataset.user = '1';
+            const liters = parseFloat(document.getElementById('waterChangeLiters').value) * (getVolumeUnit() === 'gal' ? GAL_TO_L : 1);
             if (isNaN(liters) || totalLiters <= 0) return;
             const pct = Math.min(Math.max((liters / totalLiters) * 100, 1), 100);
             document.getElementById('waterChangePct').value = Math.round(pct * 10) / 10;
@@ -2910,8 +2920,65 @@
             checkDueNotifications();
         }
 
-        function resetWaterTimer() {
-            const pct = Math.min(Math.max(parseFloat(document.getElementById('waterChangePct').value) || 30, 1), 100);
+        const GAL_TO_L = 3.78541;
+        const VOL_UNIT_KEY = 'aquassist_volume_unit';
+        document.getElementById('waterChangeUnit').value = lsGet(VOL_UNIT_KEY) === 'gal' ? 'gal' : 'L';
+
+        function getVolumeUnit() {
+            const s = document.getElementById('waterChangeUnit');
+            return s && s.value === 'gal' ? 'gal' : 'L';
+        }
+
+        function waterPctTyped() {
+            const l = document.getElementById('waterChangeLiters');
+            if (l) delete l.dataset.user;
+            updateCapacity();
+        }
+
+        function waterUnitChanged() {
+            const unit = getVolumeUnit();
+            lsSet(VOL_UNIT_KEY, unit);
+            const l = document.getElementById('waterChangeLiters');
+            const v = parseFloat(l.value);
+            if (l.dataset.user === '1' && Number.isFinite(v)) {
+                l.value = unit === 'gal' ? Math.round(v / GAL_TO_L * 100) / 100 : Math.round(v * GAL_TO_L * 100) / 100;
+            }
+            updateCapacity();
+        }
+
+        function wcLitersText(e) {
+            if (typeof e.liters !== 'number') return '';
+            const unit = getVolumeUnit();
+            const v = unit === 'gal' ? Math.round(e.liters / GAL_TO_L * 100) / 100 : Math.round(e.liters * 100) / 100;
+            return ` · ${v} ${unit === 'gal' ? 'gal' : tr('л')}`;
+        }
+
+        async function resetWaterTimer() {
+            const pctRaw = document.getElementById('waterChangePct').value.trim();
+            const litField = document.getElementById('waterChangeLiters');
+            const litRaw = litField.value.trim();
+            const aqL = parseFloat(document.getElementById('aqLiters').value) || 0;
+            const unit = getVolumeUnit();
+            let pct, litersVal;
+            if (litField.dataset.user === '1' && litRaw !== '') {
+                const v = Number(litRaw);
+                if (!Number.isFinite(v) || v <= 0) { showToast(tr('Въведи число по-голямо от 0.'), 'warn'); return; }
+                if (!(aqL > 0)) { showToast(tr('Въведи процент, защото обемът на аквариума не е зададен.'), 'warn'); return; }
+                litersVal = unit === 'gal' ? v * GAL_TO_L : v;
+                if (litersVal > aqL && !await showAppConfirm(tr('Литрите са повече от обема на аквариума. Продължи?'), 'warn')) return;
+                pct = Math.min(100, (litersVal / aqL) * 100);
+            } else if (pctRaw !== '') {
+                pct = Number(pctRaw);
+                if (!Number.isFinite(pct) || pct <= 0) { showToast(tr('Въведи число по-голямо от 0.'), 'warn'); return; }
+                if (pct > 100) { showToast(tr('Процентът трябва да е между 0 и 100.'), 'warn'); return; }
+                if (aqL > 0) litersVal = (pct / 100) * aqL;
+            } else {
+                showToast(tr('Въведи процент или литри за смяната на водата.'), 'warn');
+                return;
+            }
+            pct = Math.round(pct * 10) / 10;
+            if (!(pct > 0)) { showToast(tr('Въведи число по-голямо от 0.'), 'warn'); return; }
+            if (litersVal !== undefined) litersVal = Math.round(litersVal * 100) / 100;
             const dateInput = document.getElementById('waterChangeDate');
             const dateStr = (dateInput && dateInput.value) || todayDateStr();
             // Взимаме избраната дата, но часа "сега" (за по-разумна сортировка в историята, ако е днес)
@@ -2925,6 +2992,7 @@
             if (t) {
                 if (!Array.isArray(t.waterChangeLog)) t.waterChangeLog = [];
                 const entry = { t: loggedAt, percent: pct };
+                if (litersVal !== undefined) entry.liters = litersVal;
                 const extras = [...document.querySelectorAll('.wcExtra:checked')].map(c => c.value);
                 if (extras.length) {
                     entry.extras = extras;
@@ -2936,6 +3004,7 @@
                 }
                 t.waterChangeLog.push(entry);
                 resetWcExtrasForm();
+                ['taskFilter', 'taskPlants', 'taskGlass', 'taskFertilize'].forEach(id => { document.getElementById(id).checked = false; document.getElementById(id + 'Confirm').classList.add('hidden'); });
                 t.waterChangeLog.sort((a, b) => a.t - b.t);
                 if (t.waterChangeLog.length > 30) t.waterChangeLog = t.waterChangeLog.slice(-30);
             }
@@ -3527,7 +3596,7 @@ function renderWaterChangeLog() {
                         ${logDeleteMode ? `<input type="checkbox" class="logEntryCheck accent-red-500" data-logtype="wc" data-idx="${idx}">` : ''}
                         <span><i class="fa-solid fa-droplet mr-1.5 text-cyan-400"></i>${new Date(e.t).toLocaleString(locale())}</span>${wcExtrasText(e)}
                     </span>
-                    <span class="text-cyan-300 font-semibold">${e.percent}% ${tr('сменена вода')}</span>
+                    <span class="text-cyan-300 font-semibold">${e.percent}% ${tr('сменена вода')}</span><span class="text-[10px] text-slate-400">${wcLitersText(e)}</span>
                 </label>`).join('');
         }
 
@@ -4442,6 +4511,12 @@ function renderWaterChangeLog() {
             "Подменена филтърна медия": "Replaced filter media",
             "Всички филтри": "All filters",
             "Филтър:": "Filter:",
+            "Въведи процент или литри за смяната на водата.": "Enter a percentage or liters for the water change.",
+            "Въведи число по-голямо от 0.": "Enter a number greater than 0.",
+            "Процентът трябва да е между 0 и 100.": "The percentage must be between 0 and 100.",
+            "Литрите са повече от обема на аквариума. Продължи?": "The liters are more than the aquarium volume. Continue?",
+            "Въведи процент, защото обемът на аквариума не е зададен.": "Enter a percentage, because the aquarium volume is not set.",
+            "Единица": "Unit",
             "Избери тип оборудване.": "Choose an equipment type.",
             "Сигурен ли си, че искаш да изтриеш аквариум": "Are you sure you want to delete aquarium",
             "Всички данни за него ще бъдат изтрити и не могат да се върнат.": "All its data will be deleted and cannot be restored.",
@@ -5474,6 +5549,7 @@ function renderWaterChangeLog() {
                 const o = { t: e.t, percent: parseFloat(e.percent) || 0 };
                 if (Array.isArray(e.extras)) o.extras = e.extras.filter(x => typeof x === "string" && WC_EXTRA_CODES.includes(x)).slice(0, 10);
                 if (Array.isArray(e.filters)) o.filters = e.filters.filter(x => typeof x === "string").slice(0, 60).map(x => x.slice(0, 60));
+                if (typeof e.liters === "number" && Number.isFinite(e.liters) && e.liters >= 0) o.liters = e.liters;
                 return o;
             });
             if (Array.isArray(r.inhabitantLog)) t.inhabitantLog = r.inhabitantLog.filter(e => e && typeof e.t === "number" && typeof e.name === "string" && (e.action === "added" || e.action === "removed")).slice(-60).map(e => ({ name: String(e.name).slice(0, 80), type: String(e.type || '').slice(0, 20), action: e.action, count: Math.max(1, parseInt(e.count) || 1), t: e.t }));
@@ -6629,10 +6705,10 @@ function renderWaterChangeLog() {
             t.gh = clean(document.getElementById('valGH').innerText);
             t.kh = clean(document.getElementById('valKH').innerText);
             t.cl2 = clean(document.getElementById('valCl2').innerText);
-            t.taskFilter = document.getElementById('taskFilter').checked;
-            t.taskPlants = document.getElementById('taskPlants').checked;
-            t.taskGlass = document.getElementById('taskGlass').checked;
-            t.taskFertilize = document.getElementById('taskFertilize').checked;
+            t.taskFilter = false;
+            t.taskPlants = false;
+            t.taskGlass = false;
+            t.taskFertilize = false;
             t.waterDue = waterDue;
             t.waterChangedToday = waterChangedToday;
             t.fish = myFishList.map(f => ({ name: f.name, count: f.count, note: f.note || "", noteAt: f.noteAt || 0, addedAt: f.addedAt || 0, updatedAt: f.updatedAt || 0 }));
@@ -6675,6 +6751,9 @@ function renderWaterChangeLog() {
             document.getElementById('aqLiters').disabled = true;
             if (typeof calcDimsEditing !== 'undefined' && calcDimsEditing) { calcDimsEditing = false; syncCalcDimsEditBtnLabel(); }
             ['aqLength', 'aqWidth', 'aqHeight'].forEach(id => { const el = document.getElementById(id); if (el) el.disabled = true; });
+            document.getElementById('waterChangePct').value = '';
+            const wl = document.getElementById('waterChangeLiters'); wl.value = ''; delete wl.dataset.user;
+            resetWcExtrasForm();
             document.getElementById('taskFilter').checked = false;
             document.getElementById('taskPlants').checked = false;
             document.getElementById('taskGlass').checked = false;
