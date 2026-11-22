@@ -618,7 +618,7 @@
                     <label for="waterChangePct" class="text-xs text-cyan-300/80" data-i18n>% сменена:</label>
                     <input type="number" id="waterChangePct" value="" placeholder="0" min="1" max="100" oninput="waterPctTyped()" class="w-16 bg-slate-900/60 border border-cyan-800/50 rounded p-1.5 text-xs text-center">
                     <span class="text-[11px] text-cyan-400/60" data-i18n>или</span>
-                    <input type="number" id="waterChangeLiters" placeholder="л" min="0" step="0.5" oninput="updateFromLitersInput()" class="w-16 bg-slate-900/60 border border-cyan-800/50 rounded p-1.5 text-xs text-center" title="Въведи директно колко литра си сменил" data-i18n-title aria-label="Литри сменени">
+                    <label id="waterChangeLitersLabel" for="waterChangeLiters" class="sr-only">Литри сменени</label><input type="number" id="waterChangeLiters" placeholder="0" min="0" step="0.5" oninput="updateFromLitersInput()" class="w-16 bg-slate-900/60 border border-cyan-800/50 rounded p-1.5 text-xs text-center">
                     <span id="waterChangeUnitTxt" class="text-xs text-cyan-300/80 px-1">л</span>
                     <input type="date" id="waterChangeDate" title="Дата (ако отчиташ със закъснение)" data-i18n-title aria-label="Дата на смяната" class="bg-slate-900/60 border border-cyan-800/50 rounded p-1.5 text-xs text-slate-300">
                     <button onclick="resetWaterTimer()" class="bg-cyan-600 hover:bg-cyan-500 text-xs px-3 py-1.5 rounded font-medium transition shadow" data-i18n>Отчети сменена вода</button>
@@ -767,7 +767,7 @@
             <div>
                 <div class="flex justify-between text-xs text-slate-400 mb-1">
                     <span data-i18n>Заетост от био-товар (риби & безгръбначни):</span>
-                    <span id="capacityText">0 / 60 литра</span>
+                    <span id="capacityText">0 / 60</span>
                 </div>
                 <div class="w-full bg-slate-700 h-2.5 rounded-full overflow-hidden">
                     <div id="capacityBar" class="bg-cyan-500 h-full w-0 transition-all duration-500"></div>
@@ -1742,11 +1742,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.90";
+        const APP_VERSION = "3.6.91";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.91", items: [
+                "Съобщенията, подсказките и етикетите за смяната на водата споменават литри или галони според избраната единица"
+            ], items_en: [
+                "Messages, hints and labels for the water change now mention liters or gallons according to the selected unit"
+            ] },
             { v: "3.6.90", items: [
                 "Рутинната поддръжка е в „Още направено“ в графика за водата: една дата за отчитане, отметки и бутон „Запиши отметнатите“. Смяната на водата е един запис без отметки. Старите записи се показват както преди. Лимитът на записите за поддръжка е 200"
             ], items_en: [
@@ -3028,6 +3033,11 @@
         function getVolumeUnit() {
             return volumeUnit;
         }
+        // Текст, който зависи от избраната единица: два пълни превода (за литри и за галони).
+        // Не се залепват части от изречение, за да не се чупи при превод.
+        function volMsg(lText, gText) {
+            return tr(getVolumeUnit() === 'gal' ? gText : lText);
+        }
 
         function waterPctTyped() {
             const l = document.getElementById('waterChangeLiters');
@@ -3055,7 +3065,7 @@
                 if (!(aqL > 0)) { showToast(tr('Въведи процент, защото обемът на аквариума не е зададен.'), 'warn'); return; }
                 const exact = parseFloat(litField.dataset.exactL);
                 litersVal = Number.isFinite(exact) ? exact : (unit === 'gal' ? v * GAL_TO_L : v);
-                if (litersVal > aqL && !await showAppConfirm(tr('Литрите са повече от обема на аквариума. Продължи?'), 'warn')) return;
+                if (litersVal > aqL && !await showAppConfirm(volMsg('Литрите са повече от обема на аквариума. Продължи?', 'Галоните са повече от обема на аквариума. Продължи?'), 'warn')) return;
                 pct = Math.min(100, (litersVal / aqL) * 100);
             } else if (pctRaw !== '') {
                 pct = Number(pctRaw);
@@ -3063,7 +3073,7 @@
                 if (pct > 100) { showToast(tr('Процентът трябва да е между 0 и 100.'), 'warn'); return; }
                 if (aqL > 0) litersVal = (pct / 100) * aqL;
             } else {
-                showToast(tr('Въведи процент или литри за смяната на водата.'), 'warn');
+                showToast(volMsg('Въведи процент или литри за смяната на водата.', 'Въведи процент или галони за смяната на водата.'), 'warn');
                 return;
             }
             pct = Math.round(pct * 10) / 10;
@@ -3751,7 +3761,7 @@ function renderWaterChangeLog() {
             if (!aqLitersEditing) {
                 updateCapacity();
                 saveData();
-                showToast(tr('Литрите са запазени.'));
+                showToast(volMsg('Литрите са запазени.', 'Галоните са запазени.'));
             }
         }
 
@@ -4652,6 +4662,11 @@ function renderWaterChangeLog() {
             "gal": "gal",
             "fl oz": "fl oz",
             "Запиши отметнатите": "Save checked", "Избери поне една дейност.": "Choose at least one activity.",
+            "Галоните са повече от обема на аквариума. Продължи?": "The gallons are more than the aquarium volume. Continue?",
+            "Въведи процент или галони за смяната на водата.": "Enter a percentage or gallons for the water change.",
+            "Галоните са запазени.": "Gallons saved.",
+            "Въведи директно колко галона си сменил": "Enter directly how many gallons you changed",
+            "Галони сменени": "Gallons changed",
             "Мерни единици": "Units", "Л": "L", "Обем (л):": "Volume (L):", "Обем (gal):": "Volume (gal):",
             ", а аквариумът е": ", and the tank is",
             "В норма": "In range", "Близо до нормата": "Close to the range", "Извън нормата": "Out of range",
@@ -5656,6 +5671,10 @@ function renderWaterChangeLog() {
             if (aqLabel) aqLabel.textContent = tr(volumeUnit === 'gal' ? 'Обем (gal):' : 'Обем (л):');
             const wcTxt = document.getElementById('waterChangeUnitTxt');
             if (wcTxt) wcTxt.textContent = volumeUnit === 'gal' ? 'gal' : tr('л');
+            const wcLbl = document.getElementById('waterChangeLitersLabel');
+            if (wcLbl) wcLbl.textContent = volMsg('Литри сменени', 'Галони сменени');
+            const wcIn = document.getElementById('waterChangeLiters');
+            if (wcIn) wcIn.title = volMsg('Въведи директно колко литра си сменил', 'Въведи директно колко галона си сменил');
             refreshConcUnits();
         }
 
