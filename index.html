@@ -1756,11 +1756,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.84";
+        const APP_VERSION = "3.6.85";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.85", items: [
+                "Параметрите имат оранжево за „съвсем близо до нормата“ (до 10% извън нормата). Зелено и червено остават както бяха. Всяка стойност има иконка и текст („В норма“, „Близо до нормата“, „Извън нормата“), за да се разбира и без цветове"
+            ], items_en: [
+                "Parameters now show orange for \"close to the range\" (up to 10% outside the range). Green and red stay as before. Each value has an icon and text (\"In range\", \"Close to the range\", \"Out of range\") so it can be understood without colors"
+            ] },
             { v: "3.6.84", items: [
                 "Поправка: в картата за смяна на водата при празно поле отново се показват нули с мерната единица (например „0 gal“, „0.0 fl oz“, „0.0 мл“), а не празно или текст „gal“"
             ], items_en: [
@@ -2817,15 +2822,32 @@
         }
 
         // ---------- Цветова индикация на параметрите ----------
+        // [норма, оранжева зона "съвсем близо" (10% от ширината на нормата; при 0 — 10% от горния праг)]
         const paramRanges = {
-            valTemp: [[22, 28], [18, 30]],
-            valPH: [[6.5, 7.8], [6.0, 8.5]],
-            valNH3: [[0, 0], [0, 0.25]],
-            valNO2: [[0, 0], [0, 0.25]],
-            valNO3: [[0, 25], [0, 50]],
-            valGH: [[4, 12], [2, 16]],
-            valKH: [[3, 8], [1, 12]],
-            valCl2: [[0, 0], [0, 0.3]]
+            valTemp: [[22, 28], [21, 29]],
+            valPH: [[6.5, 7.8], [6.37, 7.93]],
+            valNH3: [[0, 0], [0, 0.025]],
+            valNO2: [[0, 0], [0, 0.025]],
+            valNO3: [[0, 25], [0, 27.5]],
+            valGH: [[4, 12], [3.2, 12.8]],
+            valKH: [[3, 8], [2.5, 8.5]],
+            valCl2: [[0, 0], [0, 0.03]]
+        };
+
+        // Статус на параметър: 'ok' (норма), 'warn' (съвсем близо), 'bad' (извън нормата), 'none' (няма стойност)
+        function paramStatus(id, v) {
+            const r = paramRanges[id];
+            if (!r || isNaN(v)) return 'none';
+            const [ok, warn] = r;
+            if (v >= ok[0] && v <= ok[1]) return 'ok';
+            if (v >= warn[0] && v <= warn[1]) return 'warn';
+            return 'bad';
+        }
+        // Иконка и текст за всеки статус (иконката е и за хора с цветова слепота)
+        const PARAM_STATUS_UI = {
+            ok: { icon: 'fa-circle-check', color: 'text-green-400', text: 'В норма' },
+            warn: { icon: 'fa-circle-exclamation', color: 'text-orange-400', text: 'Близо до нормата' },
+            bad: { icon: 'fa-circle-xmark', color: 'text-red-400', text: 'Извън нормата' }
         };
 
         let dangerParams = new Set();
@@ -2834,18 +2856,23 @@
                 const el = document.getElementById(id);
                 if (!el) return;
                 const v = id === 'valTemp' ? readTempC() : parseFloat(el.innerText);
-                const [ok, warn] = paramRanges[id];
                 let card = el;
                 while (card && !card.classList.contains('rounded-xl')) card = card.parentElement;
                 if (!card) return;
+                const st = paramStatus(id, v);
+                const ui = PARAM_STATUS_UI[st];
                 card.classList.remove('border-slate-600', 'border-green-500', 'border-orange-500', 'border-red-500');
-                if (isNaN(v)) { card.classList.add('border-slate-600'); dangerParams.delete(id); }
-                else if (v >= ok[0] && v <= ok[1]) { card.classList.add('border-green-500'); dangerParams.delete(id); }
-                else if (v >= warn[0] && v <= warn[1]) { card.classList.add('border-orange-500'); dangerParams.delete(id); }
-                else {
-                    card.classList.add('border-red-500');
+                if (st === 'none') card.classList.add('border-slate-600');
+                else if (st === 'ok') card.classList.add('border-green-500');
+                else if (st === 'warn') card.classList.add('border-orange-500');
+                else card.classList.add('border-red-500');
+                if (st === 'bad') {
                     if (!dangerParams.has(id)) { dangerParams.add(id); vibrate([40, 60, 40]); }
-                }
+                } else dangerParams.delete(id);
+                // Иконка и текст под стойността (не само цвят)
+                let line = card.querySelector('.paramStatusLine');
+                if (!line) { line = document.createElement('p'); line.className = 'paramStatusLine text-xs font-semibold mt-1 flex items-center gap-1'; card.appendChild(line); }
+                line.innerHTML = ui ? `<i class="fa-solid ${ui.icon} ${ui.color}"></i><span class="${ui.color}">${tr(ui.text)}</span>` : '';
             });
             renderMiniStatus();
         }
@@ -4560,6 +4587,7 @@ function renderWaterChangeLog() {
             "gal": "gal",
             "fl oz": "fl oz",
             ", а аквариумът е": ", and the tank is",
+            "В норма": "In range", "Близо до нормата": "Close to the range", "Извън нормата": "Out of range",
             "/бр.": "/pc.",
             "Въведи процент или литри за смяната на водата.": "Enter a percentage or liters for the water change.",
             "Въведи число по-голямо от 0.": "Enter a number greater than 0.",
@@ -6527,13 +6555,12 @@ function renderWaterChangeLog() {
             box.innerHTML = defs.map(([id, label, unit, key, icon, gradId]) => {
                 const el = document.getElementById(id);
                 const v = el ? (id === 'valTemp' ? readTempC() : parseFloat(el.innerText)) : NaN;
-                const r = paramRanges[id];
+                const st = paramStatus(id, v);
+                const ui = PARAM_STATUS_UI[st];
                 let cls = 'border-slate-700', dot = 'bg-slate-600', pulse = '';
-                if (r && !isNaN(v)) {
-                    if (v >= r[0][0] && v <= r[0][1]) { cls = 'border-slate-700'; dot = 'bg-green-400'; }
-                    else if (v >= r[1][0] && v <= r[1][1]) { cls = 'border-orange-500/60'; dot = 'bg-orange-400'; pulse = 'animate-pulse'; }
-                    else { cls = 'border-red-500/60'; dot = 'bg-red-400'; pulse = 'animate-pulse'; }
-                }
+                if (st === 'ok') { cls = 'border-slate-700'; dot = 'bg-green-400'; }
+                else if (st === 'warn') { cls = 'border-orange-500/60'; dot = 'bg-orange-400'; pulse = 'animate-pulse'; }
+                else if (st === 'bad') { cls = 'border-red-500/60'; dot = 'bg-red-400'; pulse = 'animate-pulse'; }
                 const pts = hist.slice(-10).map(e => ({ v: key === 'temp' ? tempNum(e[key]) : e[key] })).filter(p => typeof p.v === 'number');
                 const vals = pts.map(p => p.v);
                 const chart = pts.length >= 2
@@ -6553,7 +6580,7 @@ function renderWaterChangeLog() {
                     }
                 }
                 return `<div onclick="goToParamsEdit()" role="button" tabindex="0" title="${tr('Редактирай')}" class="bg-slate-900/60 border ${cls} ${pulse} rounded-xl p-3 space-y-2 transition-colors duration-300 relative cursor-pointer hover:border-cyan-500/60 active:scale-[0.98]">
-                    <span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full ${dot}"></span>
+                    ${ui ? `<i class="fa-solid ${ui.icon} ${ui.color} absolute top-2.5 right-2.5 text-sm" title="${tr(ui.text)}"></i>` : `<span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full ${dot}"></span>`}
                     <div class="flex items-center gap-2">
                         <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs bg-cyan-900/60 text-cyan-300"><i class="fa-solid ${icon}"></i></span>
                         <span class="text-[11px] text-slate-400">${tr(label)}</span>
