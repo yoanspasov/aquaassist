@@ -793,7 +793,7 @@
                  автоматично от вече въведените pH и KH, не изисква отделно поле. -->
             <div id="co2Box" class="hidden bg-slate-900/60 border border-slate-700 rounded-xl p-3 flex items-center justify-between gap-3">
                 <div>
-                    <p class="text-xs text-slate-400"><i class="fa-solid fa-bubbles mr-1.5 text-cyan-400"></i><span data-i18n>Разтворен CO2 (по pH/KH)</span></p>
+                    <p class="text-xs text-slate-400"><i class="fa-solid fa-wind mr-1.5 text-cyan-400"></i><span data-i18n>Разтворен CO2 (по pH/KH)</span></p>
                     <p class="text-[11px] text-slate-500 mt-0.5" data-i18n>Ориентировъчна стойност, не замества директно измерване.</p>
                 </div>
                 <div class="text-right shrink-0">
@@ -955,6 +955,7 @@
                 <p class="text-sm font-semibold text-cyan-300"><i class="fa-solid fa-plus mr-1.5"></i><span data-i18n>Друго оборудване</span></p>
                 <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700 space-y-2">
                     <select id="eqNewType" onchange="eqOtherTypeChanged()" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2 text-xs">
+                        <option value="" data-i18n>— Избери —</option>
                         <option value="lamp" data-i18n>Лампа</option>
                         <option value="filter" data-i18n>Филтър</option>
                         <option value="media" data-i18n>Филтърна медия</option>
@@ -1362,6 +1363,10 @@
                     <label for="bugReporterEmail" class="block text-xs text-slate-400 mb-1" data-i18n>Имейл (по желание, за да ти отговорим):</label>
                     <input id="bugReporterEmail" type="email" maxlength="100" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-cyan-400" data-i18n-placeholder placeholder="Напр. ivan@email.com">
                 </div>
+                <label class="flex items-start gap-2 text-xs text-slate-300">
+                    <input type="checkbox" id="bugRemember" class="mt-0.5 accent-cyan-500">
+                    <span data-i18n>Запомни имейла ми на това устройство за следващи доклади</span>
+                </label>
                 <div>
                     <label for="bugTabSelect" class="block text-xs text-slate-400 mb-1" data-i18n>В кой раздел е проблемът?</label>
                     <select id="bugTabSelect" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-cyan-400">
@@ -1746,11 +1751,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.77";
+        const APP_VERSION = "3.6.78";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.78", items: [
+                "Поправено подравняване на „Разтворен CO2“. Падащото меню за оборудване започва с „— Избери —“. Изтриването на аквариум иска потвърждение с предупреждение. В доклада за бъг името и имейлът се запомнят на устройството само при отметка „Запомни имейла ми“"
+            ], items_en: [
+                "Fixed the alignment of “Dissolved CO2”. The equipment type list starts with “— Select —”. Deleting an aquarium asks for a warning confirmation. In bug reports, name and email are remembered on the device only when “Remember my email” is ticked"
+            ] },
             { v: "3.6.77", items: [
                 "Блокът „Още направено“ при смяна на водата е на цялата ширина"
             ], items_en: [
@@ -4427,6 +4437,10 @@ function renderWaterChangeLog() {
             "Подменена филтърна медия": "Replaced filter media",
             "Всички филтри": "All filters",
             "Филтър:": "Filter:",
+            "Избери тип оборудване.": "Choose an equipment type.",
+            "Сигурен ли си, че искаш да изтриеш аквариум": "Are you sure you want to delete aquarium",
+            "Всички данни за него ще бъдат изтрити и не могат да се върнат.": "All its data will be deleted and cannot be restored.",
+            "Запомни имейла ми на това устройство за следващи доклади": "Remember my email on this device for next reports",
             "Друго оборудване": "Other equipment",
             "Добави оборудване": "Add equipment",
             "Запази промените": "Save changes",
@@ -5921,6 +5935,8 @@ function renderWaterChangeLog() {
             if (nameInput) { try { nameInput.value = localStorage.getItem(BUG_REPORTER_NAME_KEY) || ''; } catch (e) {} }
             const emailInput = document.getElementById('bugReporterEmail');
             if (emailInput) { try { emailInput.value = localStorage.getItem(BUG_REPORTER_EMAIL_KEY) || ''; } catch (e) {} }
+            const rememberBox = document.getElementById('bugRemember');
+            if (rememberBox) { try { rememberBox.checked = !!(localStorage.getItem(BUG_REPORTER_NAME_KEY) || localStorage.getItem(BUG_REPORTER_EMAIL_KEY)); } catch (e) { rememberBox.checked = false; } }
             const btn = document.getElementById('submitBugBtn');
             const icon = document.getElementById('submitBugIcon');
             const label = document.getElementById('submitBugLabel');
@@ -5953,11 +5969,12 @@ function renderWaterChangeLog() {
                 showToast(tr('Имейлът не изглежда валиден — провери го или остави полето празно.'), 'warn');
                 return;
             }
-            // Запомняме името/имейла на това устройство, за да не се въвеждат наново всеки път.
+            // Запомняме името/имейла на това устройство само ако е отметнато; иначе ги изчистваме.
+            const remember = !!document.getElementById('bugRemember').checked;
             try {
-                if (reporterName) localStorage.setItem(BUG_REPORTER_NAME_KEY, reporterName);
+                if (remember && reporterName) localStorage.setItem(BUG_REPORTER_NAME_KEY, reporterName);
                 else localStorage.removeItem(BUG_REPORTER_NAME_KEY);
-                if (reporterEmail) localStorage.setItem(BUG_REPORTER_EMAIL_KEY, reporterEmail);
+                if (remember && reporterEmail) localStorage.setItem(BUG_REPORTER_EMAIL_KEY, reporterEmail);
                 else localStorage.removeItem(BUG_REPORTER_EMAIL_KEY);
             } catch (e) {}
 
@@ -6262,6 +6279,7 @@ function renderWaterChangeLog() {
 
         function addOtherEquipment() {
             const type = document.getElementById('eqNewType').value;
+            if (!type) { showToast('Избери тип оборудване.', 'warn'); return; }
             const customName = document.getElementById('eqNewCustom').value.trim().slice(0, 40);
             const model = document.getElementById('eqNewModel').value.trim().slice(0, 80);
             const params = document.getElementById('eqNewParams').value.trim().slice(0, 80);
@@ -6787,7 +6805,7 @@ function renderWaterChangeLog() {
 
         async function deleteTank() {
             if (store.tanks.length < 2) { showToast("Трябва да остане поне един аквариум", 'warn'); return; }
-            if (!await showAppConfirm(`${tr('Да изтрия ли')} „${displayTankName(store.tanks[store.active].name)}“?`)) return;
+            if (!await showAppConfirm(`${tr('Сигурен ли си, че искаш да изтриеш аквариум')} „${displayTankName(store.tanks[store.active].name)}“? ${tr('Всички данни за него ще бъдат изтрити и не могат да се върнат.')}`, 'error', 'Изтрий')) return;
             store.tanks.splice(store.active, 1);
             store.active = 0;
             applyTank(); refreshAfterTankChange(); saveData();
