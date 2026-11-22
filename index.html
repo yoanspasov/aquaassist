@@ -710,6 +710,7 @@
                         </button>
                     </div>
                     <input type="number" id="aqLiters" value="0" min="1" disabled oninput="updateCapacity();" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2.5 text-sm focus:outline-none focus:border-cyan-400">
+                    <p id="aqLitersHint" class="text-[11px] text-slate-400 mt-1"></p>
                 </div>
             </div>
 
@@ -1755,11 +1756,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.81";
+        const APP_VERSION = "3.6.82";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.82", items: [
+                "Обемите навсякъде (аквариум, заетост, сравнение, предупреждения за минимален обем и био-товар) се показват в избраната мерна единица — литри или галони. Полето за обем на аквариума показва и двете. Празните полета на картата за смяна на водата са без „0“"
+            ], items_en: [
+                "Volumes are shown in the selected unit everywhere (tank, stocking, comparison, minimum-volume and bio-load warnings), liters or gallons. The aquarium volume field shows both. Empty water change card fields no longer show \"0\""
+            ] },
             { v: "3.6.81", items: [
                 "Картата за смяна на водата показва всичко в галони и течни унции, когато е избрано gal. След успешен запис полетата се изчистват, за да не се записва двойно"
             ], items_en: [
@@ -2306,8 +2312,8 @@
                 <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-slate-300">
                     <p><i class="fa-solid fa-temperature-half text-cyan-400 mr-1"></i>${tr('Температура')}: ${convertTemps(d.temp)}</p>
                     <p><i class="fa-solid fa-vial text-green-400 mr-1"></i>pH: ${d.ph}</p>
-                    <p><i class="fa-solid fa-box text-cyan-400 mr-1"></i>${tr('Мин. обем')}: ${d.minLiters} ${tr('л')}</p>
-                    <p><i class="fa-solid fa-gauge text-cyan-400 mr-1"></i>${tr('Био-товар')}: ${d.litersPerFish} ${tr('л/бр.')}</p>
+                    <p><i class="fa-solid fa-box text-cyan-400 mr-1"></i>${tr('Мин. обем')}: ${fmtVol(d.minLiters)}</p>
+                    <p><i class="fa-solid fa-gauge text-cyan-400 mr-1"></i>${tr('Био-товар')}: ${fmtVol(d.litersPerFish)}${tr('/бр.')}</p>
                 </div>
                 <p><i class="fa-solid fa-utensils text-cyan-400 mr-1"></i>${d.type === 'Растение' ? tr('Грижа') : tr('Храна')}: ${tr(d.food)}</p>
                 <p class="border-t border-slate-800 pt-2"><i class="fa-solid fa-handshake text-cyan-400 mr-1"></i>${tr(d.compat)}</p>
@@ -2334,7 +2340,7 @@
                 <div class="grid grid-cols-2 gap-x-2 gap-y-1 text-slate-300">
                     <p><i class="fa-solid fa-temperature-half text-cyan-400"></i> ${convertTemps(item.temp)}</p>
                     <p><i class="fa-solid fa-vial text-green-400"></i> pH: ${item.ph}</p>
-                    <p><i class="fa-solid fa-box text-cyan-400"></i> ${tr('Мин')}: ${item.minLiters}${tr('л')}</p>
+                    <p><i class="fa-solid fa-box text-cyan-400"></i> ${tr('Мин')}: ${fmtVol(item.minLiters)}</p>
                     <p><i class="fa-solid fa-utensils text-cyan-400"></i> ${tr(item.food)}</p>
                 </div>
                 <p class="text-[11px] text-slate-400 mt-1 border-t border-slate-800 pt-1"><i class="fa-solid fa-handshake mr-1"></i>${tr(item.compat)}</p>
@@ -2580,6 +2586,7 @@
         }
 
         function updateCapacity() {
+            updateAqLitersHint();
             const totalLiters = parseFloat(document.getElementById('aqLiters').value) || 60;
             let usedLiters = 0;
 
@@ -2589,7 +2596,7 @@
 
             const percent = Math.min(Math.round((usedLiters / totalLiters) * 100), 100);
             
-            document.getElementById('capacityText').innerText = `${usedLiters.toFixed(1)} / ${totalLiters} ${tr('литра')}`;
+            document.getElementById('capacityText').innerText = `${fmtVol(usedLiters)} / ${fmtVol(totalLiters)}`;
             document.getElementById('stockingBadge').innerText = `${tr('Капацитет:')} ${percent}%`;
             
             const bar = document.getElementById('capacityBar');
@@ -2606,13 +2613,14 @@
             const rawPct = document.getElementById('waterChangePct').value;
             const enteredPct = rawPct ? Math.min(Math.max(parseFloat(rawPct) || 0, 1), 100) / 100 : 0;
             const waterToChange = Math.round(totalLiters * enteredPct);
-            document.getElementById('calcLiters').innerText = fmtVol(waterToChange);
+            const showCalc = rawPct !== '';
+            document.getElementById('calcLiters').innerText = showCalc ? fmtVol(waterToChange) : '';
             document.getElementById('waterChangeLiters').placeholder = getVolumeUnit() === 'gal' ? 'gal' : tr('л');
-            document.getElementById('calcDechlor').innerText = fmtMl(waterToChange * 0.2);
-            document.getElementById('calcFert').innerText = fmtMl(waterToChange * 0.1);
+            document.getElementById('calcDechlor').innerText = showCalc ? fmtMl(waterToChange * 0.2) : '';
+            document.getElementById('calcFert').innerText = showCalc ? fmtMl(waterToChange * 0.1) : '';
             updateNo3Hint();
             const litersField = document.getElementById('waterChangeLiters');
-            if (litersField && document.activeElement !== litersField && litersField.dataset.user !== '1') litersField.value = getVolumeUnit() === 'gal' ? Math.round(waterToChange / GAL_TO_L * 100) / 100 : waterToChange;
+            if (litersField && document.activeElement !== litersField && litersField.dataset.user !== '1') litersField.value = !showCalc ? '' : (getVolumeUnit() === 'gal' ? Math.round(waterToChange / GAL_TO_L * 100) / 100 : waterToChange);
 
             checkCompatibility();
             updateParamColors();
@@ -2716,7 +2724,7 @@
             const liters = parseFloat(document.getElementById('aqLiters').value);
             myFishList.forEach(f => {
                 if (f.type === 'Растение') return;
-                if (f.minLiters && liters > 0 && liters < f.minLiters) w.push(`${shortName(f)} ${tr('изисква поне')} ${f.minLiters} ${tr('л, а аквариумът е')} ${liters} ${tr('л.')}`);
+                if (f.minLiters && liters > 0 && liters < f.minLiters) w.push(`${shortName(f)} ${tr('изисква поне')} ${fmtVol(f.minLiters)}${tr(', а аквариумът е')} ${fmtVol(liters)}.`);
                 if (/стадна/i.test(f.compat) && f.count < 6) w.push(`${shortName(f)} ${tr('е стаден вид: препоръчват се поне 6 бр. (сега')} ${f.count}).`);
             });
 
@@ -2768,7 +2776,7 @@
 
             const liters = parseFloat(document.getElementById('aqLiters').value);
             if (candidate.minLiters && liters > 0 && liters < candidate.minLiters) {
-                w.push(`${short(candidate.name)} ${tr('изисква поне')} ${candidate.minLiters} ${tr('л, а аквариумът е')} ${liters} ${tr('л.')}`);
+                w.push(`${short(candidate.name)} ${tr('изисква поне')} ${fmtVol(candidate.minLiters)}${tr(', а аквариумът е')} ${fmtVol(liters)}.`);
             }
 
             const trng = rangeOf(candidate.temp), prng = rangeOf(candidate.ph);
@@ -2936,7 +2944,14 @@
         function fmtNum(v, maxDigits) { return v.toLocaleString(locale(), { maximumFractionDigits: maxDigits }); }
         function fmtVol(liters) {
             if (getVolumeUnit() === 'gal') { const g = liters / GAL_TO_L; return `${fmtNum(g, g >= 10 ? 1 : 2)} gal`; }
-            return `${Math.round(liters)} ${tr('л')}`;
+            return `${fmtNum(liters, 1)} ${tr('л')}`;
+        }
+        // Под полето за обем на аквариума: показва и литри, и галони
+        function updateAqLitersHint() {
+            const el = document.getElementById('aqLitersHint');
+            if (!el) return;
+            const l = parseFloat(document.getElementById('aqLiters').value);
+            el.innerText = l > 0 ? `${fmtNum(l, 1)} ${tr('л')} = ${fmtNum(l / GAL_TO_L, 2)} gal` : '';
         }
         function fmtMl(ml) {
             if (getVolumeUnit() === 'gal') { const oz = ml / FLOZ_TO_ML; return `${fmtNum(oz, oz >= 100 ? 0 : oz >= 10 ? 1 : 2)} ${tr('fl oz')}`; }
@@ -4078,7 +4093,7 @@ function renderWaterChangeLog() {
                     <h4 class="text-xl font-bold text-white">${displayTankName(d.n || '')}</h4>
                     ${row(tr('Тип'), aqTypeLabel(d.ty))}
                     ${row(tr('Форма'), d.sh)}
-                    ${row(tr('Обем'), d.l, ' ' + tr('л'))}
+                    ${row(tr('Обем'), d.l ? fmtVol(parseFloat(d.l)) : '')}
                     ${row('pH', d.ph)}
                     ${row(tr('Температура'), tempShowStr(d.temp), ' ' + tempSym())}
                     ${row('NH3', d.nh3, ' mg/l')}
@@ -4241,7 +4256,7 @@ function renderWaterChangeLog() {
             if (!A || !B) { target.innerHTML = ''; return; }
             const sa = tankStats(A), sb = tankStats(B);
             const rows = [
-                [tr('Обем'), sa.liters + ' л', sb.liters + ' л'],
+                [tr('Обем'), fmtVol(sa.liters), fmtVol(sb.liters)],
                 [tr('Тип аквариум'), aqTypeLabel(sa.aqType), aqTypeLabel(sb.aqType)],
                 [tr('Капацитет'), sa.percent + '%', sb.percent + '%'],
                 [tr('Температура'), tempShowStr(sa.temp) + ' ' + tempSym(), tempShowStr(sb.temp) + ' ' + tempSym()],
@@ -4535,6 +4550,8 @@ function renderWaterChangeLog() {
             "Филтър:": "Filter:",
             "gal": "gal",
             "fl oz": "fl oz",
+            ", а аквариумът е": ", and the tank is",
+            "/бр.": "/pc.",
             "Въведи процент или литри за смяната на водата.": "Enter a percentage or liters for the water change.",
             "Въведи число по-голямо от 0.": "Enter a number greater than 0.",
             "Процентът трябва да е между 0 и 100.": "The percentage must be between 0 and 100.",
@@ -6754,6 +6771,7 @@ function renderWaterChangeLog() {
             document.getElementById('aqType').value = t.aqType;
             document.getElementById('aqShape').value = t.aqShape;
             document.getElementById('aqLiters').value = t.aqLiters;
+            updateAqLitersHint();
             document.getElementById('aqLength').value = t.aqLength;
             document.getElementById('aqWidth').value = t.aqWidth;
             document.getElementById('aqHeight').value = t.aqHeight;
