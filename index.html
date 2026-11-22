@@ -623,18 +623,47 @@
                     <input type="date" id="waterChangeDate" title="Дата (ако отчиташ със закъснение)" data-i18n-title aria-label="Дата на смяната" class="bg-slate-900/60 border border-cyan-800/50 rounded p-1.5 text-xs text-slate-300">
                     <button onclick="resetWaterTimer()" class="bg-cyan-600 hover:bg-cyan-500 text-xs px-3 py-1.5 rounded font-medium transition shadow" data-i18n>Отчети сменена вода</button>
                 </div>
-                <details id="wcExtrasBox" class="w-full bg-slate-900/40 border border-cyan-800/40 rounded p-2 text-xs">
+                <details id="routineBox" class="w-full bg-slate-900/40 border border-cyan-800/40 rounded p-2 text-xs">
                     <summary class="cursor-pointer text-cyan-300/80" data-i18n>Още направено</summary>
-                    <div class="mt-2 space-y-1.5">
-                        <label class="flex items-center gap-2"><input type="checkbox" class="wcExtra accent-cyan-500" value="sponge"><span data-i18n>Изчистена гъба на филтъра</span></label>
-                        <label class="flex items-center gap-2"><input type="checkbox" class="wcExtra accent-cyan-500" value="canister"><span data-i18n>Изчистен канистър (филтър)</span></label>
-                        <label class="flex items-center gap-2"><input type="checkbox" class="wcExtra accent-cyan-500" value="siphon"><span data-i18n>Сифониране на субстрата</span></label>
-                        <label class="flex items-center gap-2"><input type="checkbox" class="wcExtra accent-cyan-500" value="glass"><span data-i18n>Почистени стъкла</span></label>
-                        <label class="flex items-center gap-2"><input type="checkbox" class="wcExtra accent-cyan-500" value="media"><span data-i18n>Подменена филтърна медия</span></label>
-                        <div id="wcFilterRow" class="hidden flex-wrap items-center gap-2 pt-1">
-                            <span class="text-cyan-300/80" data-i18n>Филтър:</span>
-                            <select id="wcFilterSel" class="bg-slate-900/60 border border-cyan-800/50 rounded p-1 text-xs"></select>
+                    <div class="mt-2 space-y-2">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <label for="routineDate" class="text-[11px] text-slate-400" data-i18n>Дата на отчитане:</label>
+                            <input type="date" id="routineDate" title="Промени, ако отчиташ със закъснение" data-i18n-title class="bg-slate-900/60 border border-slate-600 rounded p-1.5 text-xs text-slate-300">
                         </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div class="bg-slate-700/40 p-2 rounded-lg border border-slate-600/60 space-y-1">
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="rtFilter" class="accent-cyan-500 w-4 h-4"><span data-i18n>Почистване на филтър</span></label>
+                                <div id="wcFilterRow" class="hidden flex-wrap items-center gap-2 pt-1">
+                                    <span class="text-cyan-300/80" data-i18n>Филтър:</span>
+                                    <select id="wcFilterSel" class="bg-slate-900/60 border border-cyan-800/50 rounded p-1 text-xs"></select>
+                                </div>
+                                <p id="rtFilterLast" class="text-[11px] text-slate-500"></p>
+                            </div>
+                            <div class="bg-slate-700/40 p-2 rounded-lg border border-slate-600/60 space-y-1">
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="rtGlass" class="accent-cyan-500 w-4 h-4"><span data-i18n>Почистване на стъкла</span></label>
+                                <p id="rtGlassLast" class="text-[11px] text-slate-500"></p>
+                            </div>
+                            <div class="bg-slate-700/40 p-2 rounded-lg border border-slate-600/60 space-y-1">
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="rtPlants" class="accent-cyan-500 w-4 h-4"><span data-i18n>Подрязване растения</span></label>
+                                <p id="rtPlantsLast" class="text-[11px] text-slate-500"></p>
+                            </div>
+                            <div class="bg-slate-700/40 p-2 rounded-lg border border-slate-600/60 space-y-1">
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="rtFertilize" class="accent-cyan-500 w-4 h-4"><span data-i18n>Добавяне на торове</span></label>
+                                <p id="rtFertilizeLast" class="text-[11px] text-slate-500"></p>
+                            </div>
+                            <div class="bg-slate-700/40 p-2 rounded-lg border border-slate-600/60 space-y-1">
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="rtSiphon" class="accent-cyan-500 w-4 h-4"><span data-i18n>Сифониране на субстрата</span></label>
+                                <p id="rtSiphonLast" class="text-[11px] text-slate-500"></p>
+                            </div>
+                            <div class="bg-slate-700/40 p-2 rounded-lg border border-slate-600/60 space-y-1">
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="rtMedia" class="accent-cyan-500 w-4 h-4"><span data-i18n>Подменена филтърна медия</span></label>
+                                <p id="rtMediaLast" class="text-[11px] text-slate-500"></p>
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="button" onclick="saveRoutine()" class="text-xs bg-cyan-700 hover:bg-cyan-600 px-3 py-1.5 rounded font-medium text-white" data-i18n>Запиши отметнатите</button>
+                        </div>
+                        <div id="maintenanceLog" class="text-xs text-slate-400 space-y-1"></div>
                     </div>
                 </details>
             </div>
@@ -1036,58 +1065,6 @@
                 </div>
                 <div id="compareTable" class="overflow-x-auto"></div>
             </div>
-        </section>
-
-        <!-- 5. Рутинна поддръжка -->
-        <section id="secMaintenance" data-tab="more" class="tab-panel bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-md">
-            <h2 class="text-lg font-semibold mb-1 flex items-center"><i class="fa-solid fa-list-check mr-2 text-cyan-400"></i> <span data-i18n>Рутинна поддръжка</span></h2>
-            <div class="flex items-center gap-2 mb-3">
-                <label for="maintenanceDate" class="text-[11px] text-slate-400" data-i18n>Дата на отчитане:</label>
-                <input type="date" id="maintenanceDate" title="Промени, ако отчиташ със закъснение" data-i18n-title class="bg-slate-900/60 border border-slate-600 rounded p-1.5 text-xs text-slate-300">
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                <div class="bg-slate-700/40 p-2.5 rounded-lg border border-slate-600/60 space-y-2">
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                        <input type="checkbox" id="taskFilter" onchange="onTaskToggle('taskFilter')" class="rounded accent-cyan-500 w-4 h-4">
-                        <span data-i18n>Почистване на филтър</span>
-                    </label>
-                    <div id="taskFilterConfirm" class="hidden">
-                        <button onclick="confirmTask('taskFilter', 'Почистване на филтър')" class="text-xs bg-cyan-700 hover:bg-cyan-600 px-2.5 py-1 rounded font-medium transition"><i class="fa-solid fa-check mr-1"></i><span data-i18n>Потвърди / Запиши</span></button>
-                    </div>
-                    <p id="taskFilterLast" class="text-[11px] text-slate-500"></p>
-                </div>
-                <div class="bg-slate-700/40 p-2.5 rounded-lg border border-slate-600/60 space-y-2">
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                        <input type="checkbox" id="taskPlants" onchange="onTaskToggle('taskPlants')" class="rounded accent-cyan-500 w-4 h-4">
-                        <span data-i18n>Подрязване растения</span>
-                    </label>
-                    <div id="taskPlantsConfirm" class="hidden">
-                        <button onclick="confirmTask('taskPlants', 'Подрязване растения')" class="text-xs bg-cyan-700 hover:bg-cyan-600 px-2.5 py-1 rounded font-medium transition"><i class="fa-solid fa-check mr-1"></i><span data-i18n>Потвърди / Запиши</span></button>
-                    </div>
-                    <p id="taskPlantsLast" class="text-[11px] text-slate-500"></p>
-                </div>
-                <div class="bg-slate-700/40 p-2.5 rounded-lg border border-slate-600/60 space-y-2">
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                        <input type="checkbox" id="taskGlass" onchange="onTaskToggle('taskGlass')" class="rounded accent-cyan-500 w-4 h-4">
-                        <span data-i18n>Почистване на стъкла</span>
-                    </label>
-                    <div id="taskGlassConfirm" class="hidden">
-                        <button onclick="confirmTask('taskGlass', 'Почистване на стъкла')" class="text-xs bg-cyan-700 hover:bg-cyan-600 px-2.5 py-1 rounded font-medium transition"><i class="fa-solid fa-check mr-1"></i><span data-i18n>Потвърди / Запиши</span></button>
-                    </div>
-                    <p id="taskGlassLast" class="text-[11px] text-slate-500"></p>
-                </div>
-                <div class="bg-slate-700/40 p-2.5 rounded-lg border border-slate-600/60 space-y-2">
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                        <input type="checkbox" id="taskFertilize" onchange="onTaskToggle('taskFertilize')" class="rounded accent-cyan-500 w-4 h-4">
-                        <span data-i18n>Добавяне на торове</span>
-                    </label>
-                    <div id="taskFertilizeConfirm" class="hidden">
-                        <button onclick="confirmTask('taskFertilize', 'Добавяне на торове')" class="text-xs bg-cyan-700 hover:bg-cyan-600 px-2.5 py-1 rounded font-medium transition"><i class="fa-solid fa-check mr-1"></i><span data-i18n>Потвърди / Запиши</span></button>
-                    </div>
-                    <p id="taskFertilizeLast" class="text-[11px] text-slate-500"></p>
-                </div>
-            </div>
-            <div id="maintenanceLog" class="mt-4 text-xs text-slate-400 space-y-1"></div>
         </section>
 
         <!-- 6. ДВЕ ОТДЕЛНИ ДРОПДАУН МЕНЮТА ЗА ДОБАВЯНЕ -->
@@ -1765,11 +1742,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.89";
+        const APP_VERSION = "3.6.90";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.90", items: [
+                "Рутинната поддръжка е в „Още направено“ в графика за водата: една дата за отчитане, отметки и бутон „Запиши отметнатите“. Смяната на водата е един запис без отметки. Старите записи се показват както преди. Лимитът на записите за поддръжка е 200"
+            ], items_en: [
+                "Routine maintenance is now in \"Done as well\" in the water schedule: one report date, checkboxes and a \"Save checked\" button. The water change is a single entry without checkboxes. Old records are shown as before. The maintenance record limit is 200"
+            ] },
             { v: "3.6.89", items: [
                 "Концентрациите (mg/l) се показват като ppm, когато е избран gal. Числата са същите. При литри остава mg/l"
             ], items_en: [
@@ -3101,20 +3083,10 @@
                 if (!Array.isArray(t.waterChangeLog)) t.waterChangeLog = [];
                 const entry = { t: loggedAt, percent: pct };
                 if (litersVal !== undefined) entry.liters = litersVal;
-                const extras = [...document.querySelectorAll('.wcExtra:checked')].map(c => c.value);
-                if (extras.length) {
-                    entry.extras = extras;
-                    if (extras.some(x => WC_FILTER_CODES.includes(x))) {
-                        const list = wcFilterList();
-                        const sel = document.getElementById('wcFilterSel').value;
-                        entry.filters = list.length > 1 ? (sel === 'all' ? list.map(x => x.id) : [sel]) : [list[0].id];
-                    }
-                }
+                // Смяната на водата е един запис (процент/литри/дата). „Още направено“ се записва отделно.
                 t.waterChangeLog.push(entry);
-                resetWcExtrasForm();
                 document.getElementById('waterChangePct').value = '';
             const lf = document.getElementById('waterChangeLiters'); lf.value = ''; delete lf.dataset.user; delete lf.dataset.exactL;
-            ['taskFilter', 'taskPlants', 'taskGlass', 'taskFertilize'].forEach(id => { document.getElementById(id).checked = false; document.getElementById(id + 'Confirm').classList.add('hidden'); });
                 t.waterChangeLog.sort((a, b) => a.t - b.t);
                 if (t.waterChangeLog.length > 30) t.waterChangeLog = t.waterChangeLog.slice(-30);
             }
@@ -4244,27 +4216,36 @@ function renderWaterChangeLog() {
         }
 
         // ---------- Рутинна поддръжка: чекбокс -> потвърди -> запис с дата/час ----------
-        function onTaskToggle(id) {
-            const box = document.getElementById(id);
-            document.getElementById(id + 'Confirm').classList.toggle('hidden', !box.checked);
+        // Лимит на записите за поддръжка; при превишаване се махат най-старите по дата на отчитане
+        const MAINT_LIMIT = 200;
+        // Дейностите в „Още направено“: отметка (cb), ред „Последно“ (last), id в maintenanceLog,
+        // етикет и стари кодове от waterChangeLog.extras, които се броят като същата дейност
+        const ROUTINE_ITEMS = [
+            { cb: 'rtFilter', last: 'rtFilterLast', id: 'taskFilter', label: 'Почистване на филтър', legacy: ['sponge', 'canister'] },
+            { cb: 'rtGlass', last: 'rtGlassLast', id: 'taskGlass', label: 'Почистване на стъкла', legacy: ['glass'] },
+            { cb: 'rtPlants', last: 'rtPlantsLast', id: 'taskPlants', label: 'Подрязване растения', legacy: [] },
+            { cb: 'rtFertilize', last: 'rtFertilizeLast', id: 'taskFertilize', label: 'Добавяне на торове', legacy: [] },
+            { cb: 'rtSiphon', last: 'rtSiphonLast', id: 'siphon', label: 'Сифониране на субстрата', legacy: ['siphon'] },
+            { cb: 'rtMedia', last: 'rtMediaLast', id: 'media', label: 'Подменена филтърна медия', legacy: ['media'] }
+        ];
+        // Добавя запис: сортира по дата и пази най-новите MAINT_LIMIT
+        function addMaintenance(t, entry) {
+            if (!Array.isArray(t.maintenanceLog)) t.maintenanceLog = [];
+            t.maintenanceLog.push(entry);
+            t.maintenanceLog.sort((a, b) => a.t - b.t);
+            if (t.maintenanceLog.length > MAINT_LIMIT) t.maintenanceLog = t.maintenanceLog.slice(-MAINT_LIMIT);
         }
 
         function confirmTask(id, label) {
             const t = store.tanks[store.active];
             if (!t) return;
-            const dateInput = document.getElementById('maintenanceDate');
-            const dateStr = (dateInput && dateInput.value) || todayDateStr();
+            const dateStr = todayDateStr();
             const now = new Date();
             const [y, m, d] = dateStr.split('-').map(Number);
             const loggedAt = new Date(y, m - 1, d, now.getHours(), now.getMinutes(), now.getSeconds()).getTime();
             const isToday = dateStr === todayDateStr();
 
-            if (!Array.isArray(t.maintenanceLog)) t.maintenanceLog = [];
-            t.maintenanceLog.push({ id, label, t: loggedAt });
-            t.maintenanceLog.sort((a, b) => a.t - b.t);
-            if (t.maintenanceLog.length > 20) t.maintenanceLog = t.maintenanceLog.slice(-20);
-            document.getElementById(id).checked = false;
-            document.getElementById(id + 'Confirm').classList.add('hidden');
+            addMaintenance(t, { id, label, t: loggedAt });
             vibrate(20);
             renderMaintenance(); renderInsights();
             showToast(isToday
@@ -4276,17 +4257,63 @@ function renderWaterChangeLog() {
         function renderMaintenance() {
             const t = store.tanks[store.active];
             const log = (t && t.maintenanceLog) || [];
-            ['taskFilter', 'taskPlants', 'taskGlass', 'taskFertilize'].forEach(id => {
-                const entries = log.filter(e => e.id === id);
-                const el = document.getElementById(id + 'Last');
+            ROUTINE_ITEMS.forEach(it => {
+                const el = document.getElementById(it.last);
                 if (!el) return;
-                el.textContent = entries.length ? tr('Последно:') + ' ' + new Date(entries[entries.length - 1].t).toLocaleString(locale()) : tr('Все още няма запис.');
+                const last = t ? lastDoneOf(t, it) : 0;
+                el.textContent = last ? tr('Последно:') + ' ' + new Date(last).toLocaleString(locale()) : tr('Все още няма запис.');
             });
+            const rd = document.getElementById('routineDate');
+            if (rd && !rd.value) rd.value = todayDateStr();
             const box = document.getElementById('maintenanceLog');
+            if (!box) return;
             if (!log.length) { box.innerHTML = ''; return; }
             const recent = log.slice(-5).reverse();
             box.innerHTML = `<p class="font-semibold text-slate-300 mb-1">${tr('Последна поддръжка:')}</p>` +
-                recent.map(e => `<p><i class="fa-solid fa-clock-rotate-left mr-1.5 text-cyan-400"></i>${tr(e.label)} — ${new Date(e.t).toLocaleString(locale())}</p>`).join('');
+                recent.map(e => {
+                    const f = e.filter ? wcFilterList().find(x => x.id === e.filter) : null;
+                    const fl = f ? ` (${f.label})` : '';
+                    return `<p><i class="fa-solid fa-clock-rotate-left mr-1.5 text-cyan-400"></i>${tr(e.label)}${fl} — ${new Date(e.t).toLocaleString(locale())}</p>`;
+                }).join('');
+        }
+
+        // Последна дата за дейност: по-новото от записите в maintenanceLog (по id)
+        // и старите отметки в waterChangeLog.extras (само за четене, без пренаписване)
+        function lastDoneOf(t, item) {
+            let last = 0;
+            (t.maintenanceLog || []).forEach(e => { if (e.id === item.id && e.t > last) last = e.t; });
+            (t.waterChangeLog || []).forEach(e => {
+                if (Array.isArray(e.extras) && e.extras.some(x => item.legacy.includes(x)) && e.t > last) last = e.t;
+            });
+            return last;
+        }
+
+        // Записва всички отметнати дейности с една обща дата (полето „Дата на отчитане“)
+        function saveRoutine() {
+            const t = store.tanks[store.active];
+            if (!t) return;
+            const picked = ROUTINE_ITEMS.filter(it => { const c = document.getElementById(it.cb); return c && c.checked; });
+            if (!picked.length) { showToast(tr('Избери поне една дейност.'), 'warn'); return; }
+            const dateInput = document.getElementById('routineDate');
+            const dateStr = (dateInput && dateInput.value) || todayDateStr();
+            const now = new Date();
+            const [y, m, d] = dateStr.split('-').map(Number);
+            const loggedAt = new Date(y, m - 1, d, now.getHours(), now.getMinutes(), now.getSeconds()).getTime();
+            const list = wcFilterList();
+            const fsel = document.getElementById('wcFilterSel');
+            const fv = fsel ? fsel.value : '';
+            picked.forEach(it => {
+                const e = { id: it.id, label: it.label, t: loggedAt };
+                if (it.id === 'taskFilter' && list.length > 1 && fv && fv !== 'all') e.filter = fv;
+                addMaintenance(t, e);
+            });
+            picked.forEach(it => { const c = document.getElementById(it.cb); if (c) c.checked = false; });
+            if (dateInput) dateInput.value = todayDateStr();
+            renderMaintenance();
+            renderInsights();
+            vibrate(20);
+            showToast(`${tr('Записано:')} ${picked.map(it => tr(it.label)).join(', ')}`);
+            saveData();
         }
 
         // ---------- Сравнение на два аквариума ----------
@@ -4624,6 +4651,7 @@ function renderWaterChangeLog() {
             "Филтър:": "Filter:",
             "gal": "gal",
             "fl oz": "fl oz",
+            "Запиши отметнатите": "Save checked", "Избери поне една дейност.": "Choose at least one activity.",
             "Мерни единици": "Units", "Л": "L", "Обем (л):": "Volume (L):", "Обем (gal):": "Volume (gal):",
             ", а аквариумът е": ", and the tank is",
             "В норма": "In range", "Близо до нормата": "Close to the range", "Извън нормата": "Out of range",
@@ -5712,7 +5740,7 @@ function renderWaterChangeLog() {
                 no2: parseFloat(h.no2) || 0, no3: parseFloat(h.no3) || 0, gh: parseFloat(h.gh) || 0, kh: parseFloat(h.kh) || 0,
                 cl2: parseFloat(h.cl2) || 0
             }));
-            if (Array.isArray(r.maintenanceLog)) t.maintenanceLog = r.maintenanceLog.filter(e => e && typeof e.t === "number" && typeof e.id === "string").slice(-20).map(e => ({ id: e.id, label: String(e.label || ''), t: e.t }));
+            if (Array.isArray(r.maintenanceLog)) t.maintenanceLog = r.maintenanceLog.filter(e => e && typeof e.t === "number" && typeof e.id === "string").map(e => { const o = { id: e.id, label: String(e.label || ''), t: e.t }; if (typeof e.filter === "string" && e.filter) o.filter = e.filter.slice(0, 60); return o; }).sort((a, b) => a.t - b.t).slice(-MAINT_LIMIT);
             if (r.cycle && typeof r.cycle === "object") t.cycle = { on: !!r.cycle.on, startedAt: Number(r.cycle.startedAt) || 0 };
             if (r.intervals && typeof r.intervals === "object") Object.keys(r.intervals).forEach(k => { const v = parseInt(r.intervals[k]); if (v >= 1 && v <= 365) t.intervals[k] = v; });
             if (Array.isArray(r.waterChangeLog)) t.waterChangeLog = r.waterChangeLog.filter(e => e && typeof e.t === "number").slice(-30).map(e => {
@@ -6894,7 +6922,7 @@ function renderWaterChangeLog() {
             const t = store.tanks[store.active];
             const wcd = document.getElementById('waterChangeDate');
             if (wcd && !wcd.value) wcd.value = todayDateStr();
-            const mcd = document.getElementById('maintenanceDate');
+            const mcd = document.getElementById('routineDate');
             if (mcd && !mcd.value) mcd.value = todayDateStr();
             document.getElementById('aqType').value = t.aqType;
             document.getElementById('aqShape').value = t.aqShape;
@@ -6923,11 +6951,8 @@ function renderWaterChangeLog() {
             document.getElementById('waterChangePct').value = '';
             const wl = document.getElementById('waterChangeLiters'); wl.value = ''; delete wl.dataset.user; delete wl.dataset.exactL;
             resetWcExtrasForm();
-            document.getElementById('taskFilter').checked = false;
-            document.getElementById('taskPlants').checked = false;
-            document.getElementById('taskGlass').checked = false;
-            document.getElementById('taskFertilize').checked = false;
-            ['taskFilterConfirm', 'taskPlantsConfirm', 'taskGlassConfirm', 'taskFertilizeConfirm'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            ROUTINE_ITEMS.forEach(it => { const c = document.getElementById(it.cb); if (c) c.checked = false; });
+            renderMaintenance();
             waterDue = t.waterDue;
             waterChangedToday = t.waterChangedToday;
             myFishList = t.fish.map(f => {
