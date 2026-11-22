@@ -1742,11 +1742,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.91";
+        const APP_VERSION = "3.6.92";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.92", items: [
+                "Поправени са български текстове при английски език: диагностиката, „Какво ново“, CO2 нивата и банерът за обновяване се превеждат веднага при смяна на езика. Празните полета за смяна на водата са с еднаква бледа подсказка 0"
+            ], items_en: [
+                "Fixed Bulgarian text in English: diagnosis, \"What's new\", CO2 levels and the update banner now translate immediately when the language changes. Empty water change fields have the same faint 0 hint"
+            ] },
             { v: "3.6.91", items: [
                 "Съобщенията, подсказките и етикетите за смяната на водата споменават литри или галони според избраната единица"
             ], items_en: [
@@ -2641,6 +2646,7 @@
             }
 
             const rawPct = document.getElementById('waterChangePct').value;
+            const showPct = rawPct !== '';
             const enteredPct = rawPct ? Math.min(Math.max(parseFloat(rawPct) || 0, 1), 100) / 100 : 0;
             const waterToChange = Math.round(totalLiters * enteredPct);
             document.getElementById('calcLiters').innerText = fmtVol(waterToChange);
@@ -2649,7 +2655,10 @@
             document.getElementById('calcFert').innerText = fmtMl(waterToChange * 0.1);
             updateNo3Hint();
             const litersField = document.getElementById('waterChangeLiters');
-            if (litersField && document.activeElement !== litersField && litersField.dataset.user !== '1') litersField.value = getVolumeUnit() === 'gal' ? Math.round(waterToChange / GAL_TO_L * 100) / 100 : waterToChange;
+            // Празно процентно поле -> и литрите са празни (бледа подсказка 0), както при процента
+            if (litersField && document.activeElement !== litersField && litersField.dataset.user !== '1') {
+                litersField.value = !showPct ? '' : (getVolumeUnit() === 'gal' ? Math.round(waterToChange / GAL_TO_L * 100) / 100 : waterToChange);
+            }
 
             checkCompatibility();
             updateParamColors();
@@ -4036,7 +4045,16 @@ function renderWaterChangeLog() {
             const idx = CHANGELOG.findIndex(entry => entry.v === seenVersion);
             const entriesToShow = idx === -1 ? CHANGELOG.slice(0, 3) : CHANGELOG.slice(0, idx);
             if (!entriesToShow.length) return;
+            whatsNewEntries = entriesToShow;
+            renderWhatsNewContent();
+            document.getElementById('whatsNewModal').classList.remove('hidden');
+        }
 
+        // Съдържанието на „Какво ново“ се прерисува при смяна на езика, ако прозорецът е отворен
+        var whatsNewEntries = null;
+        function renderWhatsNewContent() {
+            if (!whatsNewEntries) return;
+            const entriesToShow = whatsNewEntries;
             document.getElementById('whatsNewContent').innerHTML = entriesToShow.map(entry => {
                 const list = (currentLang === 'en' && Array.isArray(entry.items_en)) ? entry.items_en : entry.items;
                 return `
@@ -4047,7 +4065,6 @@ function renderWaterChangeLog() {
                     </ul>
                 </div>`;
             }).join('');
-            document.getElementById('whatsNewModal').classList.remove('hidden');
         }
 
         function closeWhatsNewModal() {
@@ -5591,6 +5608,8 @@ function renderWaterChangeLog() {
 
         function setLanguage(lang) {
             currentLang = (lang === 'en') ? 'en' : 'bg';
+            // Кратките съобщения (toast) се махат, за да не остане текст на стария език
+            document.querySelectorAll('.aqua-toast').forEach(el => el.remove());
             try { localStorage.setItem(LANG_KEY, currentLang); } catch (e) {}
             applyTranslations();
             renderLangSwitch();
@@ -5600,6 +5619,19 @@ function renderWaterChangeLog() {
             updateNotifyBtn();
             if (typeof renderWaterAlert === 'function') renderWaterAlert();
             if (typeof refreshAfterTankChange === 'function') refreshAfterTankChange();
+            // Текстове, които се създават от JS: прерисуват се при смяна на езика
+            if (typeof updateCO2Display === 'function') updateCO2Display();
+            if (typeof updateCapacity === 'function') updateCapacity();
+            if (typeof checkCompatibility === 'function') checkCompatibility();
+            if (typeof renderAppUpdateBanner === 'function' && appUpdateReg) renderAppUpdateBanner();
+            const wnm = document.getElementById('whatsNewModal');
+            if (typeof renderWhatsNewContent === 'function' && wnm && !wnm.classList.contains('hidden')) renderWhatsNewContent();
+            // Диагностика: чеклистът и резултатите се прерисуват, ако прозорецът е отворен
+            const dgm = document.getElementById('diagnosisModal');
+            if (dgm && !dgm.classList.contains('hidden') && typeof renderSymptomChecklist === 'function') {
+                renderSymptomChecklist();
+                if (selectedSymptoms.size && typeof runDiagnosis === 'function') runDiagnosis();
+            }
             if (typeof renderEquipment === 'function') renderEquipment();
             if (typeof renderOtherEquipment === 'function') renderOtherEquipment();
             if (typeof renderMiniStatus === 'function') renderMiniStatus();
@@ -6798,7 +6830,7 @@ function renderWaterChangeLog() {
                     </div>
                     <button class="w-full bg-cyan-700 hover:bg-cyan-600 text-white text-sm py-2 rounded-lg font-medium">${tr('Разбрах')}</button>
                 </div>`;
-            overlay.querySelector('#appAlertMsg').textContent = message;
+            overlay.querySelector('#appAlertMsg').textContent = tr(message);
             const close = () => { overlay.remove(); if (typeof onClose === 'function') onClose(); };
             overlay.querySelector('button').addEventListener('click', close);
             overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
@@ -6829,7 +6861,7 @@ function renderWaterChangeLog() {
                             <button type="button" data-act="ok" class="flex-1 ${t.btn} text-white text-sm py-2 rounded-lg font-medium">${tr(okLabel || 'Изтрий')}</button>
                         </div>
                     </div>`;
-                overlay.querySelector('#appConfirmMsg').textContent = message;
+                overlay.querySelector('#appConfirmMsg').textContent = tr(message);
                 const finish = (result) => { overlay.remove(); document.removeEventListener('keydown', onKey); resolve(result); };
                 const onKey = (e) => { if (e.key === 'Escape') finish(false); };
                 overlay.querySelector('[data-act="cancel"]').addEventListener('click', () => finish(false));
@@ -7284,16 +7316,26 @@ function renderWaterChangeLog() {
             });
         }
 
+        // Банерът се прерисува при смяна на езика (текстовете се взимат през tr() при всяко показване)
+        var appUpdateReg = null;
         function showAppUpdateBanner(reg) {
-            if (document.getElementById("appUpdateBanner")) return;
-            const el = document.createElement("div");
-            el.id = "appUpdateBanner";
-            // bottom-24 (не bottom-3), за да не покрива плаващия бутон "+" (#fabWrap),
-            // който стои на същото място на мобилен екран (открито при /truth проверка).
-            el.className = "fixed left-3 right-3 bottom-24 md:bottom-3 z-[90] bg-cyan-700 text-white rounded-xl shadow-lg px-4 py-3 flex items-center justify-between gap-3 text-sm";
+            appUpdateReg = reg;
+            renderAppUpdateBanner();
+        }
+        function renderAppUpdateBanner() {
+            if (!appUpdateReg) return;
+            let el = document.getElementById("appUpdateBanner");
+            if (!el) {
+                el = document.createElement("div");
+                el.id = "appUpdateBanner";
+                // bottom-24 (не bottom-3), за да не покрива плаващия бутон "+" (#fabWrap),
+                // който стои на същото място на мобилен екран (открито при /truth проверка).
+                el.className = "fixed left-3 right-3 bottom-24 md:bottom-3 z-[90] bg-cyan-700 text-white rounded-xl shadow-lg px-4 py-3 flex items-center justify-between gap-3 text-sm";
+                document.body.appendChild(el);
+            }
             el.innerHTML = `<span><i class="fa-solid fa-circle-up mr-1.5"></i>${tr('Налична е нова версия на приложението.')}</span>
                 <button id="appUpdateReloadBtn" class="bg-white text-cyan-700 font-semibold px-3 py-1.5 rounded-lg shrink-0">${tr('Обнови')}</button>`;
-            document.body.appendChild(el);
+            const reg = appUpdateReg;
             document.getElementById("appUpdateReloadBtn").onclick = () => {
                 if (reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
             };
