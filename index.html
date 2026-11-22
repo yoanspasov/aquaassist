@@ -1093,7 +1093,7 @@
                     </label>
                     <div>
                         <label for="animalCount" class="block text-xs text-slate-400 mb-1" data-i18n>Брой (рибки / охлюви / скариди):</label>
-                        <input type="number" id="animalCount" value="1" min="1" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2 text-xs focus:outline-none focus:border-cyan-400">
+                        <input type="number" id="animalCount" placeholder="0" min="1" step="1" class="num-hint w-full bg-slate-700 border border-slate-600 rounded-lg p-2 text-xs focus:outline-none focus:border-cyan-400">
                     </div>
                 </div>
 
@@ -1125,7 +1125,7 @@
                     </div>
                     <div>
                         <label for="plantCount" class="block text-xs text-slate-400 mb-1" data-i18n>Количество (корена / стръка):</label>
-                        <input type="number" id="plantCount" value="1" min="1" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-2 text-xs focus:outline-none focus:border-emerald-400">
+                        <input type="number" id="plantCount" placeholder="0" min="1" step="1" class="num-hint w-full bg-slate-700 border border-slate-600 rounded-lg p-2 text-xs focus:outline-none focus:border-emerald-400">
                     </div>
                 </div>
 
@@ -1744,11 +1744,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.94";
+        const APP_VERSION = "3.6.95";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.95", items: [
+                "Полетата „Брой“ и „Количество“ в „Добави“ са празни с бледа подсказка 0. Празен, нулев или отрицателен брой не се добавя — показва се съобщение „Въведи брой, по-голям от 0.“"
+            ], items_en: [
+                "The \"Count\" and \"Quantity\" fields in \"Add\" are empty with a faint 0 hint. An empty, zero or negative count is not added — a message \"Enter a count greater than 0.\" is shown"
+            ] },
             { v: "3.6.94", items: [
                 "Полето „Сума“ в бюджета показва бледа нула като подсказка, както полетата за процент и литри при смяна на водата. Всички три използват един общ стил"
             ], items_en: [
@@ -2422,11 +2427,19 @@
             `;
         }
 
+        // Брой от полето: цяло число от 1 нагоре. Празно, 0, отрицателно или не-число -> съобщение и null.
+        function countFromField(id) {
+            const raw = String(document.getElementById(id).value).trim();
+            const v = Number(raw);
+            if (raw === '' || !Number.isInteger(v) || v < 1) { showToast(tr('Въведи брой, по-голям от 0.'), 'warn'); return null; }
+            return v;
+        }
+
         function addAnimalToAquarium() {
             const idx = document.getElementById('animalSelect').value;
             if (idx === '') return;
-            const count = parseInt(document.getElementById('animalCount').value);
-            if (!(count > 0)) { showToast('Въведи валидно количество.', 'warn'); return; }
+            const count = countFromField('animalCount');
+            if (count === null) return;
 
             const selected = animalsDB[idx];
             const existing = myFishList.find(x => x.name === selected.name);
@@ -2449,8 +2462,8 @@
         function addPlantToAquarium() {
             const idx = document.getElementById('plantSelect').value;
             if (idx === '') return;
-            const count = parseInt(document.getElementById('plantCount').value);
-            if (!(count > 0)) { showToast('Въведи валидно количество.', 'warn'); return; }
+            const count = countFromField('plantCount');
+            if (count === null) return;
 
             const selected = plantsDB[idx];
             const existing = myFishList.find(x => x.name === selected.name);
@@ -2473,7 +2486,10 @@
         function resetAddForm(kind) {
             const isPlant = kind === 'plant';
             document.getElementById(isPlant ? 'plantSelect' : 'animalSelect').value = '';
-            document.getElementById(isPlant ? 'plantCount' : 'animalCount').value = '1';
+            document.getElementById(isPlant ? 'plantCount' : 'animalCount').value = '';
+            // Картата с информация се връща към подсказката
+            if (isPlant) { if (typeof showPlantDetails === 'function') showPlantDetails(); }
+            else if (typeof showAnimalDetails === 'function') showAnimalDetails();
             document.getElementById(isPlant ? 'plantSearch' : 'animalSearch').value = '';
         }
 
@@ -4744,6 +4760,7 @@ function renderWaterChangeLog() {
             "Добави снимка": "Add photo",
             "Отвори снимката": "Open photo",
             "Въведи валидно количество.": "Enter a valid quantity.",
+            "Въведи брой, по-голям от 0.": "Enter a count greater than 0.",
             "Още не е записано.": "Not logged yet.",
             "Повече от една Бета в аквариум: мъжките са агресивни помежду си.": "More than one Betta in the tank: males are aggressive toward each other.",
             "Температурата": "Temperature",
