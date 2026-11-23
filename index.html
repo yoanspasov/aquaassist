@@ -687,9 +687,9 @@
 
         <!-- 3. Конфигурация на аквариума -->
         <section id="secConfig" data-tab="aquarium" class="tab-panel bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-md space-y-4">
-            <h2 class="text-lg font-semibold flex items-center justify-between">
-                <span class="flex items-center"><i class="fa-solid fa-sliders mr-2 text-cyan-400"></i> <span data-i18n>Конфигурация на аквариума</span></span>
-                <span id="stockingBadge" class="text-xs bg-slate-700 px-2.5 py-1 rounded-full text-slate-300">Капацитет: 0%</span>
+            <h2 class="text-lg font-semibold card-head">
+                <span class="card-title flex items-center"><i class="fa-solid fa-sliders mr-2 text-cyan-400"></i> <span data-i18n>Конфигурация на аквариума</span></span>
+                <span id="stockingBadge" class="card-badge text-xs bg-slate-700 px-2.5 py-1 rounded-full text-slate-300">Капацитет: 0%</span>
             </h2>
 
             <!-- Снимка на аквариума (т.5) — пази се само локално в IndexedDB, не се синхронизира между устройства -->
@@ -777,9 +777,9 @@
 
         <!-- 4. Параметри на водата -->
         <section id="secParams" data-tab="aquarium" class="tab-panel bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-md space-y-4">
-            <div class="flex justify-between items-center">
-                <h2 class="text-lg font-semibold flex items-center"><i class="fa-solid fa-flask mr-2 text-cyan-400"></i> <span data-i18n>Параметри на водата</span></h2>
-                <button id="paramEditBtn" onclick="toggleParamEdit()" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded border border-slate-600 text-cyan-300 transition">
+            <div class="card-head">
+                <h2 class="text-lg font-semibold flex items-center card-title"><i class="fa-solid fa-flask mr-2 text-cyan-400"></i> <span data-i18n>Параметри на водата</span></h2>
+                <button id="paramEditBtn" onclick="toggleParamEdit()" class="card-badge text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded border border-slate-600 text-cyan-300 transition">
                     <i id="paramEditBtnIcon" class="fa-solid fa-pen mr-1"></i> <span id="paramEditBtnLabel" data-i18n>Редактирай</span>
                 </button>
             </div>
@@ -835,9 +835,9 @@
 
         <!-- История на параметрите -->
         <section id="secHistory" data-tab="history" class="tab-panel bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-md space-y-4">
-            <div class="flex justify-between items-center">
-                <h2 class="text-lg font-semibold flex items-center"><i class="fa-solid fa-chart-line mr-2 text-cyan-400"></i> <span data-i18n>История на параметрите</span></h2>
-                <button onclick="clearHistory()" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded border border-slate-600 text-slate-300 transition"><i class="fa-solid fa-broom mr-1"></i> <span data-i18n>Изчисти</span></button>
+            <div class="card-head">
+                <h2 class="text-lg font-semibold flex items-center card-title"><i class="fa-solid fa-chart-line mr-2 text-cyan-400"></i> <span data-i18n>История на параметрите</span></h2>
+                <button onclick="clearHistory()" class="card-badge text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded border border-slate-600 text-slate-300 transition"><i class="fa-solid fa-broom mr-1"></i> <span data-i18n>Изчисти</span></button>
             </div>
             <div id="historyRange" class="flex flex-wrap items-center gap-1.5"></div>
             <div id="historyCharts" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
@@ -845,10 +845,10 @@
 
         <!-- Дневник на смените на водата -->
         <section id="secWaterLog" data-tab="history" class="tab-panel bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-md space-y-3">
-            <div class="flex justify-between items-center">
-                <h2 class="text-lg font-semibold flex items-center"><i class="fa-solid fa-clock-rotate-left mr-2 text-cyan-400"></i> <span data-i18n>Дневник на смените на водата</span></h2>
+            <div class="card-head">
+                <h2 class="text-lg font-semibold flex items-center card-title"><i class="fa-solid fa-clock-rotate-left mr-2 text-cyan-400"></i> <span data-i18n>Дневник на смените на водата</span></h2>
                 <!-- Управлява режим на изтриване за ДВАТА дневника по-долу (вода + обитатели) наведнъж -->
-                <button onclick="toggleLogDeleteMode()" id="logDeleteToggleBtn" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded border border-slate-600 text-red-300 transition"><i class="fa-solid fa-list-check mr-1"></i> <span data-i18n>Изтрий записи</span></button>
+                <button onclick="toggleLogDeleteMode()" id="logDeleteToggleBtn" class="card-badge text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded border border-slate-600 text-red-300 transition"><i class="fa-solid fa-list-check mr-1"></i> <span data-i18n>Изтрий записи</span></button>
             </div>
             <div id="waterChangeLogList" class="space-y-2 max-h-64 overflow-y-auto"></div>
         </section>
@@ -856,10 +856,10 @@
 
         <!-- Дневник на обитателите (кога какво е добавено/премахнато) -->
         <section id="secInhabitantLog" data-tab="history" class="tab-panel bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-md space-y-3">
-            <div class="flex justify-between items-center">
-                <h2 class="text-lg font-semibold flex items-center"><i class="fa-solid fa-fish mr-2 text-cyan-400"></i> <span data-i18n>Дневник на обитателите</span></h2>
+            <div class="card-head">
+                <h2 class="text-lg font-semibold flex items-center card-title"><i class="fa-solid fa-fish mr-2 text-cyan-400"></i> <span data-i18n>Дневник на обитателите</span></h2>
                 <!-- Същият споделен режим на изтриване като бутона в Дневника на водата по-горе -->
-                <button onclick="toggleLogDeleteMode()" id="logDeleteToggleBtn2" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded border border-slate-600 text-red-300 transition"><i class="fa-solid fa-list-check mr-1"></i> <span data-i18n>Изтрий записи</span></button>
+                <button onclick="toggleLogDeleteMode()" id="logDeleteToggleBtn2" class="card-badge text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded border border-slate-600 text-red-300 transition"><i class="fa-solid fa-list-check mr-1"></i> <span data-i18n>Изтрий записи</span></button>
             </div>
             <div id="inhabitantLogList" class="space-y-2 max-h-64 overflow-y-auto"></div>
 
@@ -894,9 +894,9 @@
 
         <!-- Графици и напомняния -->
         <section id="secReminders" data-tab="history" class="tab-panel bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-md space-y-3">
-            <div class="flex justify-between items-center gap-2">
-                <h2 class="text-lg font-semibold flex items-center"><i class="fa-solid fa-bell-concierge mr-2 text-cyan-400"></i> <span data-i18n>Графици и напомняния</span></h2>
-                <span id="remOverdue" class="text-xs px-2.5 py-1 rounded-full bg-slate-700 text-slate-300">—</span>
+            <div class="card-head">
+                <h2 class="text-lg font-semibold flex items-center card-title"><i class="fa-solid fa-bell-concierge mr-2 text-cyan-400"></i> <span data-i18n>Графици и напомняния</span></h2>
+                <span id="remOverdue" class="card-badge text-xs px-2.5 py-1 rounded-full bg-slate-700 text-slate-300">—</span>
             </div>
             <div id="remList" class="space-y-2"></div>
             <p class="text-[11px] text-slate-500"><span data-i18n>Интервалът е в дни. Статусът се смята от последния потвърден запис в „Рутинна поддръжка“ и „Дневник на смените на водата“.</span></p>
@@ -906,9 +906,9 @@
              за да се вижда редом с останалите напомняния; поддържа произволен брой продукти,
              за разлика от фиксираните напомняния по-горе. -->
         <section id="secDosing" data-tab="history" class="tab-panel bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-md space-y-3">
-            <div class="flex justify-between items-center">
-                <h2 class="text-lg font-semibold flex items-center"><i class="fa-solid fa-calendar-check mr-2 text-cyan-400"></i> <span data-i18n>График за дозиране</span></h2>
-                <button onclick="toggleDosingForm()" class="text-[11px] px-2.5 py-1.5 rounded-lg border bg-cyan-700 hover:bg-cyan-600 border-cyan-600 text-white transition-all duration-200"><i class="fa-solid fa-plus mr-1"></i><span data-i18n>Добави</span></button>
+            <div class="card-head">
+                <h2 class="text-lg font-semibold flex items-center card-title"><i class="fa-solid fa-calendar-check mr-2 text-cyan-400"></i> <span data-i18n>График за дозиране</span></h2>
+                <button onclick="toggleDosingForm()" class="card-badge text-[11px] px-2.5 py-1.5 rounded-lg border bg-cyan-700 hover:bg-cyan-600 border-cyan-600 text-white transition-all duration-200"><i class="fa-solid fa-plus mr-1"></i><span data-i18n>Добави</span></button>
             </div>
             <div id="dosingForm" class="hidden bg-slate-900/60 border border-slate-700 rounded-xl p-3 grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
                 <input type="text" id="dosingName" placeholder="Продукт (напр. Tropica Grow)" data-i18n-placeholder class="col-span-2 md:col-span-2 bg-slate-700 border border-slate-600 rounded-lg p-2">
@@ -1023,9 +1023,9 @@
 
         <!-- Финансов дневник (Бюджет) -->
         <section id="secBudget" data-tab="more" class="tab-panel bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-md space-y-3">
-            <div class="flex justify-between items-center">
-                <h2 class="text-lg font-semibold flex items-center"><i class="fa-solid fa-sack-dollar mr-2 text-cyan-400"></i> <span data-i18n>Финансов дневник (Бюджет)</span></h2>
-                <span id="expenseTotal" class="text-xs bg-slate-700 px-2.5 py-1 rounded-full text-slate-300">Общо: 0 €</span>
+            <div class="card-head">
+                <h2 class="text-lg font-semibold flex items-center card-title"><i class="fa-solid fa-sack-dollar mr-2 text-cyan-400"></i> <span data-i18n>Финансов дневник (Бюджет)</span></h2>
+                <span id="expenseTotal" class="card-badge text-xs bg-slate-700 px-2.5 py-1 rounded-full text-slate-300">Общо: 0 €</span>
             </div>
             <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700 grid grid-cols-1 md:grid-cols-4 gap-2 text-xs items-end">
                 <div>
@@ -1055,9 +1055,9 @@
 
         <!-- Сравнение на аквариуми -->
         <section id="secCompare" data-tab="inhabitants" class="tab-panel bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-md space-y-4">
-            <div class="flex justify-between items-center">
-                <h2 class="text-lg font-semibold flex items-center"><i class="fa-solid fa-scale-balanced mr-2 text-cyan-400"></i> <span data-i18n>Сравнение на аквариуми</span></h2>
-                <button onclick="toggleCompare()" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1.5 rounded border border-slate-600 text-cyan-300 transition"><i class="fa-solid fa-code-compare mr-1"></i> <span data-i18n>Сравни аквариуми</span></button>
+            <div class="card-head">
+                <h2 class="text-lg font-semibold flex items-center card-title"><i class="fa-solid fa-scale-balanced mr-2 text-cyan-400"></i> <span data-i18n>Сравнение на аквариуми</span></h2>
+                <button onclick="toggleCompare()" class="card-badge text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1.5 rounded border border-slate-600 text-cyan-300 transition"><i class="fa-solid fa-code-compare mr-1"></i> <span data-i18n>Сравни аквариуми</span></button>
             </div>
             <div id="compareBody" class="hidden space-y-3">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1745,11 +1745,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.97";
+        const APP_VERSION = "3.6.98";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.98", items: [
+                "Заглавията на картите и значките (капацитет, общо разходи, напомняния, бутони) са подредени еднакво: значката е на един ред, не покрива заглавието и на тесен екран е под него"
+            ], items_en: [
+                "Card titles and badges (capacity, expense total, reminders, buttons) are aligned the same way: the badge stays on one line, never covers the title, and on narrow screens sits below it"
+            ] },
             { v: "3.6.97", items: [
                 "Картите с параметрите на водата са подравнени: еднаква височина в ред, заглавията на до 2 реда с иконата до текста, стойностите и статусите на едно място. CO2 картата не чупи значката"
             ], items_en: [
@@ -6075,7 +6080,7 @@ function renderWaterChangeLog() {
             const od = overdueLabels();
             const badge = document.getElementById('remOverdue');
             badge.textContent = od.length ? `${tr('Просрочени:')} ${od.length}` : tr('Всичко е наред');
-            badge.className = 'text-xs px-2.5 py-1 rounded-full ' + (od.length ? 'bg-red-900 text-red-200' : 'bg-green-900 text-green-200');
+            badge.className = 'card-badge text-xs px-2.5 py-1 rounded-full ' + (od.length ? 'bg-red-900 text-red-200' : 'bg-green-900 text-green-200');
             updateNavBadges(od.length);
             if (od.length && !remToastShown) { remToastShown = true; showToast(od.length === 1 ? `Просрочена задача: ${tr(od[0])}` : `Просрочени задачи: ${od.length}`, 'warn'); vibrate([40, 60, 40]); }
         }
