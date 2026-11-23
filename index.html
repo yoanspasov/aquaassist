@@ -784,51 +784,51 @@
                 </button>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
-                    <span class="text-xs text-slate-400" data-i18n>Температура</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help paramInfoIcon" tabindex="0" title="Температура на водата. Оптимално: 24–26 °C" data-i18n-title data-info="Температура на водата. Оптимално: 24–26 °C"></i>
-                    <p class="text-xl font-bold text-cyan-300 mt-1"><span id="valTemp" class="paramVal" inputmode="decimal">—</span> <span id="tempSym">°C</span> <span id="trendTemp" class="paramTrend text-xs font-semibold"></span></p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center param-grid">
+                <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600 param-card">
+                    <div class="param-title"><span class="text-xs text-slate-400" data-i18n>Температура</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help paramInfoIcon" tabindex="0" title="Температура на водата. Оптимално: 24–26 °C" data-i18n-title data-info="Температура на водата. Оптимално: 24–26 °C"></i></div>
+                    <p class="text-xl font-bold text-cyan-300 mt-1 param-value"><span id="valTemp" class="paramVal" inputmode="decimal">—</span> <span id="tempSym">°C</span> <span id="trendTemp" class="paramTrend text-xs font-semibold"></span></p>
                 </div>
-                <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
-                    <span class="text-xs text-slate-400" data-i18n>pH ниво</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help paramInfoIcon" tabindex="0" title="pH — киселинност на водата. Оптимално: 6.5 – 7.5" data-i18n-title data-info="pH — киселинност на водата. Оптимално: 6.5 – 7.5"></i>
-                    <p class="text-xl font-bold text-green-300 mt-1"><span id="valPH" class="paramVal" inputmode="decimal">—</span> <span class="text-xs font-normal text-slate-400">pH</span> <span id="trendPH" class="paramTrend text-xs font-semibold"></span></p>
+                <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600 param-card">
+                    <div class="param-title"><span class="text-xs text-slate-400" data-i18n>pH ниво</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help paramInfoIcon" tabindex="0" title="pH — киселинност на водата. Оптимално: 6.5 – 7.5" data-i18n-title data-info="pH — киселинност на водата. Оптимално: 6.5 – 7.5"></i></div>
+                    <p class="text-xl font-bold text-green-300 mt-1 param-value"><span id="valPH" class="paramVal" inputmode="decimal">—</span> <span class="text-xs font-normal text-slate-400">pH</span> <span id="trendPH" class="paramTrend text-xs font-semibold"></span></p>
                 </div>
-                <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
-                    <span class="text-xs text-slate-400" data-i18n>Амоняк (NH3)</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help paramInfoIcon" tabindex="0" title="NH3/NH4 — токсичен отпадък от рибите. Оптимално: 0 mg/l" data-i18n-title data-info="NH3/NH4 — токсичен отпадък от рибите. Оптимално: 0 mg/l"></i>
-                    <p class="text-xl font-bold text-emerald-300 mt-1"><span id="valNH3" class="paramVal" inputmode="decimal">—</span> <span class="conc-unit">mg/l</span> <span id="trendNH3" class="paramTrend text-xs font-semibold"></span></p>
+                <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600 param-card">
+                    <div class="param-title"><span class="text-xs text-slate-400" data-i18n>Амоняк (NH3)</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help paramInfoIcon" tabindex="0" title="NH3/NH4 — токсичен отпадък от рибите. Оптимално: 0 mg/l" data-i18n-title data-info="NH3/NH4 — токсичен отпадък от рибите. Оптимално: 0 mg/l"></i></div>
+                    <p class="text-xl font-bold text-emerald-300 mt-1 param-value"><span id="valNH3" class="paramVal" inputmode="decimal">—</span> <span class="conc-unit">mg/l</span> <span id="trendNH3" class="paramTrend text-xs font-semibold"></span></p>
                 </div>
-                <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
-                    <span class="text-xs text-slate-400" data-i18n>Нитрити (NO2)</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help paramInfoIcon" tabindex="0" title="NO2 — междинен токсичен продукт от азотния цикъл. Оптимално: 0 mg/l" data-i18n-title data-info="NO2 — междинен токсичен продукт от азотния цикъл. Оптимално: 0 mg/l"></i>
-                    <p class="text-xl font-bold text-red-300 mt-1"><span id="valNO2" class="paramVal" inputmode="decimal">—</span> <span class="conc-unit">mg/l</span> <span id="trendNO2" class="paramTrend text-xs font-semibold"></span></p>
+                <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600 param-card">
+                    <div class="param-title"><span class="text-xs text-slate-400" data-i18n>Нитрити (NO2)</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help paramInfoIcon" tabindex="0" title="NO2 — междинен токсичен продукт от азотния цикъл. Оптимално: 0 mg/l" data-i18n-title data-info="NO2 — междинен токсичен продукт от азотния цикъл. Оптимално: 0 mg/l"></i></div>
+                    <p class="text-xl font-bold text-red-300 mt-1 param-value"><span id="valNO2" class="paramVal" inputmode="decimal">—</span> <span class="conc-unit">mg/l</span> <span id="trendNO2" class="paramTrend text-xs font-semibold"></span></p>
                 </div>
-                <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
-                    <span class="text-xs text-slate-400" data-i18n>Нитрати (NO3)</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help paramInfoIcon" tabindex="0" title="NO3 — краен продукт от азотния цикъл. Оптимално: 10–25 mg/l" data-i18n-title data-info="NO3 — краен продукт от азотния цикъл. Оптимално: 10–25 mg/l"></i>
-                    <p class="text-xl font-bold text-yellow-300 mt-1"><span id="valNO3" class="paramVal" inputmode="decimal">—</span> <span class="conc-unit">mg/l</span> <span id="trendNO3" class="paramTrend text-xs font-semibold"></span></p>
+                <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600 param-card">
+                    <div class="param-title"><span class="text-xs text-slate-400" data-i18n>Нитрати (NO3)</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help paramInfoIcon" tabindex="0" title="NO3 — краен продукт от азотния цикъл. Оптимално: 10–25 mg/l" data-i18n-title data-info="NO3 — краен продукт от азотния цикъл. Оптимално: 10–25 mg/l"></i></div>
+                    <p class="text-xl font-bold text-yellow-300 mt-1 param-value"><span id="valNO3" class="paramVal" inputmode="decimal">—</span> <span class="conc-unit">mg/l</span> <span id="trendNO3" class="paramTrend text-xs font-semibold"></span></p>
                 </div>
-                <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
-                    <span class="text-xs text-slate-400" data-i18n>Обща твърдост (GH)</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help paramInfoIcon" tabindex="0" title="GH — обща твърдост на водата. Ориентировъчно оптимално: 4–12 dGH" data-i18n-title data-info="GH — обща твърдост на водата. Ориентировъчно оптимално: 4–12 dGH"></i>
-                    <p class="text-xl font-bold text-blue-300 mt-1"><span id="valGH" class="paramVal" inputmode="decimal">—</span> dGH <span id="trendGH" class="paramTrend text-xs font-semibold"></span></p>
+                <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600 param-card">
+                    <div class="param-title"><span class="text-xs text-slate-400" data-i18n>Обща твърдост (GH)</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help paramInfoIcon" tabindex="0" title="GH — обща твърдост на водата. Ориентировъчно оптимално: 4–12 dGH" data-i18n-title data-info="GH — обща твърдост на водата. Ориентировъчно оптимално: 4–12 dGH"></i></div>
+                    <p class="text-xl font-bold text-blue-300 mt-1 param-value"><span id="valGH" class="paramVal" inputmode="decimal">—</span> dGH <span id="trendGH" class="paramTrend text-xs font-semibold"></span></p>
                 </div>
-                <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
-                    <span class="text-xs text-slate-400" data-i18n>Карбонатна твърдост (KH)</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help paramInfoIcon" tabindex="0" title="KH — карбонатна твърдост, буферира pH. Ориентировъчно оптимално: 3–8 dKH" data-i18n-title data-info="KH — карбонатна твърдост, буферира pH. Ориентировъчно оптимално: 3–8 dKH"></i>
-                    <p class="text-xl font-bold text-indigo-300 mt-1"><span id="valKH" class="paramVal" inputmode="decimal">—</span> dKH <span id="trendKH" class="paramTrend text-xs font-semibold"></span></p>
+                <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600 param-card">
+                    <div class="param-title"><span class="text-xs text-slate-400" data-i18n>Карбонатна твърдост (KH)</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help paramInfoIcon" tabindex="0" title="KH — карбонатна твърдост, буферира pH. Ориентировъчно оптимално: 3–8 dKH" data-i18n-title data-info="KH — карбонатна твърдост, буферира pH. Ориентировъчно оптимално: 3–8 dKH"></i></div>
+                    <p class="text-xl font-bold text-indigo-300 mt-1 param-value"><span id="valKH" class="paramVal" inputmode="decimal">—</span> dKH <span id="trendKH" class="paramTrend text-xs font-semibold"></span></p>
                 </div>
-                <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600">
-                    <span class="text-xs text-slate-400" data-i18n>Хлор (Cl2)</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help paramInfoIcon" tabindex="0" title="Cl2 — хлор от чешмяната вода, токсичен за рибите. Оптимално: 0 mg/l (неутрализирай с антихлор)" data-i18n-title data-info="Cl2 — хлор от чешмяната вода, токсичен за рибите. Оптимално: 0 mg/l (неутрализирай с антихлор)"></i>
-                    <p class="text-xl font-bold text-teal-300 mt-1"><span id="valCl2" class="paramVal" inputmode="decimal">—</span> <span class="conc-unit">mg/l</span> <span id="trendCl2" class="paramTrend text-xs font-semibold"></span></p>
+                <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600 param-card">
+                    <div class="param-title"><span class="text-xs text-slate-400" data-i18n>Хлор (Cl2)</span> <i class="fa-solid fa-circle-info text-slate-500 cursor-help paramInfoIcon" tabindex="0" title="Cl2 — хлор от чешмяната вода, токсичен за рибите. Оптимално: 0 mg/l (неутрализирай с антихлор)" data-i18n-title data-info="Cl2 — хлор от чешмяната вода, токсичен за рибите. Оптимално: 0 mg/l (неутрализирай с антихлор)"></i></div>
+                    <p class="text-xl font-bold text-teal-300 mt-1 param-value"><span id="valCl2" class="paramVal" inputmode="decimal">—</span> <span class="conc-unit">mg/l</span> <span id="trendCl2" class="paramTrend text-xs font-semibold"></span></p>
                 </div>
             </div>
 
             <!-- CO2 калкулатор по pH/KH (т.3.6.38) — само за показване, изчислява се
                  автоматично от вече въведените pH и KH, не изисква отделно поле. -->
-            <div id="co2Box" class="hidden bg-slate-900/60 border border-slate-700 rounded-xl p-3 flex items-center justify-between gap-3">
+            <div id="co2Box" class="hidden bg-slate-900/60 border border-slate-700 rounded-xl p-3 flex flex-wrap items-center justify-between gap-3">
                 <div>
                     <p class="text-xs text-slate-400"><i class="fa-solid fa-wind mr-1.5 text-cyan-400"></i><span data-i18n>Разтворен CO2 (по pH/KH)</span></p>
                     <p class="text-[11px] text-slate-500 mt-0.5" data-i18n>Ориентировъчна стойност, не замества директно измерване.</p>
                 </div>
                 <div class="text-right shrink-0">
-                    <p class="text-xl font-bold mt-1"><span id="valCO2">—</span> <span class="text-xs font-normal text-slate-400 conc-unit">mg/l</span></p>
-                    <span id="co2Badge" class="text-[11px] px-2 py-0.5 rounded-full font-semibold"></span>
+                    <p class="text-xl font-bold mt-1 param-value"><span id="valCO2">—</span> <span class="text-xs font-normal text-slate-400 conc-unit">mg/l</span></p>
+                    <div class="whitespace-nowrap"><span id="co2Badge" class="text-[11px] px-2 py-0.5 rounded-full font-semibold"></span></div>
                 </div>
             </div>
         </section>
@@ -1745,11 +1745,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.96";
+        const APP_VERSION = "3.6.97";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.97", items: [
+                "Картите с параметрите на водата са подравнени: еднаква височина в ред, заглавията на до 2 реда с иконата до текста, стойностите и статусите на едно място. CO2 картата не чупи значката"
+            ], items_en: [
+                "The water parameter cards are aligned: equal height per row, titles up to 2 lines with the icon next to the text, values and statuses in the same place. The CO2 card no longer breaks its badge"
+            ] },
             { v: "3.6.96", items: [
                 "Ново: „Зелена неонова тетра“ в енциклопедията и в списъка с обитатели (23–28 °C, pH 5.0–7.5, мин. 40 л)"
             ], items_en: [
@@ -2929,7 +2934,7 @@
                 } else dangerParams.delete(id);
                 // Иконка и текст под стойността (не само цвят)
                 let line = card.querySelector('.paramStatusLine');
-                if (!line) { line = document.createElement('p'); line.className = 'paramStatusLine text-xs font-semibold mt-1 flex items-center gap-1'; card.appendChild(line); }
+                if (!line) { line = document.createElement('p'); line.className = 'paramStatusLine param-status text-xs font-semibold flex items-center justify-center gap-1'; card.appendChild(line); }
                 line.innerHTML = ui ? `<i class="fa-solid ${ui.icon} ${ui.color}"></i><span class="${ui.color}">${tr(ui.text)}</span>` : '';
             });
             renderMiniStatus();

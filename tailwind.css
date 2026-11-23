@@ -19,3 +19,11 @@
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
 
 .num-hint::placeholder{color:rgb(156 163 175);opacity:1}
+
+.param-grid{align-items:stretch}
+.param-card{display:flex;flex-direction:column}
+.param-title{min-height:2rem;display:flex;align-items:center;justify-content:center;gap:.25rem;line-height:1.2;text-align:center}
+.param-title>span{min-width:0;overflow-wrap:anywhere}
+.param-value{height:1.75rem;display:flex;align-items:baseline;justify-content:center;gap:.25rem;white-space:nowrap;max-width:100%;overflow:hidden}
+.param-status{margin-top:auto;padding-top:.25rem}
+@media (max-width:380px){.param-grid{gap:.5rem}.param-card{padding:.5rem}.param-title>span{font-size:11px}.param-value{font-size:1rem;height:1.5rem;line-height:1.5rem}}
