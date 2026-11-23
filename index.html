@@ -1416,6 +1416,7 @@
         // СПРАВОЧНИК 1: РИБИ И БЕЗГРЪБНАЧНИ
         const animalsDB = [
             { name: "Неонова тетра (Neon Tetra)", type: "Риба", temp: "22-26°C", ph: "6.0 - 7.0", minLiters: 38, food: "Люспи, микрогранули", compat: "Миролюбива, стадна (мин. 6 бр.)", litersPerFish: 2, aggressive: false },
+            { name: "Зелена неонова тетра (Green Neon Tetra)", type: "Риба", temp: "23-28°C", ph: "5.0 - 7.5", minLiters: 40, food: "Люспи, микрогранули, замразена и жива дребна храна", compat: "Миролюбива, стадна (мин. 6-8 бр.), по-дребна от неоновата", litersPerFish: 2, aggressive: false },
             { name: "Кардинал тетра (Cardinal Tetra)", type: "Риба", temp: "23-28°C", ph: "5.5 - 7.0", minLiters: 40, food: "Люспи, замразена храна", compat: "Миролюбива, стадна", litersPerFish: 2.5, aggressive: false },
             { name: "Родостомус (Rummy-Nose Tetra)", type: "Риба", temp: "24-28°C", ph: "6.0 - 7.0", minLiters: 75, food: "Суха и жива храна", compat: "Отличен стаден пасаж", litersPerFish: 3, aggressive: false },
             { name: "Медна тетра (Ember Tetra)", type: "Риба", temp: "22-28°C", ph: "6.0 - 7.2", minLiters: 38, food: "Микропелети, люспи", compat: "Много мирна, идеална за нано", litersPerFish: 1.5, aggressive: false },
@@ -1744,11 +1745,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.95";
+        const APP_VERSION = "3.6.96";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.96", items: [
+                "Ново: „Зелена неонова тетра“ в енциклопедията и в списъка с обитатели (23–28 °C, pH 5.0–7.5, мин. 40 л)"
+            ], items_en: [
+                "New: \"Green Neon Tetra\" in the encyclopedia and the inhabitants list (23–28 °C, pH 5.0–7.5, min. 40 L)"
+            ] },
             { v: "3.6.95", items: [
                 "Полетата „Брой“ и „Количество“ в „Добави“ са празни с бледа подсказка 0. Празен, нулев или отрицателен брой не се добавя — показва се съобщение „Въведи брой, по-голям от 0.“"
             ], items_en: [
@@ -5447,6 +5453,9 @@ function renderWaterChangeLog() {
             "Мирно дънно рибе": "Peaceful bottom-dwelling fish",
             "Миролюбива, стадна": "Peaceful, schooling",
             "Миролюбива, стадна (мин. 6 бр.)": "Peaceful, schooling (min. 6 pcs.)",
+            "Зелена неонова тетра (Green Neon Tetra)": "Green Neon Tetra",
+            "Люспи, микрогранули, замразена и жива дребна храна": "Flakes, micro-pellets, frozen and live small food",
+            "Миролюбива, стадна (мин. 6-8 бр.), по-дребна от неоновата": "Peaceful, schooling (min. 6-8 pcs.), smaller than the neon tetra",
             "Много бърза, мирна": "Very fast, peaceful",
             "Много бързорастящо, усвоява NO3": "Very fast-growing, absorbs NO3",
             "Много издръжливо сомче": "Very hardy catfish",
