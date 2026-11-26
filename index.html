@@ -1776,11 +1776,16 @@
 
         let myFishList = [];
         const DAY_MS = 24 * 60 * 60 * 1000;
-        const APP_VERSION = "3.6.99";
+        const APP_VERSION = "3.6.100";
 
         // История на промените - най-новото най-отгоре. Показва се само откъслекът, който потребителят пропуска.
         // items = български текст, items_en = английски превод (показва се според избрания език).
         const CHANGELOG = [
+            { v: "3.6.100", items: [
+                "По-бързо отваряне при бавна мрежа: ако страницата не се зареди за 3 секунди, се показва запазеното копие. Кешът се обновява във фон и не запазва грешни отговори"
+            ], items_en: [
+                "Faster opening on a slow network: if the page does not load within 3 seconds, the saved copy is shown. The cache is refreshed in the background and error responses are not saved"
+            ] },
             { v: "3.6.99", items: [
                 "По-бързо стартиране: splash екранът се вижда веднага, а Firebase и QR библиотеката се зареждат без да блокират показването. Google Fonts не блокира първото показване. Ако зареждането е бавно (8 секунди), splash екранът показва „Връзката е бавна… Опитай отново.“ с бутон за презареждане"
             ], items_en: [

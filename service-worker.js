@@ -66,7 +66,8 @@
 // v75: Подравняване на картите с параметрите на водата и CO2 картата.
 // v76: Заглавията и значките на картите (card-head) подравнени еднакво.
 // v77: Splash с вграден стил и съобщение при бавно зареждане; Firebase и QR с defer; Google Fonts без блокиране.
-const CACHE_NAME = "aquaassistant-cache-v77";
+// v78: Навигацията не чака мрежата повече от 3 с (връща кеша); кешират се само успешни отговори.
+const CACHE_NAME = "aquaassistant-cache-v78";
 const CORE_ASSETS = [
   "./index.html",
   "./manifest.json",
@@ -126,15 +127,32 @@ self.addEventListener("fetch", (event) => {
   if (req.method !== "GET") return;
 
   if (req.mode === "navigate" || req.destination === "document") {
+    // Мрежата се пита веднага. cache: "no-cache" форсира revalidation със сървъра.
+    // Кешът се обновява само при успешен отговор (res.ok) и се копира ПРЕДИ връщането.
+    const network = fetch(req, { cache: "no-cache" }).then((res) => {
+      if (res.ok) {
+        const copy = res.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => {});
+      }
+      return res;
+    });
+    // Държи service worker-а жив, докато мрежовата заявка свърши (и кешът се обнови)
+    event.waitUntil(network.catch(() => {}));
+    // Ако мрежата не отговори за 3 секунди, връщаме кешираната страница;
+    // мрежовата заявка продължава във фон. Без кеш чакаме мрежата.
+    const NAV_TIMEOUT_MS = 3000;
+    const TIMED_OUT = {};
+    const timeout = new Promise((resolve) => setTimeout(() => resolve(TIMED_OUT), NAV_TIMEOUT_MS));
     event.respondWith(
-      // cache: "no-cache" форсира revalidation със сървъра (условен GET), вместо
-      // да приема потенциално остарял отговор от HTTP кеша на браузъра/мрежата
-      // пред него — именно затова понякога стар HTML се показваше като "пресен".
-      fetch(req, { cache: "no-cache" })
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => {});
-          return res;
+      Promise.race([network, timeout])
+        .then((result) => {
+          if (result !== TIMED_OUT) return result;
+          // Фоново обновяване с ОТДЕЛНА заявка (навигационната може да бъде прекъсната, след като
+          // страницата е заредена от кеша). Успешният отговор се записва в кеша.
+          fetch(req.url, { cache: "no-cache" }).then((res) => {
+            if (res.ok) caches.open(CACHE_NAME).then((cache) => cache.put(req.url, res)).catch(() => {});
+          }).catch(() => {});
+          return caches.match(req).then((r) => r || caches.match("./index.html")).then((r) => r || network);
         })
         .catch(() => caches.match(req).then((r) => r || caches.match("./index.html")))
     );
