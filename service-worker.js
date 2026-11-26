@@ -65,7 +65,8 @@
 // v74: Нов вид в енциклопедията: Зелена неонова тетра.
 // v75: Подравняване на картите с параметрите на водата и CO2 картата.
 // v76: Заглавията и значките на картите (card-head) подравнени еднакво.
-const CACHE_NAME = "aquaassistant-cache-v76";
+// v77: Splash с вграден стил и съобщение при бавно зареждане; Firebase и QR с defer; Google Fonts без блокиране.
+const CACHE_NAME = "aquaassistant-cache-v77";
 const CORE_ASSETS = [
   "./index.html",
   "./manifest.json",
